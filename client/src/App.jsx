@@ -1,15 +1,16 @@
 import React from 'react';
-import AdminSignIn from './components/Admin-side/SignIn';
+import AdminSignIn from './components/Admin-side/Users';
 import UserAccess from './components/User-side/UserAccess';
-import CompanyAccess from './components/Company-side/CompanyAccess';
-import UserProfile from './Utils/User/EditUserProfile';
-import Profile from './Utils/Main/StartingHome';
+import Profile from './Utils/Company/EditCompanyProfile';
+import UserProfile from './Utils/User/UserOtp';
+import Starting from './Utils/Main/OTP';
+import UserManagement from './Utils/Admin/UserManagement';
 
 
 const App = () => {
   return (
     <div>
-      <Profile/>
+      <UserProfile/>
     </div>
   );
 }

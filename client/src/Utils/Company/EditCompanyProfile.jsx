@@ -1,16 +1,16 @@
 import React,{Fragment} from 'react';
-import Profile from '../../components/Company-side/Profile';
 import Navbar from '../../components/Company-side/Navbar';
+import EditProfile from '../../components/Company-side/EditProfile';
 import Footer from '../../components/User-side/Footer';
 
-const CompanyProfile = () => {
+const EditCompanyProfile = () => {
   return (
     <Fragment>
         <Navbar/>
-        <Profile/>
+        <EditProfile/>
         <Footer/>
     </Fragment>
   );
 }
 
-export default CompanyProfile;
+export default EditCompanyProfile;

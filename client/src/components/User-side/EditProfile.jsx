@@ -4,7 +4,7 @@ const EditProfile = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center bg-pink-50">
       <div className="w-full max-w-md p-4 bg-white bg-opacity-90 rounded-lg shadow-md">
-            <h2 className="text-center text-2xl mb-4 text-gray-800">Sign Up!</h2>
+            <h2 className="text-center text-2xl mb-4 text-gray-800">Edit Profile!</h2>
             <fieldset className='pb-4'>
             <ul>
               <li className="grid gap-2">
@@ -34,7 +34,7 @@ const EditProfile = () => {
             </ul>
             </fieldset>
             <button className="px-4 py-2 border w-full rounded-lg shadow hover:bg-gray-200 hover:border-gray-300">Submit</button>
-    </div>
+      </div>
     </div>
   );
 }
