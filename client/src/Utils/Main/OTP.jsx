@@ -1,8 +1,41 @@
 import React, { useState, useRef, useEffect } from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import Axios from 'axios';
+import {toast} from 'react-hot-toast';
+import {UserApi} from '../../APIs/api';
 
 const OTP = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [message, setMessage] = useState('')
     const inputRefs = useRef([]);
+    const location = useLocation()
+    const navigate = useNavigate()
+
+    const handleSubmit = (e)=>{
+      e.preventDefault()
+      Axios.post(`${UserApi}otp`,{data :location?.state.data, otp:otp }).then((res)=>{
+        console.log(res);
+        if(res.data.success){
+          console.log("data success");
+          setMessage(res.data.message)
+          navigate('/login')
+
+        }else{
+          console.log("Invalid OTP");
+          toast.error(res.data.message,{
+            duration:3000,
+            position:'top-center',
+            style:{
+              background:'#ff0000',
+              color:'#fff'
+            }
+          })
+
+        }
+      }).catch((error)=>{
+        console.log(error);
+      })
+    }
   
     // Function to handle input changes
     const handleInputChange = (e, index) => {
@@ -38,7 +71,7 @@ const OTP = () => {
             <div>
                 <h2 className="mb-3 text-center font-bold font-sans">Verification code</h2>
                 <p className="text-center font-mono">Please enter the verification code sent to Email</p>
-                <form yclassName="mx-8 mt-4" noValidate>
+                <form onSubmit={handleSubmit} className="mx-8 mt-4" noValidate>
                     <div className="flex justify-center">
                     {otp.map((digit, index) => (
                         <input
@@ -53,10 +86,7 @@ const OTP = () => {
                         />
                     ))}
                     </div>
-                    <div id="notification" className="mb-4">
-                    {/* Render your message here */}
-                    </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center mt-5">
                     <button className="btn btn-dark w-1/2" type="submit">
                         Submit
                     </button>

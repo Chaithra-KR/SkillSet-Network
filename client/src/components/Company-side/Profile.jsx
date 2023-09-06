@@ -1,7 +1,15 @@
 import React,{useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState('posts');
+    const navigate = useNavigate()
+
+    const handleProfileEditSuccess = () =>{
+        navigate('/company/company-editProfile')
+      }
+
   return (
     <section className="h-[calc(100vh+35rem)] bg-pink-50">
     <div className="container py-5 h-screen">
@@ -21,7 +29,7 @@ const Profile = () => {
             <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
             <div className="flex justify-between text-center py-1">
                 <div className='flex w-50 justify-center h-11'>
-                    <button className="p-1 w-36 h-10 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500">Edit profile</button>
+                    <button onClick={handleProfileEditSuccess} className="p-1 w-36 h-10 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500">Edit profile</button>
                 </div>
                 <div className='flex inline-block'>
                     <div>

@@ -1,17 +1,27 @@
-import React from 'react';
-import AdminSignIn from './components/Admin-side/Users';
-import UserAccess from './components/User-side/UserAccess';
-import Profile from './Utils/Company/EditCompanyProfile';
-import UserProfile from './Utils/User/UserOtp';
-import Starting from './Utils/Main/OTP';
-import UserManagement from './Utils/Admin/UserManagement';
-
+import React,{Fragment} from 'react';
+import {BrowserRouter as Router , Route , Routes} from 'react-router-dom';
+import User from './Router/User';
+import Admin from './Router/Admin';
+import Company from './Router/Company';
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return (
-    <div>
-      <UserProfile/>
-    </div>
+    <Fragment>
+      <Toaster/>
+      <Router>
+        
+        <Routes>
+          <Route path='/*' element={<User/>}/>
+
+          <Route path='/admin*' element={<Admin/>}/>
+
+          <Route path='/company*' element={<Company/>}/>
+        </Routes>
+
+      </Router>
+      
+    </Fragment>
   );
 }
 

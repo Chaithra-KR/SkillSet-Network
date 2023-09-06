@@ -1,6 +1,9 @@
 import React from 'react';
+import {useNavigate} from 'react-router-dom';
+
 
 const Companies = () => {
+    const navigate = useNavigate()
     const TABLE_HEAD = ["Company", "Job", "Employed", ""];
     const TABLE_ROWS = [
       {
@@ -31,27 +34,8 @@ const Companies = () => {
     ];
   
     return (
-      <div className="w-full h-screen bg-white text-black font-roboto">
-        <div className="flex h-screen rounded border w-full border-gray-50 p-4">
-          <div className="w-2/12 bg-white p-4 text-white text-xl">
-            <div className="ml-7 mb-4">
-              <button className="bg-gray-50 w-44 hover:bg-pink-50 text-black px-5 py-2 rounded-lg">Dashboard</button>
-            </div>
-            <div className="ml-7 mb-4">
-              <button className="bg-gray-50 w-44  hover:bg-pink-50 text-black px-5 py-2 rounded-lg">Users</button>
-            </div>
-            <div className="ml-7 mb-4">
-              <button className="bg-gray-50 w-44  hover:bg-pink-50 text-black px-5 py-2 rounded-lg">Companies</button>
-            </div>
-            <div className="ml-7 mb-4">
-              <button className="bg-gray-50 w-44  hover:bg-pink-50 text-black px-5 py-2 rounded-lg">Accounts</button>
-            </div>
-            <div className="ml-7 mb-4">
-              <button className="bg-gray-50 w-44  hover:bg-pink-50 text-black px-5 py-2 rounded-lg">SignOut</button>
-            </div>
-          </div>
-          <div className="w-10/12 border-1 border-solid text-black relative">
-            <div className="h-full overflow-scroll">
+      
+            <section className="h-full overflow-scroll">
               <h1 className='flex justify-center p-5 text-3xl'>Company Management</h1>
               <table className="w-11/12 ml-8 min-w-max table-auto text-left  bg-pink-50">
                 <thead>
@@ -94,10 +78,8 @@ const Companies = () => {
                   })}
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-      </div>
+            </section>
+
     );
 }
 

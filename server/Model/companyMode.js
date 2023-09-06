@@ -1,0 +1,62 @@
+const mongoose = require('mongoose')
+const company = new mongoose.Schema({
+    company:{
+        type:String,
+        required:true
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    About:{
+        type:String
+    },
+    Headline:{
+        type:String,
+        required:true
+    },
+    image:{
+        type:String,
+    },
+    peoples:{
+        type:String
+    },
+    Jobs:{
+        type:Array
+    },
+    address: [
+        {
+            Building:{
+                type:String,
+                required:true
+            },
+            city:{
+                type:String,
+                required:true
+            },
+            pin:{
+                type:Number,
+                required:true
+            },
+            district:{
+                type:String,
+                required:true
+            },
+            state:{
+                type:String,
+                required:true
+            },
+            phone:{
+                type:Number,
+                required:true
+            }
+        }
+    ]
+})
+
+module.exports = mongoose.model("Company",company);

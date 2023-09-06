@@ -1,11 +1,32 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
+import {useNavigate,useLocation} from 'react-router-dom';
 
 const CompanyAccess = () => {
     const [currentView, setCurrentView] = useState(false);
+    const navigate = useNavigate()
+    const location = useLocation();
 
-    const changeView = () => {
-      setCurrentView(!currentView);
-    };
+
+    useEffect(() => {
+      setCurrentView(location.pathname === '/company/company-signUp')
+    }, [location]);
+
+    const handleRegisterView = () =>{
+      navigate('/company/company-signUp')
+    }
+
+    const handleLoginView = () =>{
+      navigate('/company/company-login')
+      setCurrentView(false)
+    }
+
+    const handleLoginSuccess = () =>{
+      navigate('/company/central-hub')
+    }
+
+    const handleRegisterSuccess = () =>{
+      navigate('/company/company-login')
+    }
   
     return (
       <div className="flex items-center justify-center min-h-screen bg-cover bg-center bg-no-repeat"  
@@ -49,8 +70,8 @@ const CompanyAccess = () => {
                 </li>
               </ul>
               </fieldset>
-              <button className="px-4 py-2 border w-full rounded-lg shadow hover:bg-gray-200 hover:border-gray-300">Submit</button>
-              <button type="button" onClick={() => changeView("logIn")} className="text-blue-500 w-full text-center pt-4 ">Have an Account?</button>
+              <button onClick={handleRegisterSuccess} className="px-4 py-2 border w-full rounded-lg shadow hover:bg-gray-200 hover:border-gray-300">Submit</button>
+              <button type="button" onClick={handleLoginView} className="text-blue-500 w-full text-center pt-4 ">Have an Account?</button>
             </>
           ) : (
             <>
@@ -69,8 +90,8 @@ const CompanyAccess = () => {
                 </ul>
                 </ul>
               </fieldset>
-              <button className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">Login</button>
-              <button type="button" onClick={() => changeView("logIn")} className="text-blue-500 w-full text-center pt-4">Create an Account</button>
+              <button onClick={handleLoginSuccess} className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">Login</button>
+              <button type="button" onClick={handleRegisterView} className="text-blue-500 w-full text-center pt-4">Create an Account</button>
             </>
           )}
         </div>

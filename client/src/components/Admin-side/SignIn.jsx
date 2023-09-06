@@ -1,6 +1,14 @@
 import React from 'react';
+import {useNavigate} from 'react-router-dom';
 
 const SignIn = () => {
+
+  const navigate = useNavigate()
+  
+  const handleAccess = () =>{
+    navigate('/admin/dashboard')
+  } 
+
   return (
     <div className="flex items-center justify-center w-full h-screen"  
     style={{
@@ -23,7 +31,7 @@ const SignIn = () => {
             </li>
           </ul>
         </fieldset>
-        <button className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">Login</button>
+        <button onClick={handleAccess} className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">Login</button>
       </form>
     </div>
   );

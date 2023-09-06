@@ -1,12 +1,14 @@
 import React, { useState,Fragment } from 'react';
+import {useNavigate} from 'react-router-dom';
 import Footer from '../../components/User-side/Footer';
-import Navbar from '../../components/User-side/Navbar';
+import LandingNav from '../../components/User-side/LandingNav';
 
 
 const SeekerOrCompany = () => {
   const [jobSeekerClicked, setJobSeekerClicked] = useState(false);
   const [companyClicked, setCompanyClicked] = useState(false);
   const [createButtonVisible, setCreateButtonVisible] = useState(true);
+  const navigate = useNavigate()
 
   const handleJobSeekerClick = () => {
     setJobSeekerClicked(!jobSeekerClicked);
@@ -20,9 +22,17 @@ const SeekerOrCompany = () => {
     setCreateButtonVisible(false);
   };
 
+  const handleCompanyAccess = () =>{
+    navigate('/company/company-signUp')
+  }
+
+  const handleUserAccess = () =>{
+    navigate('/signUp')
+  }
+
   return (
     <Fragment>
-      <Navbar/>
+    <LandingNav/>
     <div className='w-full h-screen bg-pink-100 flex justify-center items-center'>
       <div className='bg-white h-4/6 w-6/12'>
         <h1 className='text-black text-center pt-12' style={{ fontSize: '30px', fontFamily: 'cursive' }}>
@@ -57,14 +67,14 @@ const SeekerOrCompany = () => {
           )}
           {jobSeekerClicked && (
             <button
-              className={`p-1 w-48 ml-5 border bg-pink-600 text-white rounded-full border-transparent shadow-md`}
+              onClick={handleUserAccess} className={`p-1 w-48 ml-5 border bg-pink-600 text-white rounded-full border-transparent shadow-md`}
             >
               Apply as a Seeker
             </button>
           )}
           {companyClicked && (
             <button
-              className={`p-1 w-48 ml-5 border bg-pink-600 text-white rounded-full border-transparent shadow-md`}
+              onClick={handleCompanyAccess} className={`p-1 w-48 ml-5 border bg-pink-600 text-white rounded-full border-transparent shadow-md`}
             >
               Apply as a Company
             </button>
