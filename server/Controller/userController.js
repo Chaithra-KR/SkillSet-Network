@@ -8,8 +8,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
 
     auth: {
-        user: "narphocart@gmail.com",
-        pass: "eyarkhwribmlsoml",
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
     },
 });
 
@@ -29,13 +29,13 @@ exports.otp = async(req,res)=>{
                 password: userData.password
             })
             await newUser.save()
-            res.json({success: true , message: "Registration success"})
+            res.status(200).json({success: true , message: "Registration success"})
         }else{
             console.log("invalid otp");
             res.json({success:false, message:"Invalid OTP!"})
         }
     } catch (error) {
-        console.log(error);
+        res.status(500).json({ success: false, serverMessage: "Internal Server Error" });
     }
 }
 
@@ -59,7 +59,28 @@ exports.generateOtp = async(req,res)=>{
             }
         })
     } catch (error) {
-        console.log(error);
+        res.status(500).json({ success: false, serverMessage: "Internal Server Error" });
     }
 }
 
+exports.verifyLogin = async(req,res) => {
+    try {
+        const {email, password} = req.body.data
+        const validUser = await User.findOne({email : email})
+        if(validUser){
+            const validPassword = await User.findOne({password : password})
+            if(validPassword){
+                console.log("welcome");
+                res.status(200).json({success: true, message: `Welcome ${validPassword.username}!`})
+            }else{
+                console.log("!pasword");
+                res.json({success:false, message:"Incorrect password!"})
+            }
+        }else{
+            console.log(!email);
+            res.json({success:false, emailMessage:"Email did not match our records, Please Register!"})
+        }
+    } catch (error) {
+        res.status(500).json({success: false, serverMessage: "Internal Server Error" });
+    }
+}
