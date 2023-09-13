@@ -6,20 +6,29 @@ import {UserApi} from '../../APIs/api';
 
 const OTP = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [message, setMessage] = useState('')
     const inputRefs = useRef([]);
     const location = useLocation()
     const navigate = useNavigate()
 
+    console.log(location.state.data);
+    
     const handleSubmit = (e)=>{
       e.preventDefault()
       Axios.post(`${UserApi}otp`,{data :location?.state.data, otp:otp }).then((res)=>{
         console.log(res);
         if(res.data.success){
-          console.log("data success");
-          setMessage(res.data.message)
           navigate('/login')
-
+          const showToast = () => {
+            toast.success(res.data.message, {
+              duration: 3000,
+              position: 'top-center',
+              style: {
+                background: '#00ff00',
+                color: '#fff',
+              },
+            });
+          };
+          showToast()
         }else{
           console.log("Invalid OTP");
           toast.error(res.data.message,{

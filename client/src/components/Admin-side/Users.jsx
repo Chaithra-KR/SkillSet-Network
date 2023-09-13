@@ -1,85 +1,203 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { AdminApi } from '../../APIs/api';
+import { Button, Modal } from 'antd';
+import {toast} from 'react-hot-toast';
+
 
 const Users = () => {
+  const [users, setUsers] = useState([]);
 
-  const navigate = useNavigate()
+  const [access , setAccess] = useState(false)
+  const [singleUser , setSingleUser] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
 
-  const TABLE_HEAD = ["User Name", "Job", "Employed", ""];
-  const TABLE_ROWS = [
-    {
-      name: "John Michael",
-      job: "Manager",
-      date: "23/04/18",
-    },
-    {
-      name: "Alexa Liras",
-      job: "Developer",
-      date: "23/04/18",
-    },
-    {
-      name: "Laurent Perrier",
-      job: "Executive",
-      date: "19/09/17",
-    },
-    {
-      name: "Michael Levi",
-      job: "Developer",
-      date: "24/12/08",
-    },
-    {
-      name: "Richard Gran",
-      job: "Manager",
-      date: "04/10/21",
-    },
-  ];
+  useEffect(() => {
+    axios.get(`${AdminApi}userManagement`).then((res) => {
+      setUsers(res.data.userData);
+      console.log(users,"this is the users------------------------");
+    });
+  }, [access]);
+
+  const findUser = (email) =>{
+    const User = users.find((val)=>{
+      return email === val.email
+    })
+    setSingleUser(User)
+  }
+
+  const handleBlockUser = async (data) =>{
+    console.log("data",data);
+    axios.post(`${AdminApi}blockUser`,{data:data}).then((res) => {
+      if(res.data.success){
+       console.log('blocking the user--------------------');
+            if(access === true){
+              setAccess(false)
+            }else{
+              setAccess(true)
+            }
+           
+            console.log(access);
+       
+        toast.success(res.data.message, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#B00043',
+            color: '#fff',
+          },
+        });
+      }
+    });
+  }
+  
+  const handleUnBlockUser = async (data) =>{
+    axios.post(`${AdminApi}unblockUser`,{data:data}).then((res) => {
+      console.log("unblock user---------------");
+      if(res.data.success){
+           if(access===true){
+            setAccess(false)
+           }else{
+            setAccess(true)
+           }
+        toast.success(res.data.message, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#B00043',
+            color: '#fff',
+          },
+        });
+      }else{
+        toast.error("something went wrong !")
+      }
+    });
+  }
 
   return (
-   
-          <section className="h-full overflow-scroll">
-            <h1 className='flex justify-center p-5 text-3xl'>User Management</h1>
-            <table className="w-11/12 ml-8 min-w-max table-auto text-left  bg-pink-50">
-              <thead>
-                <tr>
-                  {TABLE_HEAD.map((head) => (
-                    <th
-                      key={head}
-                      className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
-                    >
-                      <span className="font-normal leading-none opacity-70">
-                        {head}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {TABLE_ROWS.map(({ name, job, date }, index) => {
-                  const isLast = index === TABLE_ROWS.length - 1;
-                  const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+    <section className="h-full overflow-scroll">
+      <h1 className="flex justify-center pb-5 text-3xl">User Management</h1>
+      <table className="w-11/12 ml-8 min-w-max table-auto text-left bg-pink-50">
+        <thead>
+          <tr>
+              <th
+                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                  >
+                <span className="font-normal leading-none opacity-70">
+                  SI No:
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  user ID
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Name
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Email
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 pl-10"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Skills
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 pl-10"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Action
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 pl-10"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  View
+                </span>
+              </th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user,i) => (
+            <tr key={user._id}>
+              <td className="p-4 border-b border-blue-gray-50">
+                <span className="font-normal">{i+1}</span>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+                <span className="font-normal">{user._id}</span>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+                <span className="font-normal">{user.username}</span>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+                <span className="font-normal">{user.email}</span>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+              <Button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
+                shadow-md hover:bg-pink-400" type="pink" onClick={()=>{setIsSkillModalOpen(true);}}>
+                View
+              </Button>
+                <Modal title="List of skills" open={isSkillModalOpen}  onCancel={()=>{setIsSkillModalOpen(false)}}>
+                {user.skills.map((skill,i) => (
+                          <>
+                          <p>{i+1+". "+skill}</p>
+                          </>
+                        ))}
+                </Modal>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+                {user.access===true ? (
+                  <button
+                    onClick={() => handleUnBlockUser(user._id)}
+                    className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                  >
+                    Unblock
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleBlockUser(user._id)}
+                    className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                  >
+                    Block
+                  </button>
+                )}
+              </td>
 
-                  return (
-                    <tr key={name}>
-                      <td className={classes}>
-                        <span className="font-normal">{name}</span>
-                      </td>
-                      <td className={classes}>
-                        <span className="font-normal">{job}</span>
-                      </td>
-                      <td className={classes}>
-                        <span className="font-normal">{date}</span>
-                      </td>
-                      <td className={classes}>
-                        <a href="#" className="font-medium">
-                          Edit
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </section>
+              <td className="p-4 border-b border-blue-gray-50">
+              <Button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
+                shadow-md hover:bg-pink-400" type="pink" onClick={()=>{setIsModalOpen(true)
+                findUser(user.email)}}>
+                Details
+              </Button>
+              </td>
+             
+              <Modal title="Other details" open={isModalOpen}  onCancel={()=>{setIsModalOpen(false)}}>
+                    <p>Date of birth : {singleUser.dob}</p>
+                    <p>Contact No : {singleUser.phone} </p>
+                    <p>Experience : {singleUser.experience}</p>
+                    <p>Headline : {singleUser.headline}</p>
+                    <p>Applied Jobs :{singleUser.appliedJobs}</p>
+              </Modal>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 };
 

@@ -1,35 +1,95 @@
-import React,{useState} from 'react';
+import React,{useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
+import {useSelector} from 'react-redux';
+import Axios from 'axios';
+import {CompanyApi} from '../../APIs/api';
 
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState('posts');
     const navigate = useNavigate()
 
-    const handleProfileEditSuccess = () =>{
-        navigate('/company/company-editProfile')
-      }
+    const [companyDetails, setCompanyDetails] = useState({
+        company: null,
+        startedDate: null,
+        email: null,
+        about: null,
+        headline: null,
+        image: null,
+        peoples: null,
+        jobs: null,
+        address: null,
+      });
 
+      const rawDate = companyDetails.startedDate;
+      console.log(companyDetails, "this is the object");
+      let formattedDate = null;
+      const dateObj = new Date(rawDate);
+      formattedDate = dateObj.toLocaleDateString();
+
+      const data = useSelector((state) => {
+        return state?.companyDetails.companyToken;
+      });
+
+    
+    const handleEditProfile = async() => {
+        try {
+            navigate("/company/company-editProfile")
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const handleProfile = async () => {
+          try {
+            console.log("entering to the axios profile");
+            const response = await Axios.get(
+              `${CompanyApi}companyProfile?data=${encodeURIComponent(data)}`
+            ).then((res) => {
+              let companyData = res.data.companyData;
+              setCompanyDetails(companyData);
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        };
+        handleProfile();
+      }, []);
+    
   return (
     <section className="h-[calc(100vh+35rem)] bg-pink-50">
     <div className="container py-5 h-screen">
         <div className="flex justify-center h-screen">
         <div className="lg:w-9/12 xl:w-7/12 bg-white">
             <div className="bg-white rounded-t text-black flex flex-row" style={{ height: '200px' }}>
-            <div className="ms-4 mt-5 flex flex-col items-center" style={{ width: '150px' }}>
-                <img src="./public/skillset logo.jpg"
-                alt="Generic placeholder image" className="img-fluid img-thumbnail mt-4 mb-16 w-32 h-32 rounded-full"
-                />
-            </div>
+            <div
+                className="ms-4 mt-5 flex flex-col items-center"
+                style={{ width: "150px" }}
+              >
+                {companyDetails.image ? (
+                  <img
+                    src={companyDetails.image}
+                    alt="User Profile"
+                    className="img-fluid img-thumbnail mt-4 mb-16 w-32 h-32 rounded-full"
+                  />
+                ) : (
+                  <img
+                    src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
+                    alt="Generic placeholder image"
+                    className="img-fluid img-thumbnail mt-4 mb-16 w-32 h-32 rounded-full"
+                  />
+                )}
+              </div>
             <div className="ms-3 flex flex-col" style={{ marginTop: '130px' }}>
-                <h5>Andy Horwitz</h5>
-                <p>Headline</p>
+                <h5>{companyDetails.company}</h5>
+                <p>{companyDetails.headline}</p>
             </div>
             </div>
             <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
             <div className="flex justify-between text-center py-1">
                 <div className='flex w-50 justify-center h-11'>
-                    <button onClick={handleProfileEditSuccess} className="p-1 w-36 h-10 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500">Edit profile</button>
+                    <button onClick={handleEditProfile} className="p-1 w-36 h-10 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500">Edit profile</button>
                 </div>
                 <div className='flex inline-block'>
                     <div>
@@ -52,21 +112,68 @@ const Profile = () => {
             </div>
             <div className="card-body p-4 text-black">
             <div className="mb-5">
-                <p className="text-xl font-normal mb-1">Contact & Address</p>
-                <div className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
-                <p className="italic mb-1">Address: Lives in New York</p>
-                <p className="italic mb-0">Email: avsdhsv@dbsjbhcs</p>
-                <p className="italic mb-0">Contact No: 1234557890</p>
-                </div>
+                {companyDetails.address && companyDetails.address.length > 0 && (
+                    <div>
+                        <p className="text-xl font-normal mb-1">Contact & Address</p>
+                            {companyDetails.address.map((address, index) => (
+                            <div>
+                                <div className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
+                                <div key={index} className="italic mt-1">
+                                    <p>
+                                        <span className="w-20 font-bold">Building:</span>{" "}
+                                        {address.building}
+                                    </p>
+                                    <p>
+                                        <span className="w-20 font-bold">City:</span> {address.city}
+                                        {address.city}
+                                    </p>
+                                    <p>
+                                        <span className="w-20 font-bold">District:</span>{" "}
+                                        {address.district}
+                                    </p>
+                                    <p>
+                                        <span className="w-20 font-bold">Contact No::</span>{" "}
+                                        {address.phone}
+                                    </p>
+                                    </div>
+                                </div>
+                            </div>
+                            ))}
+                    </div>
+                )}
+
             </div>
             <div className="mb-5">
-                <p className="text-xl font-normal mb-1">About</p>
-                <div className="p-4" style={{ backgroundColor: '#f8f9fa' }}>
-                <p className="italic mb-1">Web Developer</p>
-                <p className="italic mb-1">Lives in New York</p>
-                <p className="italic mb-0">Photographer</p>
-                </div>
+                {companyDetails.about ? (
+                  <div>
+                    <p className="text-xl font-normal mb-1">About</p>
+                    <div className="p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                      <p className="italic mb-1">{companyDetails.about}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div hidden></div>
+                )}
             </div>
+            <p className="text-xl font-normal mb-1">Other details</p>
+                <div className="p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                  {companyDetails.phone ? (
+                    <p className="italic mb-1">
+                      <span className=" w-20">Contact No :</span>
+                      {companyDetails.phone}
+                    </p>
+                  ) : (
+                    <div hidden></div>
+                  )}
+                  <p className="italic mb-1">
+                    <span className="w-20 font-bold">Email :</span>
+                    {companyDetails.email}
+                  </p>
+                  <p className="italic mb-1">
+                    <span className="w-20 font-bold">Started date :</span>{" "}
+                    {formattedDate}
+                  </p>
+                </div>
             <div className="flex justify-between items-center mb-4">
                 <div>
                 <button

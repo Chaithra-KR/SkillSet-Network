@@ -6,7 +6,6 @@ import {toast} from 'react-hot-toast';
 import {UserApi} from '../../APIs/api'; 
 import {useDispatch} from 'react-redux';
 import {seekerDetails} from '../../Store/storeSlices/seekerAuth';
-import {TiDeleteOutline} from 'react-icons/ti';
 import moment from 'moment';
 
 
@@ -17,7 +16,6 @@ const UserAccess = () => {
   const dispatch = useDispatch()
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const [dob, setDob] = useState('')
   const [errorMessage, setErrorMessage] = useState('');
 
   // Date validation function
@@ -36,26 +34,9 @@ const UserAccess = () => {
     }
   };
 
-  const [skills, setSkills] = useState([]);
-  const addSkill = () => {
-    const skillInput = document.getElementById('skill-input');
-    const skillText = skillInput.value.trim();
-    if (skillText) {
-      setSkills([...skills, skillText]);
-      skillInput.value = ''; 
-    }
-  };
-
-  const removeSkill = (index) => {
-    const updatedSkills = [...skills];
-    updatedSkills.splice(index, 1);
-    setSkills(updatedSkills);
-  };
 
   const submitData = async (data) => {
     try {
-      console.log(data);
-      data.skills = skills;
       const res = await Axios.get(`${UserApi}generateOtp?data=${data.email}`);
       console.log(res);
       console.log(res,"oooo");
@@ -214,7 +195,7 @@ const UserAccess = () => {
                     <input {...register("phone", { pattern: /^[0-9]{10}$/})} type="tel" id="phone" className="px-3 py-2 border rounded-lg w-full"/>
                     {errors.phone && errors.phone.type === "pattern" && (<label className='text-sm text-red-600'>Please enter a valid 10-digit phone number</label>)}
                   </div>
-
+                  
                 </div>
               </li>
               

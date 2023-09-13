@@ -1,31 +1,81 @@
-import React,{Fragment} from 'react';
+import React,{Fragment,useEffect} from 'react';
 import {Route,Routes} from 'react-router-dom';
 import CompanyAccess from '../components/Company-side/CompanyAccess';
-import CompanyProfile from '../Utils/Company/CompanyProfile';
-import EditCompanyProfile from '../Utils/Company/EditCompanyProfile';
-import CentralHub from '../Utils/Company/CentralHub';
-import StartingHome from '../Utils/Main/StartingHome';
+import CompanyProfile from '../Pages/Company/CompanyProfile';
+import EditCompanyProfile from '../Pages/Company/EditCompanyProfile';
+import CentralHub from '../Pages/Company/CentralHub';
+import CompanyOTP from '../Pages/Company/CompanyOTP';
+import CompanyPremium from '../components/Company-side/CompanyPremium';
+import {ErrorBoundary} from 'react-error-boundary';
+import propTypes from 'prop-types';
+import {useDispatch, useSelector} from 'react-redux';
+import { companyDetails } from '../Store/storeSlices/companyAuth';
+import JobScheduling from '../Pages/Company/JobScheduling';
+  
 
+function ErrorFallback({error, resetErrorBoundary}) {
+  return(
+    <div>
+      <h2 className='text-black'>Something went wrong!</h2>
+      <p>{error.message}</p>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  )
+}
+
+
+ErrorFallback.propTypes = {
+  error: propTypes.object.isRequired,
+  resetErrorBoundary: propTypes.func.isRequired
+}
 
 const Company = () => {
+
+  const dispatch = useDispatch()
+  const storedInfo = localStorage.getItem('companyInformation')
+
+  useEffect(() => {
+    if(storedInfo){
+      const info = JSON.parse(storedInfo)
+      if(info.role == "company"){
+        dispatch(companyDetails(info))
+      }
+    }else{
+      console.log("No data found in local storage");
+    }
+
+  }, []);
+
+  const company = useSelector((state)=>{
+    return state.companyDetails.companyToken
+  })
+
+
+  console.log(company,"compp");
+  
   return (
     <Fragment>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Routes>
-            <Route path='/company-login' element={<CompanyAccess/>}/>
 
-            <Route path='/company-signUp' element={<CompanyAccess/>}/>
+            <Route path='/company-login' element={!company ?<CompanyAccess/> : <CentralHub/>}/>
 
-            <Route path='/central-hub' element={<CentralHub/>}/>
+            <Route path='/company-signUp' element={!company ? <CompanyAccess/> : <CentralHub/>}/>
 
-            <Route path='/company-profile' element={<CompanyProfile/>}/>
+            <Route path='/company-otp' element={!company ? <CompanyOTP/> : <CentralHub/>}/>
 
-            <Route path='/company-editProfile' element={<EditCompanyProfile/>}/>
+            <Route path='/company-premium' element={!company ? <CompanyPremium/> : <CentralHub/>}/>
 
-            <Route path='/company-logout' element={<StartingHome/>}/>
+            <Route path='/central-hub' element={company ? <CentralHub/> : <CompanyAccess/>}/>
 
+            <Route path='/company-profile' element={company ? <CompanyProfile/> : <CompanyAccess/>}/>
 
+            <Route path='/company-editProfile' element={company ? <EditCompanyProfile/> : <CompanyAccess/>}/>
+
+            <Route path='/company-Jobs' element={company ? <JobScheduling/> : <CompanyAccess/>}/>
+            
         </Routes>
-        
+      </ErrorBoundary>
     </Fragment>
   );
 }

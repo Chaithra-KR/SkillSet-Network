@@ -1,0 +1,17 @@
+:where(.css-dev-only-do-not-override-18iikkb).ant-layout .ant-layout-sider-children {
+    height: 100%;
+    margin-top: -0.1px;
+    padding-top: 0.1px;
+    background-color:#f5e8ee;
+}
+:where(.css-dev-only-do-not-override-18iikkb).ant-modal .ant-modal-footer .ant-btn+.ant-btn:not(.ant-dropdown-trigger) {
+    margin-bottom: 0;
+    margin-inline-start: 8px;
+    display: none;
+}
+:where(.css-dev-only-do-not-override-18iikkb).ant-modal .ant-modal-footer {
+    text-align: end;
+    background: transparent;
+    margin-top: 12px;
+    display: none;
+}
