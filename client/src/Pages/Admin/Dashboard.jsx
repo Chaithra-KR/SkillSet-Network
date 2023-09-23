@@ -3,13 +3,18 @@ import Users from '../../components/Admin-side/Users';
 import Navbar from '../../components/Admin-side/Navbar';
 import AdminDashboard from '../../components/Admin-side/AdminDashboard';
 import Companies from '../../components/Admin-side/Companies';
+import JobManage from '../../components/Admin-side/jobManage';
+
 import './ANT/ant.css'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
-  TeamOutlined ,
-  UsergroupAddOutlined
+  BarChartOutlined,
+  NotificationOutlined,
+  TrophyOutlined,
+  TeamOutlined ,  
+  BankOutlined,
+  DesktopOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
 const { Header, Sider, Content } = Layout;
@@ -43,12 +48,12 @@ const Dashboard = () => {
           items={[
             {
               key: '1',
-              icon: <UserOutlined />,
+              icon: <BarChartOutlined />,
               label: 'DashBoard',
             },
             {
               key: '2',
-              icon: <UsergroupAddOutlined />,
+              icon: <BankOutlined />,
               label: 'Companies',
             },
             {
@@ -58,8 +63,18 @@ const Dashboard = () => {
             },
             {
               key: '4',
-              icon:<UserOutlined />,
-              label: 'userManage',
+              icon:<TrophyOutlined />,
+              label: 'Accounts',
+            },
+            {
+              key: '5',
+              icon:<NotificationOutlined />,
+              label: 'Notifications',
+            },
+            {
+              key: '6',
+              icon: <DesktopOutlined/>,
+              label: 'Jobs',
             },
           ]}
         />
@@ -94,7 +109,11 @@ const Dashboard = () => {
               case'3':
                 return <Users/>;
               case'4':
-                return <div>hai this is user</div> 
+                return <div>hai this is accounts</div>
+              case'5':
+                return <div>hai this is notification</div>
+              case'6':
+                return <JobManage/>
               default:
                 return  <h1>yes</h1>;
             }

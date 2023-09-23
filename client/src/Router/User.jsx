@@ -11,6 +11,7 @@ import {ErrorBoundary} from 'react-error-boundary';
 import propTypes from 'prop-types';
 import {useDispatch, useSelector} from 'react-redux';
 import { seekerDetails } from '../Store/storeSlices/seekerAuth';
+import Jobs from '../Pages/User/Jobs';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -47,7 +48,7 @@ const User = () => {
 
     const seeker = useSelector((state)=>{
       return state?.seekerDetails.seekerToken
-    })
+    })  
     
 
   return (
@@ -69,10 +70,13 @@ const User = () => {
             <Route path='/my-profile' element={seeker ? <UserProfile/> : <UserAccess/>}/>
 
             <Route path='/edit-myProfile' element={seeker ? <EditUserProfile/> : <UserAccess/>}/>
+
+            <Route path='/jobView' element={seeker ? <Jobs/> : <UserAccess/>}/>
+
         </Routes>
       </ErrorBoundary>
     </Fragment>
-  );
+  );  
 }
 
 export default User;

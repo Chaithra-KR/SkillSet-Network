@@ -1,11 +1,11 @@
 import React,{useEffect, useState} from 'react';
 import {useNavigate,useLocation} from 'react-router-dom';
 import {useForm} from 'react-hook-form';
-import {CompanyApi} from '../../APIs/api';
+import {CompanyApi} from '../../configs/api';
 import {toast} from 'react-hot-toast';
-import Axios from 'axios';
 import {useDispatch} from 'react-redux';
 import { companyDetails } from '../../Store/storeSlices/companyAuth';
+import { companyAxiosInstance } from '../../configs/axios/axios';
 
 const CompanyAccess = () => {
     const [currentView, setCurrentView] = useState(false);
@@ -20,7 +20,7 @@ const CompanyAccess = () => {
   const submitData = async (data) => {
     try {
       console.log(data,"this data");
-      const res = await Axios.get(`${CompanyApi}company-generateOtp?data=${data.email}`).then((res)=>{
+      const res = await companyAxiosInstance.get(`${CompanyApi}company-generateOtp?data=${data.email}`).then((res)=>{
         console.log(data,"this data");
          if(res.data.success==true){
           console.log("navigating to otp so otp page will display");
@@ -38,7 +38,9 @@ const CompanyAccess = () => {
 
   const loginSubmit = async (data) => {
     try {
-      const response = await Axios.post(`${CompanyApi}verifyCompanyLogin`, { data });
+      // const response = await Axios.post(`${CompanyApi}verifyCompanyLogin`, { data });
+      const response = await companyAxiosInstance.post(`${CompanyApi}verifyCompanyLogin`, { data });
+
       if (response.data.success) {
         localStorage.setItem('companyInformation',JSON.stringify(response.data.necessaryData))
         let impData = response.data.necessaryData
@@ -52,7 +54,7 @@ const CompanyAccess = () => {
           },
         });
         navigate('/company/central-hub');
-      } else {
+      } else  {
         if (response.data.emailMessage) {
           console.log("Email did not match our records, Please Register!");
           toast.error(response.data.emailMessage, {
@@ -73,7 +75,17 @@ const CompanyAccess = () => {
               color: '#fff',
             },
           });
-        } 
+        } else if (response.data.accessBlocked) {
+          console.log("Access Blocked!");
+          toast.error(response.data.accessBlocked, {
+            duration: 3000,
+            position: 'top-center',
+            style: {
+              background: '#ff0000',
+              color: '#fff',
+            },
+          });
+        }
       }
     } catch (error) {
       console.log(error);

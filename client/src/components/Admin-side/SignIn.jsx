@@ -1,6 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
-import { AdminApi } from '../../APIs/api';
+import { AdminApi } from '../../configs/api';
 import {toast} from 'react-hot-toast';
 import {useForm} from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -21,8 +21,6 @@ const SignIn = () => {
       const response = await Axios.post(`${AdminApi}adminVerifyLogin`,{data:data});
       if (response.data.success) {
         localStorage.setItem('adminInformation',JSON.stringify(response.data.necessaryData))
-        let impData = response.data.necessaryData 
-        console.log(impData,"{data}");
         dispatch(adminDetails(impData))    
 
         toast.success(response.data.message, {

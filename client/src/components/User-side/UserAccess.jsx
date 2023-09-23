@@ -3,7 +3,7 @@ import {useNavigate,useLocation} from 'react-router-dom';
 import {useForm} from 'react-hook-form';
 import Axios from 'axios';
 import {toast} from 'react-hot-toast';
-import {UserApi} from '../../APIs/api'; 
+import {UserApi} from '../../configs/api'; 
 import {useDispatch} from 'react-redux';
 import {seekerDetails} from '../../Store/storeSlices/seekerAuth';
 import moment from 'moment';

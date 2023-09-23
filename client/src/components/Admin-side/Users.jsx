@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { AdminApi } from '../../APIs/api';
+import { AdminApi } from '../../configs/api';
 import { Button, Modal } from 'antd';
 import {toast} from 'react-hot-toast';
 
@@ -16,11 +16,11 @@ const Users = () => {
   useEffect(() => {
     axios.get(`${AdminApi}userManagement`).then((res) => {
       setUsers(res.data.userData);
-      console.log(users,"this is the users------------------------");
     });
   }, [access]);
 
   const findUser = (email) =>{
+    console.log(users,"users");
     const User = users.find((val)=>{
       return email === val.email
     })
@@ -31,17 +31,13 @@ const Users = () => {
     console.log("data",data);
     axios.post(`${AdminApi}blockUser`,{data:data}).then((res) => {
       if(res.data.success){
-       console.log('blocking the user--------------------');
             if(access === true){
               setAccess(false)
             }else{
               setAccess(true)
-            }
-           
-            console.log(access);
-       
+            }           
         toast.success(res.data.message, {
-          duration: 3000,
+          duration: 2000,
           position: 'top-center',
           style: {
             background: '#B00043',
@@ -149,10 +145,10 @@ const Users = () => {
               </td>
               <td className="p-4 border-b border-blue-gray-50">
               <Button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
-                shadow-md hover:bg-pink-400" type="pink" onClick={()=>{setIsSkillModalOpen(true);}}>
+                shadow-md hover:bg-pink-400" type="pink"  onClick={()=>{setIsSkillModalOpen(true);findUser(user.email)}}>
                 View
               </Button>
-                <Modal title="List of skills" open={isSkillModalOpen}  onCancel={()=>{setIsSkillModalOpen(false)}}>
+                <Modal title="List of skills" open={isSkillModalOpen}  onCancel={()=>{setIsSkillModalOpen(false);}}>
                 {user.skills.map((skill,i) => (
                           <>
                           <p>{i+1+". "+skill}</p>
@@ -189,9 +185,9 @@ const Users = () => {
               <Modal title="Other details" open={isModalOpen}  onCancel={()=>{setIsModalOpen(false)}}>
                     <p>Date of birth : {singleUser.dob}</p>
                     <p>Contact No : {singleUser.phone} </p>
-                    <p>Experience : {singleUser.experience}</p>
+                    {singleUser.experience ? (<p>Experience : {singleUser.experience}</p>) : (<div></div>)}
                     <p>Headline : {singleUser.headline}</p>
-                    <p>Applied Jobs :{singleUser.appliedJobs}</p>
+                    {singleUser.appliedJobs ? (<p>Applied Jobs :{singleUser.appliedJobs.map((val)=>(val))}</p>) : (<div></div>)}
               </Modal>
             </tr>
           ))}

@@ -1,15 +1,63 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { AdminApi } from '../../APIs/api';
+import { AdminApi } from '../../configs/api';
+import { Button, Modal } from 'antd';
+import {toast} from 'react-hot-toast';
+
 
 const Companies = () => {
   const [companies, setCompanies] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJobsModalOpen, setIsJobsModalOpen] = useState(false);
+
 
   useEffect(() => {
     axios.get(`${AdminApi}companyManagement`).then((res) => {
       setCompanies(res.data.companyData);
     });
   }, []);
+
+  const handleBlockCompany = async (data) =>{
+    axios.post(`${AdminApi}blockCompany`,{data:data}).then((res) => {
+      if(res.data.success){
+            // if(access === true){
+            //   setAccess(false)
+            // }else{
+            //   setAccess(true)
+            // }           
+        toast.success(res.data.message, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#B00043',
+            color: '#fff',
+          },
+        });
+      }
+    });
+  }
+  
+  const handleUnBlockCompany = async (data) =>{
+    axios.post(`${AdminApi}unblockCompany`,{data:data}).then((res) => {
+      if(res.data.success){
+          //  if(access===true){
+          //   setAccess(false)
+          //  }else{
+          //   setAccess(true)
+          //  }
+        toast.success(res.data.message, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#B00043',
+            color: '#fff',
+          },
+        });
+      }else{
+        toast.error("something went wrong !")
+      }
+    });
+  }
 
   return (
     <section className="h-full overflow-scroll">
@@ -39,10 +87,24 @@ const Companies = () => {
                 </span>
               </th>
               <th
-                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                className="border-b border-blue-gray-100 bg-blue-gray-50 pl-10 p-4"
               >
                 <span className="font-normal leading-none opacity-70">
                   Action
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 pl-10 p-4"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Jobs list
+                </span>
+              </th>
+              <th
+                className="border-b border-blue-gray-100 bg-blue-gray-50 pl-10 p-4"
+              >
+                <span className="font-normal leading-none opacity-70">
+                  Detailes
                 </span>
               </th>
           </tr>
@@ -60,9 +122,54 @@ const Companies = () => {
                 <span className="font-normal">{company.email}</span>
               </td>
               <td className="p-4 border-b border-blue-gray-50">
-                <button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
-                shadow-md hover:bg-pink-400">Block</button>
+              {company.access===true ? (
+                  <button
+                    onClick={() => handleUnBlockCompany(company._id)}
+                    className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                  >
+                    Unblock
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleBlockCompany(company._id)}
+                    className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                  >
+                    Block
+                  </button>
+                )}
               </td>
+              <td className="p-4 border-b border-blue-gray-50">
+              <Button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
+                shadow-md hover:bg-pink-400" type="pink"  onClick={()=>{setIsJobsModalOpen(true);}}>
+                View
+              </Button>
+                <Modal title="List of Jobs" open={isJobsModalOpen}  onCancel={()=>{setIsJobsModalOpen(false);}}>
+                {company.jobs.map((val,i) => (
+                          <>
+                          <p>{i+1+". "+val}</p>
+                          </>
+                        ))}
+                </Modal>
+              </td>
+              <td className="p-4 border-b border-blue-gray-50">
+              <Button className="p-1 w-20 ml-5 border border-transparent  text-white rounded bg-pink-500 
+                shadow-md hover:bg-pink-400" type="pink" onClick={()=>{setIsModalOpen(true)
+                }}>
+                Details
+              </Button>
+              </td>
+             
+              <Modal title="Other details" open={isModalOpen}  onCancel={()=>{setIsModalOpen(false)}}>
+                    <p>Started date : {company.startedDate}</p>
+                    <p>Headline : {company.headline}</p>
+                    {company.address.map((val) => (
+                      <div key={val._id}>
+                        <p>Location: {val.building}, {val.city}, {val.district}, {val.state}, {val.pin}(pin)</p>
+                        <p>Contact No: {val.phone}</p>
+                      </div>
+                    ))}
+
+              </Modal>
             </tr>
           ))}
         </tbody>

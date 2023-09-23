@@ -1,9 +1,9 @@
 import React from 'react';
 import StripeCheckout from 'react-stripe-checkout';
-import Axios from 'axios';
-import { CompanyApi } from '../../APIs/api';
+import { CompanyApi } from '../../configs/api';
 import {useLocation} from 'react-router-dom';
 import Navbar from './Navbar';
+import { companyAxiosInstance } from '../../configs/axios/axios';
 
 
 const CompanyPremium = () => {
@@ -13,7 +13,7 @@ const CompanyPremium = () => {
 
   const payNow = async (token,amount) => {
     try {
-      Axios.post(`${CompanyApi}company-payment`,{
+      companyAxiosInstance.post(`${CompanyApi}company-payment`,{
         token:token.id,
         amount:amount.toString(),
         currency:"INR",

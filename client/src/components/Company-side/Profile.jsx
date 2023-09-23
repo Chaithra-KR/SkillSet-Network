@@ -1,8 +1,8 @@
 import React,{useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
-import Axios from 'axios';
-import {CompanyApi} from '../../APIs/api';
+import {CompanyApi} from '../../configs/api';
+import { companyAxiosInstance } from '../../configs/axios/axios';
 
 
 const Profile = () => {
@@ -44,7 +44,7 @@ const Profile = () => {
         const handleProfile = async () => {
           try {
             console.log("entering to the axios profile");
-            const response = await Axios.get(
+            const response = await companyAxiosInstance.get(
               `${CompanyApi}companyProfile?data=${encodeURIComponent(data)}`
             ).then((res) => {
               let companyData = res.data.companyData;
@@ -83,7 +83,7 @@ const Profile = () => {
               </div>
             <div className="ms-3 flex flex-col" style={{ marginTop: '130px' }}>
                 <h5>{companyDetails.company}</h5>
-                <p>{companyDetails.headline}</p>
+                <p>{companyDetails.headline}</p>  
             </div>
             </div>
             <div className="p-4 text-black" style={{ backgroundColor: '#f8f9fa' }}>
@@ -97,7 +97,11 @@ const Profile = () => {
                     <p className="text-xs text-muted mb-0">Posts</p>
                     </div>
                     <div className='ml-5'>
-                    <p className="mb-1 text-lg">1026</p>
+                    {companyDetails && companyDetails.jobs ? (
+                      <p className="mb-1 text-lg">{companyDetails.jobs.length}</p>
+                    ) : (
+                      <p className="mb-1 text-lg">No jobs</p>
+                    )}
                     <p className="text-xs text-muted mb-0">Jobs</p>
                     </div>
                     <div className='ml-5'>
@@ -141,7 +145,6 @@ const Profile = () => {
                             ))}
                     </div>
                 )}
-
             </div>
             <div className="mb-5">
                 {companyDetails.about ? (

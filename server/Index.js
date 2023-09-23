@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 
 // Set port
 const PORT = process.env.PORT || 4000;
@@ -27,13 +28,16 @@ mongoose
     console.log(err);
   });
 
+// app.use(cors())
+
 // Middleware
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 app.use(
   cors({
-    origin: 'http://localhost:3000', // Remove the trailing slash
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Access'],

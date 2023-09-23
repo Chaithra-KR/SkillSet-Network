@@ -4,19 +4,26 @@ const company = new mongoose.Schema({
         type:String,
         required:true
     },
+    startedDate:{
+        type:Date,
+        default:Date.now
+    },
     email:{
         type:String,
         required:true,
         unique:true
     },
+    role:{
+        type:String,
+    },
     password:{
         type:String,
         required:true
     },
-    About:{
+    about:{
         type:String
     },
-    Headline:{
+    headline:{
         type:String,
         required:true
     },
@@ -26,12 +33,21 @@ const company = new mongoose.Schema({
     peoples:{
         type:String
     },
-    Jobs:{
-        type:Array
+    jobs:{
+        type:Array,
+        ref:"Job",
     },
+    price:{
+        type:String
+    },
+    access:{
+        type:Boolean,
+        default:false
+    },
+  
     address: [
         {
-            Building:{
+            building:{
                 type:String,
                 required:true
             },

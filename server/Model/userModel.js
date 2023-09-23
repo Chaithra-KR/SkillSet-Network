@@ -17,11 +17,19 @@ const user = mongoose.Schema({
         type:String,
         required:true
     },
+    role:{
+        type:String,
+    },
+    access:{
+        type:Boolean,
+        default:false
+    },
     phone:{
         type:Number
     },
-    skills:{
-        type:Array
+    skills:[String],
+    experience:{
+        type:String
     },
     headline:{
         type:String
@@ -30,11 +38,18 @@ const user = mongoose.Schema({
         type:String
     },
     image:{
-        type:String
+        type:String,
     },
     appliedJobs:{
         type:Array
     },
+    cv: {
+        type: String,
+      },
+    jobs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+    }],
     location:[{
         district:{
             type:String

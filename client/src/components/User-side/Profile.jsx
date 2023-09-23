@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { UserApi } from "../../APIs/api";
+import { UserApi } from "../../configs/api";
 import Axios from "axios";
 import { seekerDetails } from "../../Store/storeSlices/seekerAuth";
+import { FaPhone,FaEnvelope,FaCalendar,FaMapMarker } from 'react-icons/fa';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("jobs");
@@ -16,6 +17,7 @@ const Profile = () => {
     skills: null,
     location: null,
     image: null,
+    cv:null,
     email: null,
     dob: null,
     phone: null,
@@ -75,7 +77,7 @@ const Profile = () => {
                   <img
                     src={userDetails.image}
                     alt="User Profile"
-                    className="img-fluid img-thumbnail mt-4 mb-16 w-32 h-32 rounded-full"
+                    className="img-fluid img-thumbnail mt-4 mb-16 w-24 h-24 rounded-full"
                   />
                 ) : (
                   <img
@@ -134,6 +136,22 @@ const Profile = () => {
                 ) : (
                   <div hidden></div>
                 )}
+                {userDetails.cv ? (
+                  <div>
+                    <p className="text-xl font-normal mb-1">Your CV</p>
+                    <div className="p-4 " style={{ backgroundColor: "#f8f9fa" }}>
+      
+                    <button
+                    onClick={() => window.open(userDetails.cv, '_blank')}
+                    className="px-4 py-2 mt-3 border w-full rounded-lg shadow hover:bg-gray-200 hover:border-gray-300"
+                  >
+                    View CV
+                  </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div hidden></div>
+                )}
 
                 {userDetails.experience ? (
                   <div>
@@ -165,36 +183,32 @@ const Profile = () => {
 
                 <p className="text-xl font-normal m-5">Personal details</p>
                 <div className="p-4" style={{ backgroundColor: "#f8f9fa" }}>
-                  {userDetails.phone ? (
-                    <p className="italic mb-1">
-                      <span className=" w-20 font-bold">Contact No :</span>
-                      {userDetails.phone}
-                    </p>
-                  ) : (
-                    <div hidden></div>
-                  )}
-                  <p className="italic mb-1">
-                    <span className="w-20 font-bold">Email :</span>
+                {userDetails.phone ? (
+                  <p className="font-mono mb-1 flex items-center">
+                    <span className="w-8">
+                      <FaPhone />
+                    </span>
+                    {userDetails.phone}
+                  </p>
+                ) : (
+                  <div hidden></div>
+                )}
+
+                  <p className="font-mono mb-1 flex items-center">
+                    <span className="w-8"><FaEnvelope /></span>
                     {userDetails.email}
                   </p>
-                  <p className="italic mb-1">
-                    <span className="w-20 font-bold">Date of birth :</span>{" "}
+                  <p className="font-mono mb-1 flex items-center">
+                    <span className="w-8"><FaCalendar/></span>{" "}
                     {formattedDate}
                   </p>
                   {userDetails.location && userDetails.location.length > 0 && (
                     <div className="flex display-inline">
                       {userDetails.location.map((location, index) => (
                         <div key={index} className="italic">
-                          <p>
-                            <span className="w-20 font-bold">District:</span>{" "}
-                            {location.district}
-                          </p>
-                          <p>
-                            <span className="w-20 font-bold">State:</span>{" "}
-                            {location.state}
-                          </p>
-                          <p>
-                            <span className="w-20 font-bold">City:</span> {location.city}
+                          <p className="font-mono mb-1 flex items-center">
+                            <span className="w-8"><FaMapMarker/></span>{" "}
+                            {location.city}, {location.state}, {location.district}
                           </p>
                         </div>
                       ))}

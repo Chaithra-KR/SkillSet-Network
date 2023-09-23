@@ -1,18 +1,21 @@
 const express = require("express")
 const companyRouter = express.Router();
+const stripe = require('stripe')(process.env.STRIPE_KEY)
+const {localOtpVariables} = require('../Middleware/otpAuth')
+const companyController = require('../Controller/companyController')
 
-companyRouter.get('/companyRegister')
-companyRouter.post('/companyRegister')
+companyRouter.get('/company-generateOtp', localOtpVariables, companyController.generateOtp)
+companyRouter.post('/company-otp', localOtpVariables, companyController.otp)
 
-companyRouter.get('/otp')
-companyRouter.post('/otp')
+companyRouter.post('/company-payment', companyController.premiumPayment)
 
-companyRouter.get('/companyLogin')
-companyRouter.post('/companyLogin')
-companyRouter.get('/companyLogout')
+companyRouter.post('/verifyCompanyLogin',companyController.verifyCompanyLogin)
 
-companyRouter.get('/companyProfile')
-companyRouter.get('/EditCompanyProfile')
-companyRouter.post('/EditCompanyProfile')
+companyRouter.get('/companyProfile',companyController.profileView)
+companyRouter.post('/EditCompanyProfile',companyController.editProfile)
+
+companyRouter.post('/JobPosting',companyController.JobPosting)
+companyRouter.get('/JobDetails',companyController.JobDetails)
+
 
 module.exports = companyRouter;

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import Axios from 'axios';
 import {toast} from 'react-hot-toast';
-import {UserApi} from '../../APIs/api';
+import {UserApi} from '../../configs/api';
 
 const OTP = () => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
