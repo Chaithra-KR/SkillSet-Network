@@ -11,7 +11,9 @@ import propTypes from 'prop-types';
 import {useDispatch, useSelector} from 'react-redux';
 import { companyDetails } from '../Store/storeSlices/companyAuth';
 import JobScheduling from '../Pages/Company/JobScheduling';
-  
+import Notification from '../Pages/Company/Notification';
+import UserProfileView from '../Pages/Company/UserProfileView';
+import SinglePostView from '../Pages/Company/SinglePostView';
 
 function ErrorFallback({error, resetErrorBoundary}) {
   return(
@@ -51,7 +53,6 @@ const Company = () => {
   })
 
 
-  console.log(company,"compp");
   
   return (
     <Fragment>
@@ -73,7 +74,13 @@ const Company = () => {
             <Route path='/company-editProfile' element={company ? <EditCompanyProfile/> : <CompanyAccess/>}/>
 
             <Route path='/company-Jobs' element={company ? <JobScheduling/> : <CompanyAccess/>}/>
-            
+
+            <Route path='/notifications' element={company ? <Notification/> : <CompanyAccess/>}/>
+
+            <Route path='/view-userProfile' element={company ? <UserProfileView/> : <CompanyAccess/>}/>
+
+            <Route path='/singlePost' element={company ? <SinglePostView/> : <CompanyAccess/>}/>  
+
         </Routes>
       </ErrorBoundary>
     </Fragment>

@@ -74,7 +74,7 @@ const JobPosting = () => {
   }, []);
 
   return (
-    <div id="app" className="w-full mx-auto px-4">
+    <div className="w-full pb-7 mx-auto px-4">
 
       <div className="flex flex-wrap">
 
@@ -110,7 +110,7 @@ const JobPosting = () => {
         </div>
 
         <div className="w-full md:w-1/2 lg:w-6/12 flex justify-center p-4">
-          <form onSubmit={handleSubmit(handleJobPosts)} className='bg-pink-100 p-5 rounded'>
+          <form onSubmit={handleSubmit(handleJobPosts)} className='bg-gray-50 p-5 rounded'>
             <h2 className="text-center text-2xl mb-4 mt-10 text-gray-800">
               Post New Job!
             </h2>
@@ -289,7 +289,7 @@ const JobPosting = () => {
                 </li>
               </ul>
             </fieldset>
-            <button className="px-4 py-2 mt-3 border w-full rounded-lg shadow bg-gray-100 hover:bg-pink-700 hover:border-gray-300">
+            <button className="px-4 py-2 mt-3 border w-full text-white rounded-lg shadow bg-pink-300 hover:bg-pink-700 hover:border-gray-300">
               Post
             </button>
           </form>

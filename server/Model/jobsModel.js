@@ -29,6 +29,9 @@ const job = mongoose.Schema({
         type:String,
         ref:"Company",
     },
-
+    applicants: [{
+        type: String,
+        ref: 'AppliedJobs'
+    }]
 })
 module.exports = mongoose.model("Job",job)

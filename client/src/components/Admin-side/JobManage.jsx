@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { AdminApi } from "../../configs/api";
 import { useSelector } from "react-redux";
 import { Button, Modal } from 'antd';
-
+import { FaTrash } from 'react-icons/fa';
 
 const JobManage = () => {
   const [open, setOpen] = useState(false);
@@ -133,34 +133,34 @@ const JobManage = () => {
               <th
                     className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
                   >
-                <span className="font-normal leading-none opacity-70">
+                <span className="font-bold leading-none opacity-70">
                   SI No:
                 </span>
               </th>
               <th
                 className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
               >
-                <span className="font-normal leading-none opacity-70">
+                <span className="font-bold leading-none opacity-70">
                   Position ID
                 </span>
               </th>
-              <th
-                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 pl-10"
-              ></th>
+              
               <th
                 className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
               >
-                <span className="font-normal leading-none opacity-70">
+                <span className=" font-bold leading-none opacity-70">
                   Job position
                 </span>
               </th>
+
               <th
-                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 pl-10"
+                className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
               >
-                <span className="font-normal leading-none opacity-70">
-                  Action
+                <span className="font-bold leading-none opacity-70">
+                  Actions
                 </span>
               </th>
+             
               
           </tr>
         </thead>
@@ -178,7 +178,7 @@ const JobManage = () => {
                 <span className="font-normal">{position.position}</span>
               </td>
               <td className="p-4 border-b border-blue-gray-50">
-                
+                <span className="font-normal cursor-pointer"><FaTrash/></span>
               </td>
             </tr>
 

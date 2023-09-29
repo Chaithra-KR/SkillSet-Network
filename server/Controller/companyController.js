@@ -5,6 +5,8 @@ const Company = require("../Model/companyModel");
 const User = require("../Model/userModel");
 const Job = require("../Model/jobsModel");
 const Position = require("../Model/jobPosition");
+const AppliedJobs = require("../Model/appliedJobs");
+const Posts = require("../Model/posts");
 
 const jwtToken = require("jsonwebtoken");
 
@@ -178,13 +180,11 @@ exports.premiumPayment = async (req, res) => {
       console.log("data is entering to the last stage");
       await newCompany.save();
       console.log("data was finishid");
-      res
-        .status(200)
-        .json({
-          data: paymentIntent.next_action.redirect_to_url.url,
-          success: true,
-          message: "Registration success",
-        });
+      res.status(200).json({
+        data: paymentIntent.next_action.redirect_to_url.url,
+        success: true,
+        message: "Registration success",
+      });
     } else if (paymentIntent.status === "succeeded") {
       res.status(200).json({ success: true });
     } else {
@@ -210,7 +210,6 @@ exports.profileView = async (req, res) => {
       });
       const uniqueSkills = [...new Set(allJobSkills)];
       const matchedUsers = await User.find({ skills: { $in: uniqueSkills } });
-      console.log(matchedUsers, "matchedUsers");
       res.status(200).json({ status: true, companyData, matchedUsers });
     } else {
       res.json({ status: false });
@@ -222,10 +221,8 @@ exports.profileView = async (req, res) => {
 
 exports.editProfile = async (req, res) => {
   try {
-    console.log("ready to edit");
     const token = req.body.token;
     const data = req.body.data;
-    console.log(data, "popo");
     const decode = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
     const companyId = decode.id;
     if (companyId) {
@@ -247,7 +244,7 @@ exports.JobPosting = async (req, res) => {
       req.body.data;
     const token = req.body.company;
     const CompanyId = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
-    const findJobName = await Position.findOne({_id:position})
+    const findJobName = await Position.findOne({ _id: position });
     const newJob = new Job({
       position: findJobName.position,
       salary: salary,
@@ -289,9 +286,122 @@ exports.JobDetails = async (req, res) => {
         "jobs"
       );
 
-      const jobPosition = await Position.find()
-      console.log(companyData,'job positionssssssssssssssssssss');
+      const jobPosition = await Position.find();
       res.status(200).json({ status: true, companyData, jobPosition });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.notifications = async (req, res) => {
+  try {
+    console.log("here");
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    if (companyId) {
+      const companyData = await Company.findOne({ _id: companyId }).populate(
+        "jobs"
+      );
+      const user = await AppliedJobs.find().populate("user").populate("job");
+
+      const applicantData = user.filter((value) => {
+        return value.company === companyId;
+      });
+      const allJobSkills = [];
+      companyData.jobs.forEach((job) => {
+        allJobSkills.push(...job.skills);
+      });
+      const uniqueSkills = [...new Set(allJobSkills)];
+      const matchedUsers = await User.find({ skills: { $in: uniqueSkills } });
+      res.status(200).json({ status: true, companyData, applicantData, matchedUsers });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.userProfileView = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (userId) {
+      const seekerData = await User.findOne({ _id: userId }).populate("posts");
+      console.log(seekerData, "Seeker Data:");
+
+      if (!seekerData) {
+        return res
+          .status(404)
+          .json({ status: false, message: "User not found" });
+      }
+
+      if (!Array.isArray(seekerData.skills)) {
+        return res
+          .status(400)
+          .json({
+            status: false,
+            message: "User skills not found or not an array.",
+          });
+      }
+
+      const uniqueSkills = [...new Set(seekerData.skills)];
+
+      const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } });
+
+      res.status(200).json({ status: true, seekerData, matchedJobs });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.singlePost = async (req, res) => {
+  try {
+    const { imageId } = req.query;
+    console.log(imageId, "imageId");
+    if (imageId) {
+      const seekerData = await Posts.findOne({ _id: imageId }).populate("user");
+      console.log(seekerData, "Seeker Data:");
+      res.status(200).json({ status: true, seekerData });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.postComment = async (req, res) => {
+  try {
+    const { imageId, company } = req.body;
+    const comment = req.body.data;
+    console.log(comment.comment);
+
+    const decode = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+    const companyId = decode.id;
+    if (companyId) {
+      const post = await Posts.findById(imageId);
+      const companyName = await Company.findOne({ _id: companyId });
+      console.log(companyName.company, "companyName");
+      const newComment = {
+        comment: comment.comment,
+        company: {
+          name: companyName.company,
+          image: companyName.image,
+        },
+      };
+
+      post.commentSection.push(newComment);
+      await post.save();
+      res
+        .status(200)
+        .json({ success: true, message: "Commented on the post!" });
     } else {
       res.json({ status: false });
     }

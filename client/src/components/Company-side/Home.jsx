@@ -1,12 +1,10 @@
-import React,{useState,useEffect} from 'react';
-import { CompanyApi } from '../../configs/api';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { companyAxiosInstance } from '../../configs/axios/axios';
-
+import React, { useState, useEffect } from "react";
+import { CompanyApi } from "../../configs/api";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { companyAxiosInstance } from "../../configs/axios/axios";
 
 const Home = () => {
-
   const [companyDetails, setCompanyDetails] = useState({
     company: null,
     email: null,
@@ -15,7 +13,7 @@ const Home = () => {
     peoples: null,
   });
 
-  const [matchedUsers, setMatchedUsers] = useState([])
+  const [matchedUsers, setMatchedUsers] = useState([]);
 
   const company = useSelector((state) => {
     return state?.companyDetails.companyToken;
@@ -24,12 +22,16 @@ const Home = () => {
   useEffect(() => {
     const handleJobDetails = async () => {
       try {
-        await companyAxiosInstance.get(`${CompanyApi}companyProfile?data=${encodeURIComponent(company)}`).then((res) => {
-          let data = res.data.companyData;
-          let userData = res.data.matchedUsers
-          setCompanyDetails(data);
-          setMatchedUsers(userData)
-        });
+        await companyAxiosInstance
+          .get(
+            `${CompanyApi}companyProfile?data=${encodeURIComponent(company)}`
+          )
+          .then((res) => {
+            let data = res.data.companyData;
+            let userData = res.data.matchedUsers;
+            setCompanyDetails(data);
+            setMatchedUsers(userData);
+          });
       } catch (error) {
         console.log(error);
       }
@@ -37,90 +39,148 @@ const Home = () => {
     handleJobDetails();
   }, []);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const handleJobView = () =>{
-    navigate('/company/company-Jobs')
-  }
-  
-  const handleProfileAccess = () =>{
-    navigate('/company/company-profile')
-  }
+  const handleJobView = () => {
+    navigate("/company/company-Jobs");
+  };
 
-  const handleEditProfileAccess = () =>{
-    navigate('/company/company-editProfile')
-  }
+  const handleProfileAccess = () => {
+    navigate("/company/company-profile");
+  };
 
+  const handleEditProfileAccess = () => {
+    navigate("/company/company-editProfile");
+  };
+
+  const handleUserProfileView = (userId) =>{
+    navigate(`/company/view-userProfile?userId=${userId}`)
+  }
   return (
-    <div className='w-full h-screen bg-white '>
-      <div className="flex flex-wrap">
-        <div className=' w-96 flex justify-center'> 
-          <div className='bg-pink-100 w-72 m-5 h-4/6 rounded'>
-                  
-                   {companyDetails.image ? (
+    <>
+      <div className="w-full h-screen bg-white">
+        <div className="flex flex-col md:flex-row lg:flex-row">
+          <div className="w-full md:w-1/2 lg:w-1/3 flex justify-center">
+            <div className="bg-pink-100 w-72 m-5 h-6/6 rounded p-6 flex flex-col items-center">
+              <div className="mt-8">
+                {companyDetails.image ? (
                   <img
                     src={companyDetails.image}
                     alt="User Profile"
-                    className="img-fluid img-thumbnail mt-9 ml-16 w-28 h-28 rounded-full"
+                    className="w-28 h-28 rounded-full"
                   />
                 ) : (
                   <img
                     src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
                     alt="Generic placeholder image"
-                    className="img-fluid img-thumbnail mt-9 ml-16 w-28 h-28 rounded-full"
+                    className="w-28 h-28 rounded-full"
                   />
                 )}
-                <div className='h-3/6 m-7 '>
-                    <div className='pl-16'>
-                      <h1 >{companyDetails.username}</h1>
-                      <h1 >{companyDetails.headline}</h1>
-                    </div>
-                    <div className='pl-10 mt-3'>
-                      <button onClick={handleProfileAccess} className='bg-pink-600 rounded w-28 mb-12 p-1'>View profile</button>
-                      <button onClick={handleEditProfileAccess} className='bg-pink-600 rounded w-28 mb-4 p-1'>Edit profile</button>
-                      <button onClick={handleJobView} className='bg-pink-600 rounded w-28 p-1'>Jobs</button>
-                    </div>
-                </div>
+              </div>
+              <div className="mt-6 text-center">
+                <h1 className="text-xl font-semibold">
+                  {companyDetails.username}
+                </h1>
+                <h2 className="text-sm text-gray-600">
+                  {companyDetails.headline}
+                </h2>
+              </div>
+              <div className="mt-4 flex flex-col items-center space-y-2">
+                <button
+                  onClick={handleProfileAccess}
+                  className="bg-pink-600 rounded px-3 py-1 text-white"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={handleEditProfileAccess}
+                  className="bg-pink-600 rounded px-4 py-1 text-white"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleEditProfileAccess}
+                  className="bg-pink-600 rounded px-9 py-1 text-white"
+                >
+                  Chat
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="p-4 mb-4 md:mb-0">
-          <button onClick={handleJobView} className=' w-[600px] bg-pink-100 border border-pink-200  hover:bg-pink-500 shadow-md h-14 mb-2 rounded'>New Job</button>
-          <div className='bg-gray-100 w-[600px] rounded p-5'>
-          <h2 className="text-lg font-semibold">Recommended candidates for you!</h2>
-          <ul className="mt-2 flex flex-wrap h-[500px] overflow-y-auto ">
-          {matchedUsers.map((val, i) => (
-              <li className="w-full md:w-1/2" key={i}>
-                <div className="box mb-4 p-4 text-center shadow-md">
-                  <div className="bg-pink-50 h-32 mb-2">
-                    <div>
-                    <h3 className='font-bold'>Skills</h3>
-                    <p className='text-sm'>{val.skills.map((skill,i) => (
-                          <>
-                          {skill}
-                          {val.skills.length-1 === i ? "":", "}
-                          </>
-                        ))}</p>
-                    </div>
-                  </div>
-                  <h3 className="title text-lg font-semibold">{val.username}</h3>
-                  <p className="price text-xl font-semibold">{val.email}</p>
-                  <button
-                    className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+
+          <div>
+            <div className="flex flex-wrap justify-between mt-3">
+              <button className="w-full md:w-1/2 lg:w-1/3 xl:w-[390px] bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded">
+                New Post
+              </button>
+              <button
+                onClick={handleJobView}
+                className="w-full md:w-1/2 lg:w-1/3 xl:w-[390px] bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded"
+              >
+                New Job
+              </button>
+            </div>
+
+            <div className="bg-gray-100 w-full md:w-[600px] xl:w-[800px] rounded p-5 h-[500px] overflow-y-auto">
+              <h2 className="text-lg font-semibold">
+                Recommended candidates for you!
+              </h2>
+              <ul className="mt-2 flex flex-wrap">
+                {matchedUsers.map((val, i) => (
+                  <li
+                    className="w-56 p-4 bg-white rounded-lg shadow-md mr-4 mb-4"
+                    key={i}
                   >
-                    View
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                    <div className="text-center">
+                      {val.image ? (
+                        <img
+                          className="rounded-full w-24 h-24 mx-auto border-2 border-persian-orange p-2"
+                          src={val.image}
+                          alt="user"
+                        />
+                      ) : (
+                        <img
+                          className="rounded-full w-24 h-24 mx-auto border-2 border-persian-orange p-2"
+                          src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
+                          alt="user"
+                        />
+                      )}
+
+                      <h3 className="text-xl font-semibold mt-4">
+                        {val.username}
+                      </h3>
+                      <div className="mt-2">
+                        <p>{val.headline}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-bold">Skills</h3>
+                        <p className="text-sm">
+                          {val.skills.map((skill, i) => (
+                            <>
+                              {skill}
+                              {val.skills.length - 1 === i ? "" : ", "}
+                            </>
+                          ))}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 text-center">
+                    <button className="bg-color3 text-black hover:text-white border rounded px-4 py-2 hover:bg-pink-500">
+                      Message
+                    </button>
+                    <button onClick={()=>{handleUserProfileView(val._id)}} className="border rounded text-black hover:bg-pink-500 hover:text-white px-4 py-2 ml-2">
+                      Profile
+                    </button>
+                  </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-        <div className='bg-pink-50 w-96 ml-12 mt-4 rounded-md'>
-          <p className='text-center font-bold'>Recent posts</p>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default Home;

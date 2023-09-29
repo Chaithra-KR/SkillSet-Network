@@ -1,19 +1,12 @@
 const otpGenerator = require("otp-generator");
-const nodemailer = require("nodemailer");
 const User = require("../Model/userModel");
 const Position = require("../Model/jobPosition");
+const AppliedJobs = require("../Model/appliedJobs");
 const Job = require("../Model/jobsModel");
 const jwtToken = require("jsonwebtoken");
+const {sendEmail} = require("../Middleware/nodemailerAuth");
+const Posts = require("../Model/posts");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 exports.otp = async (req, res) => {
   try {
@@ -57,6 +50,7 @@ exports.otp = async (req, res) => {
   }
 };
 
+
 exports.generateOtp = async (req, res) => {
   try {
     const OTP = otpGenerator.generate(6, {
@@ -67,7 +61,6 @@ exports.generateOtp = async (req, res) => {
     console.log(OTP, "otp");
     req.app.locals.OTP = OTP;
     const mailFormat = {
-      from: "narphocart@gmail.com",
       to: req.query.data,
       subject: "SkillSet Network : One Time Password",
       html:
@@ -75,20 +68,17 @@ exports.generateOtp = async (req, res) => {
         OTP +
         "</p><span>Sincerely,</span><h4>SkillSet Network</h4>",
     };
-    transporter.sendMail(mailFormat, (error, data) => {
-      if (error) {
-        return console.log(error);
-      } else {
-        console.log("you can enter otp to the rendered page");
-        res.status(200).json({ success: true });
-      }
-    });
+
+    sendEmail(mailFormat.to, mailFormat.subject, mailFormat.html);
+
+    console.log("you can enter otp on the rendered page");
+    res.status(200).json({ success: true });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, serverMessage: "Internal Server Error" });
+    console.error("Error generating OTP:", error);
+    res.status(500).json({ success: false, serverMessage: "Internal Server Error" });
   }
 };
+
 
 exports.verifyLogin = async (req, res) => {
   try {
@@ -152,8 +142,8 @@ exports.profileView = async (req, res) => {
     console.log(seekerId);
 
     if (seekerId) {
-      const seekerData = await User.findOne({ _id: seekerId }).populate('jobs');
-      console.log('Seeker Data:', seekerData);
+      const seekerData = await User.findOne({ _id: seekerId }).populate('posts')
+      console.log(seekerData,'Seeker Data:');
 
       if (!seekerData) {
         return res.status(404).json({ status: false, message: 'User not found' });
@@ -164,10 +154,8 @@ exports.profileView = async (req, res) => {
       }
 
       const uniqueSkills = [...new Set(seekerData.skills)];
-      console.log('Unique Skills:', uniqueSkills);
 
       const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } }); 
-      console.log('Matched Jobs:', matchedJobs);
 
       res.status(200).json({ status: true, seekerData, matchedJobs });
     } else {
@@ -198,37 +186,164 @@ exports.editProfile = async (req,res) =>{
     }
 }
 
+
 exports.jobView = async (req, res) => {
   try {
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
     const seekerId = decoded.id;
-    console.log(seekerId);
     const searchQuery = req.query.q;
 
-    const jobPosition = await Position.find()
-    // Perform a regular job search based on the searchQuery
-    const jobs = await Job.find({
+    const page = parseInt(req.query.page) || 1; 
+    const perPage = 4;
+
+    const skip = (page - 1) * perPage;
+
+    const jobPosition = await Position.find();
+    console.log(jobPosition,"jobPosition");
+
+    const query = {
       $or: [
         { 'position': { $regex: new RegExp(searchQuery, 'i') } },
         { 'company.company': { $regex: new RegExp(searchQuery, 'i') } },
       ],
-    }).populate('company'); 
+    };
 
-    // Include matchedJobs if seekerId is provided
+    const jobs = await Job.find(query)
+      .populate('company')
+      .skip(skip)
+      .limit(perPage);
+
     let matchedJobs = [];
     if (seekerId) {
-      const seekerData = await User.findOne({ _id: seekerId }).populate('jobs');
-
+      const seekerData = await User.findOne({ _id: seekerId });
       if (seekerData && Array.isArray(seekerData.skills)) {
         const uniqueSkills = [...new Set(seekerData.skills)];
         matchedJobs = await Job.find({ skills: { $in: uniqueSkills } }).populate('company');
       }
     }
-    res.status(200).json({ status: true, jobs, matchedJobs , jobPosition});
+
+    const totalCount = await Job.countDocuments(query);
+    const paginationCount = Math.ceil(totalCount / perPage)
+    res.status(200).json({
+      status: true,
+      jobs,
+      matchedJobs,
+      jobPosition,
+      page,
+      perPage,
+      totalCount,
+      paginationCount
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ status: false, message: 'Internal Server Error' });
   }
 };
 
+
+exports.saveJob = async (req,res)=>{
+  try {
+    const token = req.body.token
+    const data = req.body.data
+    const newJobToSaveList = data._id
+    const decode = jwtToken.verify(token,process.env.SECRET_KEY)
+    const seekerId = decode.id
+    if(seekerId){
+    await User.findOneAndUpdate({_id:seekerId},{ $push: { savedJobs: newJobToSaveList } }).then((updateAccess)=>{
+            console.log(updateAccess);
+            res.status(200).json({ status: true , message:"Job saved" });
+        })
+        
+    }else{
+        res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.savedJobs = async (req,res)=>{
+  try {
+
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+      const userData = await User.findById(seekerId)
+      if (userData) {
+        const savedJobIds = userData.savedJobs;
+        const savedJobs = await Job.find({ _id: { $in: savedJobIds } }).populate('company')
+        console.log(savedJobs,"savedJobs");
+        res.status(200).json({ status: true, jobData: savedJobs });
+      } else {
+        res.status(404).json({ status: false, message: "User not found" });
+      }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.applyJob = async (req,res) =>{
+  try {
+    const {requestData} = req.body
+    const {token, data,} = requestData
+    const {cv ,skills ,name ,email ,experience ,coverLetter ,phone, jobId} = data
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    const jobs = await Job.findOne({ _id: jobId }).populate('company')
+    const companyId = jobs.company._id
+console.log(seekerId,"seekerId");
+    const newAppliedJob = new AppliedJobs({
+      cv: cv,
+      email: email,
+      name: name,
+      experience: experience,
+      skills: skills,
+      coverLetter: coverLetter,
+      user: seekerId,
+      phone:phone,
+      job:jobId,
+      company:companyId
+    });
+    const appliedJobOk = await newAppliedJob.save();
+    if (appliedJobOk) {
+
+      const objectId = jobId
+      const find = await Job.findOne({ _id: objectId }).populate('company')
+      console.log(find,"find");
+
+      await User.findOneAndUpdate({_id:seekerId},{ $push: { appliedJobs: objectId } })
+      await Job.findOneAndUpdate({_id:objectId},{ $push: { applicants: seekerId } }).then(()=>{
+        res.status(200).json({ status: true , message: "Job Applied!" });
+      })
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.newPost = async(req,res)=>{
+  try {
+    const {data, token} =  req.body
+    const {caption, picture} = data
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    console.log(seekerId,"seekerId");
+    if(seekerId){
+      const newPost = new Posts({
+        caption: caption,
+        picture: picture,
+        user: seekerId,
+      });
+      await newPost.save();
+      await User.findOneAndUpdate({_id:seekerId},{ $push: { posts: newPost } })
+      res.status(200).json({ status: true , message: "New post uploaded!" });
+    }else{
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}

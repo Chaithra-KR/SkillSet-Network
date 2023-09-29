@@ -17,5 +17,13 @@ companyRouter.post('/EditCompanyProfile',companyController.editProfile)
 companyRouter.post('/JobPosting',companyController.JobPosting)
 companyRouter.get('/JobDetails',companyController.JobDetails)
 
+companyRouter.get('/notifications',companyController.notifications)
+
+companyRouter.get('/userProfileView',companyController.userProfileView)
+companyRouter.get('/singlePost',companyController.singlePost)
+
+companyRouter.post('/postComment',companyController.postComment)
+
+
 
 module.exports = companyRouter;

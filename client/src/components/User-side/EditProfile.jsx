@@ -100,8 +100,6 @@ const EditProfile = () => {
       );
 
       if (response.data && response.data.secure_url) {
-        // Profile image uploaded successfully
-        // For profile image update
         setChangedData((prevData) => ({
           ...prevData,
           image: response.data.secure_url, // Use a different key than 'cv'
@@ -128,7 +126,7 @@ const EditProfile = () => {
     try {
       const formData = new FormData();
       formData.append("file", cvFile);
-      formData.append("upload_preset", "cvfiles"); // Use the appropriate upload preset for CV files
+      formData.append("upload_preset", "cvfiles");
 
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/skillsetnetwork/image/upload`,
@@ -184,7 +182,6 @@ const EditProfile = () => {
           `${UserApi}userProfile?data=${encodeURIComponent(token)}`
         ).then((res) => {
           setUserDetails(res.data.seekerData);
-          console.log(res.data.seekerData.skills);
           setSkills(res.data.seekerData.skills);
         });
       } catch (error) {
@@ -208,22 +205,26 @@ const EditProfile = () => {
         <h2 className="text-center text-2xl mb-4 text-gray-800">
           Edit Profile!
         </h2>
-        {/* <div className="w-36 h-36 mx-auto mt-10 square-full overflow-hidden">
-          {profilePic ? (
+        <div className="w-36 h-36 mx-auto mt-10 rounded-full overflow-hidden">
+          {changedData.image ? (
             <Image
               cloudName="skillsetnetwork"
-              publicId={profilePic}
+              publicId={changedData.image}
               width="auto"
-              height="150"
+              height="150"  
               crop="scale"
               alt="Profile"
             />
           ) : (
-            <img src={userDetails.image} alt="" />
+            <img
+            src={userDetails.image || "https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"}
+              alt="default"
+            />
           )}
-        </div> */}
+        </div>
 
-            <ul>
+
+            <ul className="mt-4 mb-3">
               <li className="grid gap-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
@@ -246,7 +247,19 @@ const EditProfile = () => {
                     </Button>
                   </div>
                   <div className="col-span-1">
-                    <input type="file" accept=".pdf" onChange={handleFileChange} />
+                  <input
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileChange}
+                      id="cv"
+                      accept=".pdf"
+                    />
+                    <label
+                      htmlFor="cv"
+                      className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"
+                    >
+                      Select your CV
+                    </label>
                     <Button className="ml-2" onClick={handleUploadCV}>
                       Upload
                     </Button>

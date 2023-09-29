@@ -12,6 +12,8 @@ import propTypes from 'prop-types';
 import {useDispatch, useSelector} from 'react-redux';
 import { seekerDetails } from '../Store/storeSlices/seekerAuth';
 import Jobs from '../Pages/User/Jobs';
+import Saved from '../Pages/User/Saved';
+import JobApplyNow from '../Pages/User/JobApplyNow';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -73,6 +75,11 @@ const User = () => {
 
             <Route path='/jobView' element={seeker ? <Jobs/> : <UserAccess/>}/>
 
+            <Route path='/saved-jobs' element={seeker ? <Saved/> : <UserAccess/>}/>
+
+            <Route path='/apply-job' element={seeker ? <JobApplyNow/> : <UserAccess/>}/>
+          
+           
         </Routes>
       </ErrorBoundary>
     </Fragment>

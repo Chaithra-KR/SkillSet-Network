@@ -41,13 +41,14 @@ const user = mongoose.Schema({
         type:String,
     },
     appliedJobs:{
-        type:Array
+        type:Array,
+        ref:"Job",
     },
     cv: {
         type: String,
       },
-    jobs: [{
-        type: mongoose.Schema.Types.ObjectId,
+    savedJobs: [{
+        type: String,
         ref: "Job",
     }],
     location:[{
@@ -60,7 +61,11 @@ const user = mongoose.Schema({
         city:{
             type:String
         }
-    }]
+    }],
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Posts",
+    }],
 })
 
 module.exports = mongoose.model("User",user)
