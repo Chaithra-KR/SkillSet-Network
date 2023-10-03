@@ -7,6 +7,8 @@ const Job = require("../Model/jobsModel");
 const Position = require("../Model/jobPosition");
 const AppliedJobs = require("../Model/appliedJobs");
 const Posts = require("../Model/posts");
+const PremiumRevenue = require("../Model/premiumRevenue");
+
 
 const jwtToken = require("jsonwebtoken");
 
@@ -26,10 +28,8 @@ exports.otp = async (req, res) => {
     const generatedOtp = parseInt(req.app.locals.OTP);
     if (generatedOtp === enteredOtp) {
       const companyData = req.body.data;
-      console.log("hhhh", companyData);
       res.status(200).json({ success: true, companyData });
     } else {
-      console.log("invalid otp");
       res.json({ success: false, message: "Invalid OTP!" });
     }
   } catch (error) {
@@ -41,7 +41,6 @@ exports.otp = async (req, res) => {
 
 exports.generateOtp = async (req, res) => {
   try {
-    console.log("company side datas before reg", req.query.data);
     const OTP = otpGenerator.generate(6, {
       lowerCaseAlphabets: false,
       upperCaseAlphabets: false,
@@ -60,7 +59,7 @@ exports.generateOtp = async (req, res) => {
     };
     transporter.sendMail(mailFormat, (error, data) => {
       if (error) {
-        return console.log(error);
+        res.json({ success: false });
       } else {
         console.log("you can enter otp to the rendered page");
         res.json({ success: true });
@@ -68,7 +67,7 @@ exports.generateOtp = async (req, res) => {
     });
   } catch (error) {
     res
-      .status(500)
+      
       .json({ success: false, serverMessage: "Internal Server Error" });
   }
 };
@@ -93,14 +92,12 @@ exports.verifyCompanyLogin = async (req, res) => {
             role: validPassword.role,
             company: validUser.company,
           };
-          console.log("welcome");
           res.status(200).json({
             success: true,
             necessaryData,
             message: `Welcome ${validUser.company}!`,
           });
         } else {
-          console.log("!password");
           res.json({ success: false, message: "Incorrect password!" });
         }
       } else {
@@ -111,7 +108,6 @@ exports.verifyCompanyLogin = async (req, res) => {
         });
       }
     } else {
-      console.log(!email);
       res.json({
         success: false,
         emailMessage: "Email did not match our records, Please Register!",
@@ -127,7 +123,6 @@ exports.verifyCompanyLogin = async (req, res) => {
 exports.premiumPayment = async (req, res) => {
   try {
     const { token, amount, currency } = req.body;
-    console.log(req.body.data, "datas in payment");
     const companyData = req.body.data;
 
     const paymentMethod = await stripe.paymentMethods.create({
@@ -136,7 +131,7 @@ exports.premiumPayment = async (req, res) => {
         token: token,
       },
     });
-    const parseAmount = parseInt(amount);
+    const parseAmount = parseInt(amount) * 100;
     const paymentIntent = await stripe.paymentIntents.create({
       amount: parseAmount,
       currency,
@@ -145,13 +140,10 @@ exports.premiumPayment = async (req, res) => {
       confirm: true,
       return_url: "http://localhost:3000/company/company-login",
     });
-    console.log("this is the pi", paymentIntent.id);
     const retrievedPaymentIntent = await stripe.paymentIntents.retrieve(
       paymentIntent.id
     );
-
     if (paymentIntent.status === "requires_action") {
-      console.log(req.body.data, "company data from  body");
       const building = companyData.address.building;
       const city = companyData.address.city;
       const pin = companyData.address.pin;
@@ -176,10 +168,16 @@ exports.premiumPayment = async (req, res) => {
         email: companyData.email,
         password: companyData.password,
         role: "company",
+        premium: 5000,
+        premiumStatus:true
       });
-      console.log("data is entering to the last stage");
       await newCompany.save();
-      console.log("data was finishid");
+      const premiumRevenue = new PremiumRevenue({
+        company: newCompany._id,
+        amount: 5000,
+        premiumStatus:true
+      });
+      await premiumRevenue.save();
       res.status(200).json({
         data: paymentIntent.next_action.redirect_to_url.url,
         success: true,
@@ -199,6 +197,7 @@ exports.profileView = async (req, res) => {
   try {
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.COMPANY_SECRET_KEY);
+    // const decoded = req.id
     const companyId = decoded.id;
     if (companyId) {
       const companyData = await Company.findOne({ _id: companyId }).populate(
@@ -210,7 +209,14 @@ exports.profileView = async (req, res) => {
       });
       const uniqueSkills = [...new Set(allJobSkills)];
       const matchedUsers = await User.find({ skills: { $in: uniqueSkills } });
-      res.status(200).json({ status: true, companyData, matchedUsers });
+      const user = await AppliedJobs.find().populate("user").populate("job");
+      const applicantData = user.filter((value) => {
+        return value.company === companyId;
+      });
+
+      res
+        .status(200)
+        .json({ status: true, companyData, applicantData, matchedUsers });
     } else {
       res.json({ status: false });
     }
@@ -224,10 +230,11 @@ exports.editProfile = async (req, res) => {
     const token = req.body.token;
     const data = req.body.data;
     const decode = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+    // const decode = req.id
+
     const companyId = decode.id;
     if (companyId) {
       await Company.updateOne({ _id: companyId }, data).then((updateAccess) => {
-        console.log(updateAccess);
         res.status(200).json({ status: true, updateAccess });
       });
     } else {
@@ -244,6 +251,7 @@ exports.JobPosting = async (req, res) => {
       req.body.data;
     const token = req.body.company;
     const CompanyId = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+    // const CompanyId = req.id
     const findJobName = await Position.findOne({ _id: position });
     const newJob = new Job({
       position: findJobName.position,
@@ -280,6 +288,8 @@ exports.JobDetails = async (req, res) => {
   try {
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.COMPANY_SECRET_KEY);
+    // const decoded = req.id
+
     const companyId = decoded.id;
     if (companyId) {
       const companyData = await Company.findOne({ _id: companyId }).populate(
@@ -298,9 +308,9 @@ exports.JobDetails = async (req, res) => {
 
 exports.notifications = async (req, res) => {
   try {
-    console.log("here");
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.COMPANY_SECRET_KEY);
+    // const decoded = req.id
     const companyId = decoded.id;
     if (companyId) {
       const companyData = await Company.findOne({ _id: companyId }).populate(
@@ -317,7 +327,9 @@ exports.notifications = async (req, res) => {
       });
       const uniqueSkills = [...new Set(allJobSkills)];
       const matchedUsers = await User.find({ skills: { $in: uniqueSkills } });
-      res.status(200).json({ status: true, companyData, applicantData, matchedUsers });
+      res
+        .status(200)
+        .json({ status: true, companyData, applicantData, matchedUsers });
     } else {
       res.json({ status: false });
     }
@@ -331,8 +343,6 @@ exports.userProfileView = async (req, res) => {
     const { userId } = req.query;
     if (userId) {
       const seekerData = await User.findOne({ _id: userId }).populate("posts");
-      console.log(seekerData, "Seeker Data:");
-
       if (!seekerData) {
         return res
           .status(404)
@@ -340,12 +350,10 @@ exports.userProfileView = async (req, res) => {
       }
 
       if (!Array.isArray(seekerData.skills)) {
-        return res
-          .status(400)
-          .json({
-            status: false,
-            message: "User skills not found or not an array.",
-          });
+        return res.status(400).json({
+          status: false,
+          message: "User skills not found or not an array.",
+        });
       }
 
       const uniqueSkills = [...new Set(seekerData.skills)];
@@ -364,10 +372,8 @@ exports.userProfileView = async (req, res) => {
 exports.singlePost = async (req, res) => {
   try {
     const { imageId } = req.query;
-    console.log(imageId, "imageId");
     if (imageId) {
       const seekerData = await Posts.findOne({ _id: imageId }).populate("user");
-      console.log(seekerData, "Seeker Data:");
       res.status(200).json({ status: true, seekerData });
     } else {
       res.json({ status: false });
@@ -381,14 +387,12 @@ exports.postComment = async (req, res) => {
   try {
     const { imageId, company } = req.body;
     const comment = req.body.data;
-    console.log(comment.comment);
-
     const decode = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+    // const decode = req.id
     const companyId = decode.id;
     if (companyId) {
       const post = await Posts.findById(imageId);
       const companyName = await Company.findOne({ _id: companyId });
-      console.log(companyName.company, "companyName");
       const newComment = {
         comment: comment.comment,
         company: {
@@ -407,5 +411,47 @@ exports.postComment = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { password, confirmPassword, currentPassword } = req.body.data;
+
+    const token = req.body.token;
+    const decoded = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+    // const decoded = req.id
+    const companyId = decoded.id;
+    console.log(companyId);
+    const company = await Company.findById(companyId);
+
+    if (!company) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Company not found" });
+    }
+    const companyWithCurrentPassword = await Company.findOne({
+      _id: companyId,
+      password: currentPassword,
+    });
+
+    if (!companyWithCurrentPassword) {
+      console.log(companyWithCurrentPassword);
+      return res.json({
+        success: false,
+        message: "Incorrect current password",
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.json({ success: false, message: "Passwords do not match on confirm" });
+    }
+    company.password = password;
+    await company.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
   }
 };

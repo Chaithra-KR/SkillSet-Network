@@ -44,7 +44,13 @@ const company = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-  
+    premium:{
+        type:Number,
+    },
+    premiumStatus:{
+        type:Boolean,
+        default:false
+    },
     address: [
         {
             building:{

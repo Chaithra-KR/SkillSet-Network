@@ -4,56 +4,76 @@ import { CompanyApi } from '../../configs/api';
 import {useLocation} from 'react-router-dom';
 import Navbar from './Navbar';
 import { companyAxiosInstance } from '../../configs/axios/axios';
+import {toast} from 'react-hot-toast';
+import axios from 'axios';
 
 
 const CompanyPremium = () => {
-  const amount = 1000; 
+  const amount = 5000; 
   const publishableKey = 'pk_test_51NnZNQSCHRF9RPPWsxW5yF4ncPLLrR1Rc2svGQE5sK7DmkYyq47cRGIl1Yt5IwSwQyv4733qE0wxt4fCguIykQz300vFWMcSuW'; 
   const location = useLocation()
 
-  const payNow = async (token,amount) => {
+  const payNow = async (token, amount) => {
     try {
-      companyAxiosInstance.post(`${CompanyApi}company-payment`,{
-        token:token.id,
-        amount:amount.toString(),
-        currency:"INR",
-        data :location?.state.data
-
-      }).then((res)=>{
-        if(res.status===200){
-           window.open(res.data.data,"_blank")
-           navigate('/company/company-login')
-           const showToast = () => {
-             toast.success(res.data.message, {
-               duration: 3000,
-               position: 'top-center',
-               style: {
-                 background: '#00ff00',
-                 color: '#fff',
-               },
-             });
-           };
-           showToast()
- 
-        }else{
-            console.log("Invalid OTP");
-            toast.error(res.data.message,{
-              duration:3000,
-              position:'top-center',
-              style:{
-                background:'#ff0000',
-                color:'#fff'
-              }
-            })
+      const response = await axios.post(`${CompanyApi}company-payment`, {
+        token: token.id,
+        amount: amount.toString(),
+        currency: "INR",
+        data: location?.state.data
+      });
   
+      if (response.status === 200) {
+        if (response.data.requires_action) {
+          const clientSecret = response.data.client_secret;
+          const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret);
+          
+          if (error) {
+            console.error("Payment confirmation error:", error);
+          } else {
+            window.open(paymentIntent.next_action.redirect_to_url.url, "_blank");
+            navigate('/company/company-login');
+            showToast("Payment successful", '#00ff00');
+          }
+        } else {
+          window.open(response.data.data, "_blank");
+          navigate('/company/company-login');
+          showToast(response.data.message, '#00ff00');
         }
-      })
-    
-     
+      } else {
+        console.error("Payment failed:", response.data.message);
+        toast.error(response.data.message, {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#ff0000',
+            color: '#fff'
+          }
+        });
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Payment error:", error);
+      toast.error("Payment error. Please try again.", {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#ff0000',
+          color: '#fff'
+        }
+      });
     }
   };
+  
+  const showToast = (message, backgroundColor) => {
+    toast.success(message, {
+      duration: 3000,
+      position: 'top-center',
+      style: {
+        background: backgroundColor,
+        color: '#fff',
+      },
+    });
+  };
+  
 
   return (
     <>

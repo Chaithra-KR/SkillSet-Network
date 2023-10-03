@@ -14,6 +14,7 @@ import JobScheduling from '../Pages/Company/JobScheduling';
 import Notification from '../Pages/Company/Notification';
 import UserProfileView from '../Pages/Company/UserProfileView';
 import SinglePostView from '../Pages/Company/SinglePostView';
+import ResetPassword from '../Pages/Company/ResetPassword';
 
 function ErrorFallback({error, resetErrorBoundary}) {
   return(
@@ -80,6 +81,9 @@ const Company = () => {
             <Route path='/view-userProfile' element={company ? <UserProfileView/> : <CompanyAccess/>}/>
 
             <Route path='/singlePost' element={company ? <SinglePostView/> : <CompanyAccess/>}/>  
+
+            <Route path='/change-password' element={company ? <ResetPassword/> : <CompanyAccess/>}/>  
+
 
         </Routes>
       </ErrorBoundary>

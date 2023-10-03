@@ -14,6 +14,7 @@ import { seekerDetails } from '../Store/storeSlices/seekerAuth';
 import Jobs from '../Pages/User/Jobs';
 import Saved from '../Pages/User/Saved';
 import JobApplyNow from '../Pages/User/JobApplyNow';
+import ResetPassword from '../Pages/User/ResetPassword';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -79,6 +80,7 @@ const User = () => {
 
             <Route path='/apply-job' element={seeker ? <JobApplyNow/> : <UserAccess/>}/>
           
+            <Route path='/change-password' element={seeker ? <ResetPassword/> : <UserAccess/>}/>
            
         </Routes>
       </ErrorBoundary>

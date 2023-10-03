@@ -197,6 +197,7 @@ const JobView = () => {
               <Modal
                 title="About the vacancy"
                 visible={selectedJob === val}
+                footer={null}
                 onCancel={closeModal}
               >
                 <h1 className="text-xl font-bold pb-3">
@@ -329,6 +330,7 @@ const JobView = () => {
                   title="About the vacancy"
                   visible={selectedJob === job}
                   onCancel={closeModal}
+                  footer={null}
                 >
                   <h1 className="text-xl font-bold pb-3">
                     {job.position}{" "}

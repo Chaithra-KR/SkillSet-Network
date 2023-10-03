@@ -1,8 +1,5 @@
 import React, { useState,Fragment } from 'react';
 import {useNavigate} from 'react-router-dom';
-import Footer from '../../components/User-side/Footer';
-import LandingNav from '../../components/User-side/LandingNav';
-
 
 const SeekerOrCompany = () => {
   const [jobSeekerClicked, setJobSeekerClicked] = useState(false);
@@ -32,24 +29,25 @@ const SeekerOrCompany = () => {
 
   return (
     <Fragment>
-    <LandingNav/>
-    <div className='w-full h-screen bg-pink-100 flex justify-center items-center'>
-      <div className='bg-white h-4/6 w-6/12'>
-        <h1 className='text-black text-center pt-12' style={{ fontSize: '30px', fontFamily: 'cursive' }}>
+    <div className="relative">
+      <img src="trust.jpg" alt="Your Image" className="w-full" />
+      <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full bg-black bg-opacity-50">
+      <div className='bg-white bg-opacity-50 h-4/6 w-6/12 rounded'>
+        <h1 className='text-white text-center pt-12' style={{ fontSize: '30px', fontFamily: 'cursive' }}>
           Join as a Job Seeker Or Company
         </h1>
         <div className='flex justify-between px-24 pt-20'>
           <button
-            className={`bg-gray-100 w-56 h-40 p-2 border border-gray-100 shadow-md hover:border-pink-400 ${
-              jobSeekerClicked ? 'bg-pink-200' : ''
+            className={`bg-gray-100 w-56 h-40 p-2 border-gray-100 rounded shadow-md ${
+              jobSeekerClicked ? 'bg-gray-200' : ''
             }`}
             onClick={handleJobSeekerClick}
           >
             {jobSeekerClicked ? '✔ Job Seeker' : "I'm a Job Seeker, Looking for a job!"}
           </button>
           <button
-            className={`bg-gray-100 w-56 h-40 border border-gray-100 shadow-md hover:border-pink-400 ${
-              companyClicked ? 'bg-pink-200' : ''
+            className={`bg-gray-100 w-56 h-40 border-gray-100 rounded shadow-md ${
+              companyClicked ? 'bg-gray-200' : ''
             }`}
             onClick={handleCompanyClick}
           >
@@ -81,8 +79,8 @@ const SeekerOrCompany = () => {
           )}
         </div>
       </div>
+      </div>
     </div>
-    <Footer/>
     </Fragment>
   );
 };

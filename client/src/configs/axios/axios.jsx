@@ -1,43 +1,35 @@
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 
+// Define your base URLs
 const seekerBaseUrl = "/";
 const companyBaseUrl = "/company";
 const adminBaseUrl = "/admin";
 
-const createAxiosClient = (baseURL) => {
-  const client = axios.create({
+// Create a function to create an Axios instance with common configurations
+const createAxiosInstance = (baseURL) => {
+  const instance = axios.create({
     baseURL,
     timeout: 4000,
-    timeoutErrorMessage: "Request Timeout , Please Try Again",
+    timeoutErrorMessage: "Request Timeout, Please Try Again",
   });
-  return client;
+
+  // Add an interceptor to attach the token to each request
+  instance.interceptors.request.use((config) => {
+    const authToken = localStorage.getItem(config.tokenKey); // Use config.tokenKey to specify the token key
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`;
+    }
+    return config;
+  }, (error) => {
+    return Promise.reject(error);
+  });
+
+  return instance;
 };
 
-const attachToken = (req, token) => {
-  let authToken = localStorage.getItem(token);
-  if (authToken) {
-    req.headers.Authorization = `Bearer ${authToken}`;
-  }
-  return req;
-};
-
-const seekerAxiosInstance = createAxiosClient(seekerBaseUrl);
-seekerAxiosInstance.interceptors.request.use(async (req) => {
-  const modifiedReq = attachToken(req, "seekerToken");
-  return modifiedReq;
-});
-
-const companyAxiosInstance = createAxiosClient(companyBaseUrl);
-companyAxiosInstance.interceptors.request.use(async (req) => {
-  const modifiedReq = attachToken(req, "companyToken");
-  return modifiedReq;
-});
-
-const adminAxiosInstance = createAxiosClient(adminBaseUrl);
-adminAxiosInstance.interceptors.request.use(async (req) => {
-  const modifiedReq = attachToken(req, "adminToken");
-  return modifiedReq;
-});
+// Create Axios instances for different parts of your application
+const seekerAxiosInstance = createAxiosInstance(seekerBaseUrl);
+const companyAxiosInstance = createAxiosInstance(companyBaseUrl);
+const adminAxiosInstance = createAxiosInstance(adminBaseUrl);
 
 export { seekerAxiosInstance, companyAxiosInstance, adminAxiosInstance };

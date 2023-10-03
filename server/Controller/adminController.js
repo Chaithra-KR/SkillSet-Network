@@ -2,6 +2,7 @@ const Admin = require("../Model/adminModel");
 const Company = require("../Model/companyModel");
 const User = require("../Model/userModel");
 const Position = require("../Model/jobPosition");
+const PremiumRevenue = require("../Model/premiumRevenue");
 const jwtToken = require("jsonwebtoken");
 
 exports.adminVerifyLogin = async (req, res) => {
@@ -126,8 +127,28 @@ exports.viewDashboard = async (req, res) => {
   try {
     const usersCount = await User.find().countDocuments();
     const companiesCount = await Company.find().countDocuments();
-    console.log("usersCount:", usersCount, "companiesCount:", companiesCount);
-    res.status(200).json({ success: true, companiesCount, usersCount });
+    const revenue = await PremiumRevenue.aggregate([
+      {
+        $match: {
+          premiumStatus: true,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          subtotal: { $sum: "$amount" },
+        },
+      },
+    ]);
+    const premiumAccountsCount = await PremiumRevenue.find().countDocuments();
+    console.log("revenue:", revenue[0].subtotal);
+    res.status(200).json({
+      success: true,
+      companiesCount,
+      usersCount,
+      revenue: revenue[0].subtotal,
+      premiumAccountsCount,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -137,7 +158,8 @@ exports.jobPosition = async (req, res) => {
   try {
     const { job } = req.body.data;
     const token = req.body.token;
-    const adminId = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    const adminId = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    // const adminId = req.id
     console.log(job, "job");
     const checkJob = await Position.findOne({ position: job });
     if (!checkJob) {
@@ -145,14 +167,13 @@ exports.jobPosition = async (req, res) => {
         position: job,
         admin: adminId.id,
       });
-      const JobTitle = await newJob.save()
+      const JobTitle = await newJob.save();
       console.log("success", JobTitle);
-      res.status(200)
-        .json({
-          success: true,
-          JobTitle,
-          message: "New job position uploaded successfully!",
-        });
+      res.status(200).json({
+        success: true,
+        JobTitle,
+        message: "New job position uploaded successfully!",
+      });
     } else {
       console.log("already exist");
 
@@ -166,19 +187,34 @@ exports.jobPosition = async (req, res) => {
   }
 };
 
-exports.viewJobManage = async (req,res) =>{
-    try {
-        const data = req.query.data;
-        const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
-        const adminId = decoded.id;
-        if (adminId) {
-          let jobPosition = await Position.find()
-          console.log(jobPosition,"jobPosition");
-          res.status(200).json({ status: true, jobPosition });
-        } else {
-          res.json({ status: false });
-        }
-    } catch (error) {
-        console.log(error);
+exports.viewJobManage = async (req, res) => {
+  try {
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      let jobPosition = await Position.find();
+      console.log(jobPosition, "jobPosition");
+      res.status(200).json({ status: true, jobPosition });
+    } else {
+      res.json({ status: false });
     }
-}
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.accounts = async (req, res) => {
+  try {
+    const accounts = await PremiumRevenue.find().populate("company");
+    if (accounts) {
+      console.log(accounts,"accounts");
+      res.status(200).json({ status: true, accounts });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -6,7 +6,8 @@ import { AdminApi } from '../../configs/api';
 const AdminDashboard = () => {
   const [userCount, setUserCount] = useState(0)
   const [companyCount, setCompanyCount] = useState(0)
-  const [profit, setProfit] = useState(7)
+  const [revenue, setRevenue] = useState(0)
+  const [premiumAccountsCount, setPremiumAccountsCount] = useState(0)
 
 
   useEffect(() => {
@@ -17,6 +18,9 @@ const AdminDashboard = () => {
           setUserCount(usersCount)
           const companiesCount = res.data.companiesCount
           setCompanyCount(companiesCount)
+          const revenue = res.data.revenue
+          setRevenue(parseInt(revenue))
+          setPremiumAccountsCount(res.data.premiumAccountsCount)
         })
       }
       handleDashboard()
@@ -24,12 +28,12 @@ const AdminDashboard = () => {
       console.log(error);
     }
   }, []);
-  
+  console.log(revenue);
   const chartData = [
     ['dashboard', 'Mhl'],
     ['companies', companyCount],
     ['users', userCount],
-    ['profit', profit],
+    ['Premium accounts', premiumAccountsCount]
   ];
 
   return (
@@ -43,14 +47,18 @@ const AdminDashboard = () => {
           className="chart-container"
           data={chartData}
           options={{
-            title: 'World Wide Wine Production',
+            title: 'World Wide record for SkillSet Network',
             is3D: true,
           }}
         />
         <div>
           <div className="bg-gray-100 rounded-lg p-3 h-24 w-72 m-7">
             <h3 className="text-lg text-gray-600">Total profit :</h3>
-            <p className="text-2xl pl-5 text-gray-500"><span className="font-bold">57587</span></p>
+            <p className="text-2xl text-gray-500"><span className="font-bold ml-16">Rs.{revenue}/-</span></p>
+          </div>
+          <div className="bg-gray-100 rounded-lg p-3 h-24 w-72 m-7">
+            <h3 className="text-lg text-gray-600"> Premium accounts</h3>
+            <p className="text-sm text-gray-500">Total Premium accounts: <span className="font-bold text-xl">{premiumAccountsCount}</span></p>
           </div>
           <div className="bg-gray-100 rounded-lg p-3 h-24 w-72 m-7">
             <h3 className="text-lg text-gray-600"> users</h3>

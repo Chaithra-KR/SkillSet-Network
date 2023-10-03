@@ -6,6 +6,7 @@ import {useForm} from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { adminDetails } from '../../Store/storeSlices/adminAuth';
+import { adminAxiosInstance } from '../../configs/axios/axios';
 
 
 const SignIn = () => {
@@ -18,7 +19,7 @@ const SignIn = () => {
   const handleLoginSubmit = async (data) => {
     try {
       console.log(data);
-      const response = await Axios.post(`${AdminApi}adminVerifyLogin`,{data:data});
+      const response = await axios.post(`${AdminApi}adminVerifyLogin`,{data:data});
       if (response.data.success) {
         localStorage.setItem('adminInformation',JSON.stringify(response.data.necessaryData))
         dispatch(adminDetails(impData))    

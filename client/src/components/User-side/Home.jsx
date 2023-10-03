@@ -178,7 +178,8 @@ const Home = () => {
                       Attach image
                     </label>
                     <div class="flex items-center justify-center w-full">
-                      <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-40 p-10 group text-center">
+                      <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-40 px-10 py-3 group text-center">
+                      <p className="pb-1 text-gray-400">Drop a file here to upload or click to browse </p>
                         
                         <ImgCrop aspect={1/1} rotationSlider>
                             <Upload

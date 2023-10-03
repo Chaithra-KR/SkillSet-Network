@@ -154,13 +154,13 @@ const EditProfile = () => {
   const handleProfileEditSuccess = async () => {
     changedData.skills = skills;
 
-    await Axios.post(`${UserApi}EditUserProfile`, {
+    const response = await Axios.post(`${UserApi}EditUserProfile`, {
       data: changedData,
       token: token,
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }).then((res) => {
+    })
       toast.success("Profile updated!", {
         duration: 3000,
         position: "top-right",
@@ -169,7 +169,6 @@ const EditProfile = () => {
           color: "#fff",
         },
       });
-    });
   };
 
   useEffect(() => {

@@ -4,6 +4,7 @@ import Navbar from '../../components/Admin-side/Navbar';
 import AdminDashboard from '../../components/Admin-side/AdminDashboard';
 import Companies from '../../components/Admin-side/Companies';
 import JobManage from '../../components/Admin-side/jobManage';
+import AccountsManage from '../../components/Admin-side/AccountsManage';
 
 import './ANT/ant.css'
 import {
@@ -23,28 +24,28 @@ const { Header, Sider, Content } = Layout;
 const Dashboard = () => {
 
   const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey, setSelectedKey] = useState('1'); // State variable to track selected item's key
+  const [selectedKey, setSelectedKey] = useState('1'); 
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   const handleMenuItemClick = (item) => {
-    setSelectedKey(item.key); // Update selectedKey when a menu item is clicked
+    setSelectedKey(item.key);
   };
 
   return (
     <Fragment>
     <Navbar/>
     <Layout className='bg-pink-50'>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} >
         <div className="demo-logo-vertical bg-pink-100" />
         <Menu
           theme="dark"
           mode="inline"
           className='bg-pink-100 text-black font-mono'
           defaultSelectedKeys={['1']}
-          selectedKeys={[selectedKey]} // Set the selectedKeys prop to track the selected item
-          onClick={handleMenuItemClick} // Handle menu item click event
+          selectedKeys={[selectedKey]} 
+          onClick={handleMenuItemClick}
           items={[
             {
               key: '1',
@@ -109,7 +110,7 @@ const Dashboard = () => {
               case'3':
                 return <Users/>;
               case'4':
-                return <div>hai this is accounts</div>
+                return <AccountsManage/>;
               case'5':
                 return <div>hai this is notification</div>
               case'6':

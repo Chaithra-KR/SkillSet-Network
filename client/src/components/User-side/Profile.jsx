@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("jobs");
+  const [activeTab, setActiveTab] = useState(true);
   const navigate = useNavigate();
 
   const [userDetails, setUserDetails] = useState({
@@ -31,6 +31,7 @@ const Profile = () => {
     posts: null,
   });
 
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const rawDate = userDetails.dob;
   console.log(userDetails, "this is the object");
   let formattedDate = null;
@@ -57,7 +58,10 @@ const Profile = () => {
           `${UserApi}userProfile?data=${encodeURIComponent(data)}`
         ).then((res) => {
           let seekerData = res.data.seekerData;
+          let appliedJobs = res.data.appliedJobs;
+
           setUserDetails(seekerData);
+          setAppliedJobs(appliedJobs);
         });
       } catch (error) {
         console.log(error);
@@ -65,6 +69,17 @@ const Profile = () => {
     };
     handleProfile();
   }, []);
+
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString(undefined, options);
+    return formattedDate;
+  };
 
   return (
     <>
@@ -95,7 +110,7 @@ const Profile = () => {
                     <p>{userDetails.email}</p>
                     <button
                       onClick={handleEditProfile}
-                      className="p-1 w-28 h-8 mt-5 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500"
+                      className="p-1 w-28 h-8 mt-5 border border-pink-400 rounded bg-pink-100 hover:text-white shadow-md hover:bg-pink-500"
                     >
                       Edit profile
                     </button>
@@ -103,10 +118,10 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <div className="flex flex-row mt-28 ml-96 ">
+                  <div className="flex flex-row mt-28 pl-96 ">
                     {userDetails.skills && userDetails.skills.length > 0 && (
                       <div>
-                        <p className="mb-1 text-lg">
+                        <p className="mb-1 pl-2 text-lg">
                           {userDetails.skills.length}{" "}
                         </p>
                         <p className="text-xs text-muted mb-0">Skills</p>
@@ -114,8 +129,8 @@ const Profile = () => {
                     )}
 
                     <div className="pl-2">
-                      <p className="mb-1 text-lg">1026</p>
-                      <p className="text-xs text-muted mb-0">Jobs</p>
+                      <p className="mb-1 text-lg pl-6">{appliedJobs.length}</p>
+                      <p className="text-xs text-muted mb-0">Applied jobs</p>
                     </div>
                   </div>
                 </div>
@@ -246,73 +261,130 @@ const Profile = () => {
                   <div>
                     <button
                       className={`p-1 w-20 ml-5 border rounded-full shadow-md ${
-                        activeTab === "posts" ? "bg-pink-400" : "bg-gray-300"
+                        activeTab === true
+                          ? "bg-pink-400 text-white"
+                          : "bg-gray-300"
                       }`}
-                      onClick={() => setActiveTab("posts")}
+                      onClick={() => setActiveTab(true)}
                     >
                       Posts
                     </button>
                     <button
                       className={`p-1 w-20 ml-5 border rounded-full shadow-md ${
-                        activeTab === "jobs" ? "bg-pink-400" : "bg-gray-300"
+                        activeTab === false
+                          ? "bg-pink-400 text-white"
+                          : "bg-gray-300"
                       }`}
-                      onClick={() => setActiveTab("jobs")}
+                      onClick={() => setActiveTab(false)}
                     >
                       Jobs
                     </button>
-                    <button
-                      className={`p-1 w-24 ml-5 border rounded-full shadow-md ${
-                        activeTab === "hirePool" ? "bg-pink-400" : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("hirePool")}
-                    >
-                      Hire pool
-                    </button>
-                    <button
-                      className={`p-1 w-24 ml-5 border rounded-full shadow-md ${
-                        activeTab === "people" ? "bg-pink-400" : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("people")}
-                    >
-                      People
-                    </button>
                   </div>
                 </div>
-                <p className="mb-0">
-                  <a
-                    href="#!"
-                    className="p-1 border border-pink-400 rounded bg-pink-100 shadow-md hover:bg-pink-500"
-                  >
-                    Show all
-                  </a>
-                </p>
               </div>
-              {userDetails.posts ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-white">
-                  {userDetails.posts.map((post, index) => (
-                    <div key={post._id} className="mb-2 ml-7 p-3">
-                      <img
-                        src={post.picture}
-                        alt={`image ${index + 1}`}
-                        className="h-48 rounded-3 flex justify-center items-center"
-                      />
+              {activeTab === true ? (
+                <div>
+                  {userDetails.posts ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-white">
+                      {userDetails.posts.map((post, index) => (
+                        <div key={post._id} className="mb-2 ml-7 p-3">
+                          <img
+                            src={post.picture}
+                            alt={`image ${index + 1}`}
+                            className="h-48 rounded-3 flex justify-center items-center"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="bg-white w-full h-72 sm:h-96 flex flex-col justify-center items-center">
+                      <div>
+                        <p className="text-black">No posts available</p>
+                        <button
+                          className="p-1 sm:p-2 w-24 sm:w-32 mt-4 border text-white rounded-full bg-pink-400"
+                          onClick={() => {
+                            navigate("/home");
+                          }}
+                        >
+                          Post now
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="bg-white w-full h-72 sm:h-96 flex flex-col justify-center items-center">
+                <section>
+                {appliedJobs && appliedJobs.length > 0 ? (
                   <div>
-                    <p className="text-black">No posts available</p>
+                    {appliedJobs.map((val) => (
+                      <div className="container pb-2" key={val._id}>
+                        <div className="md:mx-auto">
+                          <ul className="space-y-4">
+                            <li className="flex flex-wrap items-center justify-between p-4 bg-white border rounded-lg shadow-md">
+                              <div className="flex-grow flex items-center">
+                                <div className="relative mr-4">
+                                  {val.company.image ? (
+                                    <img
+                                      className="rounded-full w-20 h-20 border-persian-orange p-2"
+                                      src={val.company.image}
+                                      alt="user"
+                                    />
+                                  ) : (
+                                    <img
+                                      className="rounded-full w-24 h-24 border-2 border-persian-orange p-2"
+                                      src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
+                                      alt="user"
+                                    />
+                                  )}
+                                </div>
+                                <div>
+                                  <h4 className="text-lg font-semibold">
+                                    {val.company.company}
+                                  </h4>
+                                  <h5 className="text-black">
+                                    Position: {val.job.position}
+                                  </h5>
+                                  <p className="text-gray-500">
+                                    Skills:{" "}
+                                    {val.job.skills.map((skill, i) => (
+                                      <>
+                                        {skill}
+                                        {val.job.skills.length - 1 === i ? "" : " , "}
+                                      </>
+                                    ))}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm pl-1 pb-1 text-gray-400">
+                                  Applied date: {formatDate(val.appliedDate)}
+                                </p>
+                                <p className="px-4 py-2 text-black bg-gray-100 rounded-md">
+                                  Salary: Rs.{val.job.salary}/-
+                                </p>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white w-full h-72 sm:h-96 flex flex-col justify-center items-center">
+                  <div>
+                    <p className="text-black">No applied jobs are available at the moment!</p>
                     <button
-                      className="p-1 sm:p-2 w-24 sm:w-32 mt-4 border rounded-full bg-pink-400"
+                      className="p-1 sm:p-2 w-24 sm:w-32 mt-4 text-white border xl:ml-20 rounded-full bg-pink-400"
                       onClick={() => {
-                        navigate("/home");
+                        navigate("/jobView");
                       }}
                     >
-                      Post now
+                      Apply now
                     </button>
                   </div>
                 </div>
+                )}
+                </section>
               )}
             </div>
           </div>

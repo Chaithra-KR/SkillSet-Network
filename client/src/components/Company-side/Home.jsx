@@ -3,6 +3,7 @@ import { CompanyApi } from "../../configs/api";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { companyAxiosInstance } from "../../configs/axios/axios";
+import axios from "axios";
 
 const Home = () => {
   const [companyDetails, setCompanyDetails] = useState({
@@ -22,7 +23,7 @@ const Home = () => {
   useEffect(() => {
     const handleJobDetails = async () => {
       try {
-        await companyAxiosInstance
+        await axios
           .get(
             `${CompanyApi}companyProfile?data=${encodeURIComponent(company)}`
           )

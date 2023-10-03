@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { companyLogout } from "../../Store/storeSlices/companyAuth";
-import { FaBars, FaBell, FaHome, FaBriefcase, FaComment,FaUser } from "react-icons/fa";
+import { FaBars, FaBell, FaHome, FaBriefcase, FaComment, FaUser, FaCog } from "react-icons/fa";
 import { Button, Modal } from "antd";
 
 const Navbar = () => {
@@ -10,6 +10,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpenForSettings, setModalOpenForSettings] = useState(false);
+
 
   const handleProfileView = () => {
     navigate("/company/company-profile");
@@ -39,7 +41,19 @@ const Navbar = () => {
   };
 
   const handleCancel = () => {
-    setModalOpen(false);
+    setModalOpenForSettings(false);
+  };
+
+  const openModal = () => {
+    setModalOpenForSettings(true);
+  };
+
+  const closeModal = () => {
+    setModalOpenForSettings(false);
+  };
+
+  const handleChangePassword = () => {
+    navigate("/company/change-password");
   };
 
   return (
@@ -53,7 +67,7 @@ const Navbar = () => {
             <FaBars />
           </Button>
         </div>
-        <Modal open={modalOpen} onCancel={handleCancel}>
+        <Modal open={modalOpen} footer={null} onCancel={handleCancel}>
           <div className="p-3.5 space-y-2">
             <button
               onClick={handleHomeView}
@@ -135,11 +149,34 @@ const Navbar = () => {
           </button>
 
           <button
-            onClick={handleLogout}
-            className="p-1 w-20 border border-transparent  text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+            onClick={openModal}
+            className="px-3 border border-transparent rounded flex flex-col items-center"
           >
-            Logout
+            <FaCog className="fill-current text-pink-500" />
+            Settings
           </button>
+          <Modal
+            open={modalOpenForSettings}
+            onCancel={closeModal}
+            footer={null}
+          >
+            <div className="flex justify-center items-center">
+              <div className="flex flex-col">
+                <button
+                  onClick={handleChangePassword}
+                  className="p-1  mb-2 w-40 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                >
+                  Change password
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="p-1 ml-7 w-24 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </Modal>
         </div>
       </div>
     </div>

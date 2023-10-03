@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { TiDeleteOutline } from 'react-icons/ti';
 import { companyAxiosInstance } from '../../configs/axios/axios';
+import axios from 'axios';
 
 const JobPosting = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -39,7 +40,7 @@ const JobPosting = () => {
   const handleJobPosts = async (data) => {
     try {
       data.skills = skills; 
-      const res = await companyAxiosInstance.post(`${CompanyApi}JobPosting`, { data: data, company: company });
+      const res = await axios.post(`${CompanyApi}JobPosting`, { data: data, company: company });
       if (res.data.status) {
         toast.success(res.data.message, {
           duration: 3000,
@@ -59,7 +60,7 @@ const JobPosting = () => {
   useEffect(() => {
     const handleJobDetails = async () => {
       try {
-        await companyAxiosInstance.get(`${CompanyApi}JobDetails?data=${encodeURIComponent(company)}`).then((res) => {
+        await axios.get(`${CompanyApi}JobDetails?data=${encodeURIComponent(company)}`).then((res) => {
           let companyData = res.data.companyData;
           const data = companyData.jobs;
           setJobList(data);

@@ -4,9 +4,8 @@ const Position = require("../Model/jobPosition");
 const AppliedJobs = require("../Model/appliedJobs");
 const Job = require("../Model/jobsModel");
 const jwtToken = require("jsonwebtoken");
-const {sendEmail} = require("../Middleware/nodemailerAuth");
+const { sendEmail } = require("../Middleware/nodemailerAuth");
 const Posts = require("../Model/posts");
-
 
 exports.otp = async (req, res) => {
   try {
@@ -15,7 +14,7 @@ exports.otp = async (req, res) => {
     if (generatedOtp === enteredOtp) {
       console.log("otp verified");
       const userData = req.body.data;
-      
+
       const city = userData.location.city;
       const district = userData.location.district;
       const state = userData.location.state;
@@ -50,7 +49,6 @@ exports.otp = async (req, res) => {
   }
 };
 
-
 exports.generateOtp = async (req, res) => {
   try {
     const OTP = otpGenerator.generate(6, {
@@ -75,10 +73,11 @@ exports.generateOtp = async (req, res) => {
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error generating OTP:", error);
-    res.status(500).json({ success: false, serverMessage: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ success: false, serverMessage: "Internal Server Error" });
   }
 };
-
 
 exports.verifyLogin = async (req, res) => {
   try {
@@ -142,50 +141,61 @@ exports.profileView = async (req, res) => {
     console.log(seekerId);
 
     if (seekerId) {
-      const seekerData = await User.findOne({ _id: seekerId }).populate('posts')
-      console.log(seekerData,'Seeker Data:');
+      const seekerData = await User.findOne({ _id: seekerId }).populate(
+        "posts"
+      );
+      console.log(seekerData, "Seeker Data:");
 
+      const appliedJobs = await AppliedJobs.find({ user: seekerId })
+        .populate("job")
+        .populate("company");
+      console.log(appliedJobs, "appliedJobs");
       if (!seekerData) {
-        return res.status(404).json({ status: false, message: 'User not found' });
+        return res
+          .status(404)
+          .json({ status: false, message: "User not found" });
       }
 
       if (!Array.isArray(seekerData.skills)) {
-        return res.status(400).json({ status: false, message: 'User skills not found or not an array.' });
+        return res.status(400).json({
+          status: false,
+          message: "User skills not found or not an array.",
+        });
       }
 
       const uniqueSkills = [...new Set(seekerData.skills)];
 
-      const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } }); 
+      const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } });
 
-      res.status(200).json({ status: true, seekerData, matchedJobs });
+      res
+        .status(200)
+        .json({ status: true, seekerData, matchedJobs, appliedJobs });
     } else {
-      res.json({ status: false, message: 'Invalid seekerId' });
+      res.json({ status: false, message: "Invalid seekerId" });
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-exports.editProfile = async (req,res) =>{
-    try {
-        const token = req.body.token
-        const data = req.body.data
-        const decode = jwtToken.verify(token,process.env.SECRET_KEY)
-        const seekerId = decode.id
-        if(seekerId){
-        await User.updateOne({_id:seekerId},data).then((updateAccess)=>{
-                console.log(updateAccess);
-                res.status(200).json({ status: true, updateAccess });
-            })
-            
-        }else{
-            res.json({ status: false });
-        }
-    } catch (error) {
-        console.log(error);
+exports.editProfile = async (req, res) => {
+  try {
+    const token = req.body.token;
+    const data = req.body.data;
+    const decode = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decode.id;
+    if (seekerId) {
+      await User.updateOne({ _id: seekerId }, data).then((updateAccess) => {
+        console.log(updateAccess);
+        res.status(200).json({ status: true, updateAccess });
+      });
+    } else {
+      res.json({ status: false });
     }
-}
-
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 exports.jobView = async (req, res) => {
   try {
@@ -194,23 +204,23 @@ exports.jobView = async (req, res) => {
     const seekerId = decoded.id;
     const searchQuery = req.query.q;
 
-    const page = parseInt(req.query.page) || 1; 
+    const page = parseInt(req.query.page) || 1;
     const perPage = 4;
 
     const skip = (page - 1) * perPage;
 
     const jobPosition = await Position.find();
-    console.log(jobPosition,"jobPosition");
+    console.log(jobPosition, "jobPosition");
 
     const query = {
       $or: [
-        { 'position': { $regex: new RegExp(searchQuery, 'i') } },
-        { 'company.company': { $regex: new RegExp(searchQuery, 'i') } },
+        { position: { $regex: new RegExp(searchQuery, "i") } },
+        { "company.company": { $regex: new RegExp(searchQuery, "i") } },
       ],
     };
 
     const jobs = await Job.find(query)
-      .populate('company')
+      .populate("company")
       .skip(skip)
       .limit(perPage);
 
@@ -219,12 +229,14 @@ exports.jobView = async (req, res) => {
       const seekerData = await User.findOne({ _id: seekerId });
       if (seekerData && Array.isArray(seekerData.skills)) {
         const uniqueSkills = [...new Set(seekerData.skills)];
-        matchedJobs = await Job.find({ skills: { $in: uniqueSkills } }).populate('company');
+        matchedJobs = await Job.find({
+          skills: { $in: uniqueSkills },
+        }).populate("company");
       }
     }
 
     const totalCount = await Job.countDocuments(query);
-    const paginationCount = Math.ceil(totalCount / perPage)
+    const paginationCount = Math.ceil(totalCount / perPage);
     res.status(200).json({
       status: true,
       jobs,
@@ -233,66 +245,72 @@ exports.jobView = async (req, res) => {
       page,
       perPage,
       totalCount,
-      paginationCount
+      paginationCount,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: false, message: 'Internal Server Error' });
+    res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 };
 
-
-exports.saveJob = async (req,res)=>{
+exports.saveJob = async (req, res) => {
   try {
-    const token = req.body.token
-    const data = req.body.data
-    const newJobToSaveList = data._id
-    const decode = jwtToken.verify(token,process.env.SECRET_KEY)
-    const seekerId = decode.id
-    if(seekerId){
-    await User.findOneAndUpdate({_id:seekerId},{ $push: { savedJobs: newJobToSaveList } }).then((updateAccess)=>{
-            console.log(updateAccess);
-            res.status(200).json({ status: true , message:"Job saved" });
-        })
-        
-    }else{
-        res.json({ status: false });
+    const token = req.body.token;
+    const data = req.body.data;
+    const newJobToSaveList = data._id;
+    const decode = jwtToken.verify(token, process.env.SECRET_KEY);
+    // const decode = req.id
+    const seekerId = decode.id;
+    if (seekerId) {
+      await User.findOneAndUpdate(
+        { _id: seekerId },
+        { $push: { savedJobs: newJobToSaveList } }
+      ).then((updateAccess) => {
+        console.log(updateAccess);
+        res.status(200).json({ status: true, message: "Job saved" });
+      });
+    } else {
+      res.json({ status: false });
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-exports.savedJobs = async (req,res)=>{
+exports.savedJobs = async (req, res) => {
   try {
-
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
+    // const decoded = req.id
     const seekerId = decoded.id;
-      const userData = await User.findById(seekerId)
-      if (userData) {
-        const savedJobIds = userData.savedJobs;
-        const savedJobs = await Job.find({ _id: { $in: savedJobIds } }).populate('company')
-        console.log(savedJobs,"savedJobs");
-        res.status(200).json({ status: true, jobData: savedJobs });
-      } else {
-        res.status(404).json({ status: false, message: "User not found" });
-      }
+    const userData = await User.findById(seekerId);
+    if (userData) {
+      const savedJobIds = userData.savedJobs;
+      const savedJobs = await Job.find({ _id: { $in: savedJobIds } }).populate(
+        "company"
+      );
+      console.log(savedJobs, "savedJobs");
+      res.status(200).json({ status: true, jobData: savedJobs });
+    } else {
+      res.status(404).json({ status: false, message: "User not found" });
+    }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-exports.applyJob = async (req,res) =>{
+exports.applyJob = async (req, res) => {
   try {
-    const {requestData} = req.body
-    const {token, data,} = requestData
-    const {cv ,skills ,name ,email ,experience ,coverLetter ,phone, jobId} = data
+    const { requestData } = req.body;
+    const { token, data } = requestData;
+    const { cv, skills, name, email, experience, coverLetter, phone, jobId } =
+      data;
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    // const decoded = req.id
     const seekerId = decoded.id;
-    const jobs = await Job.findOne({ _id: jobId }).populate('company')
-    const companyId = jobs.company._id
-console.log(seekerId,"seekerId");
+    const jobs = await Job.findOne({ _id: jobId }).populate("company");
+    const companyId = jobs.company._id;
+    console.log(seekerId, "seekerId");
     const newAppliedJob = new AppliedJobs({
       cv: cv,
       email: email,
@@ -301,49 +319,99 @@ console.log(seekerId,"seekerId");
       skills: skills,
       coverLetter: coverLetter,
       user: seekerId,
-      phone:phone,
-      job:jobId,
-      company:companyId
+      phone: phone,
+      job: jobId,
+      company: companyId,
     });
     const appliedJobOk = await newAppliedJob.save();
     if (appliedJobOk) {
+      const objectId = jobId;
+      const find = await Job.findOne({ _id: objectId }).populate("company");
+      console.log(find, "find");
 
-      const objectId = jobId
-      const find = await Job.findOne({ _id: objectId }).populate('company')
-      console.log(find,"find");
-
-      await User.findOneAndUpdate({_id:seekerId},{ $push: { appliedJobs: objectId } })
-      await Job.findOneAndUpdate({_id:objectId},{ $push: { applicants: seekerId } }).then(()=>{
-        res.status(200).json({ status: true , message: "Job Applied!" });
-      })
+      await User.findOneAndUpdate(
+        { _id: seekerId },
+        { $push: { appliedJobs: objectId } }
+      );
+      await Job.findOneAndUpdate(
+        { _id: objectId },
+        { $push: { applicants: seekerId } }
+      ).then(() => {
+        res.status(200).json({ status: true, message: "Job Applied!" });
+      });
     } else {
       res.json({ status: false });
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-exports.newPost = async(req,res)=>{
+exports.newPost = async (req, res) => {
   try {
-    const {data, token} =  req.body
-    const {caption, picture} = data
+    const { data, token } = req.body;
+    const { caption, picture } = data;
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    // const decoded = req.id
     const seekerId = decoded.id;
-    console.log(seekerId,"seekerId");
-    if(seekerId){
+    console.log(seekerId, "seekerId");
+    if (seekerId) {
       const newPost = new Posts({
         caption: caption,
         picture: picture,
         user: seekerId,
       });
       await newPost.save();
-      await User.findOneAndUpdate({_id:seekerId},{ $push: { posts: newPost } })
-      res.status(200).json({ status: true , message: "New post uploaded!" });
-    }else{
+      await User.findOneAndUpdate(
+        { _id: seekerId },
+        { $push: { posts: newPost } }
+      );
+      res.status(200).json({ status: true, message: "New post uploaded!" });
+    } else {
       res.json({ status: false });
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { password, confirmPassword, currentPassword } = req.body.data;
+
+    const token = req.body.token;
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    // const decoded = req.id
+    const seekerId = decoded.id;
+    console.log(seekerId);
+    const user = await User.findById(seekerId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const userWithCurrentPassword = await User.findOne({
+      _id: seekerId,
+      password: currentPassword,
+    });
+
+    if (!userWithCurrentPassword) {
+      console.log(userWithCurrentPassword);
+      return res.json({
+        success: false,
+        message: "Incorrect current password",
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.json({ success: false, message: "Passwords do not match on confirm" });
+    }
+    user.password = password;
+    await user.save();
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+  }
+};

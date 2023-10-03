@@ -5,7 +5,7 @@ import { adminLogout } from '../../Store/storeSlices/adminAuth';
 const Navbar = () => {
   const dispatch= useDispatch()
   return (
-        <div className='h-16 w-full bg-pink-50 border-b-2 border-b-gray-50'>
+        <div className='h-16 w-full bg-pink-100 border-b-gray-50'>
             <div className='w-full flex justify-between'>
                 <div className='w-34 h-12 pt-2 pl-12 flex justify-center'>
                 <img className='w-18 h-12' src="/skillset-logo.jpg" alt="" />

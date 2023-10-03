@@ -15,3 +15,13 @@
     margin-top: 12px;
     display: none;
 }
+:where(.css-dev-only-do-not-override-pr0fja).ant-layout .ant-layout-sider-children {
+    height: 100%;
+    margin-top: -0.1px;
+    padding-top: 0.1px;
+    background: #f5e8ee;
+}
+
+:where(.css-dev-only-do-not-override-pr0fja).ant-menu-inline.ant-menu-root, :where(.css-dev-only-do-not-override-pr0fja).ant-menu-vertical.ant-menu-root {
+    box-shadow: none;
+}

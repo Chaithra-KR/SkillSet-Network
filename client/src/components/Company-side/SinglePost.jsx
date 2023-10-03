@@ -13,7 +13,7 @@ const SinglePost = () => {
     postDate: null,
     commentSection: null,
   });
-
+const [refresh,setRefresh] = useState(true)
   const commentCount = userDetails.commentSection
     ? userDetails.commentSection.length
     : 0;
@@ -48,6 +48,11 @@ const SinglePost = () => {
                 color: "#fff",
               },
             });
+            if(refresh===true){
+              setRefresh(false)
+            }else{
+              setRefresh(true)
+            }
           }
         });
     } catch (error) {
@@ -69,7 +74,7 @@ const SinglePost = () => {
       }
     };
     handleProfile();
-  }, [imageId]);
+  }, [imageId,refresh]);
 
   const formatDate = (dateString) => {
     const options = {

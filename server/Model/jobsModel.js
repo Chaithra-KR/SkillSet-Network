@@ -25,6 +25,10 @@ const job = mongoose.Schema({
         type:String,
         required:true
     },
+    date:{
+        type:Date,
+        default:Date.now
+    },
     company:{
         type:String,
         ref:"Company",

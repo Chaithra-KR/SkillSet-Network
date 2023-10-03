@@ -7,6 +7,7 @@ import { Button } from "antd";
 import { Image } from "cloudinary-react";
 import { companyDetails } from "../../Store/storeSlices/companyAuth";
 import { companyAxiosInstance } from "../../configs/axios/axios";
+import axios from "axios";
 
 const EditProfile = () => {
   const [companyDetail, setCompanyDetail] = useState({
@@ -35,7 +36,7 @@ const EditProfile = () => {
 
   const handleProfileEditSuccess = async (e) => {
     changedData.image = profilePic;
-    await companyAxiosInstance
+    await axios
       .post(`${CompanyApi}EditCompanyProfile`, {
         data: changedData,
         token: token,
@@ -55,7 +56,7 @@ const EditProfile = () => {
   useEffect(() => {
     const handleProfile = async () => {
       try {
-        const response = await companyAxiosInstance
+        const response = await axios
           .get(`${CompanyApi}companyProfile?data=${encodeURIComponent(token)}`)
           .then((res) => {
             setCompanyDetail(res.data.companyData);
