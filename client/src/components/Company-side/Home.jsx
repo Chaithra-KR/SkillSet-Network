@@ -38,7 +38,7 @@ const Home = () => {
       }
     };
     handleJobDetails();
-  }, []);
+  }, [company]);
 
   const navigate = useNavigate();
 
@@ -54,9 +54,9 @@ const Home = () => {
     navigate("/company/company-editProfile");
   };
 
-  const handleUserProfileView = (userId) =>{
-    navigate(`/company/view-userProfile?userId=${userId}`)
-  }
+  const handleUserProfileView = (userId) => {
+    navigate(`/company/view-userProfile?userId=${userId}`);
+  };
   return (
     <>
       <div className="w-full h-screen bg-white">
@@ -166,13 +166,18 @@ const Home = () => {
                       </div>
                     </div>
                     <div className="mt-4 text-center">
-                    <button className="bg-color3 text-black hover:text-white border rounded px-4 py-2 hover:bg-pink-500">
-                      Message
-                    </button>
-                    <button onClick={()=>{handleUserProfileView(val._id)}} className="border rounded text-black hover:bg-pink-500 hover:text-white px-4 py-2 ml-2">
-                      Profile
-                    </button>
-                  </div>
+                      <button className="bg-color3 text-black hover:text-white border rounded px-4 py-2 hover:bg-pink-500">
+                        Message
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleUserProfileView(val._id);
+                        }}
+                        className="border rounded text-black hover:bg-pink-500 hover:text-white px-4 py-2 ml-2"
+                      >
+                        Profile
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
