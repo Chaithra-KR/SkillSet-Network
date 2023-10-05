@@ -6,6 +6,9 @@ const Job = require("../Model/jobsModel");
 const jwtToken = require("jsonwebtoken");
 const { sendEmail } = require("../Middleware/nodemailerAuth");
 const Posts = require("../Model/posts");
+const Conversation = require("../Model/conversation");
+const Company = require("../Model/companyModel");
+const Messages = require("../Model/messages");
 
 exports.otp = async (req, res) => {
   try {
@@ -404,7 +407,10 @@ exports.changePassword = async (req, res) => {
       });
     }
     if (password !== confirmPassword) {
-      return res.json({ success: false, message: "Passwords do not match on confirm" });
+      return res.json({
+        success: false,
+        message: "Passwords do not match on confirm",
+      });
     }
     user.password = password;
     await user.save();
@@ -413,5 +419,112 @@ exports.changePassword = async (req, res) => {
       .json({ success: true, message: "Password updated successfully" });
   } catch (error) {
     console.error("Error changing password:", error);
+  }
+};
+
+exports.chat = async (req, res) => {
+  try {
+    const { senderId, receiverId } = req.body;
+    const newChat = new Conversation({ members: [senderId, receiverId] });
+    await newChat.save();
+    res.status(200).json("chat created successfully");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getChat = async (req, res) => {
+  try {
+    const userId = req.query.data;
+    const decoded = jwtToken.verify(userId, process.env.SECRET_KEY);
+    // const decoded = req.id
+    const seekerId = decoded.id;
+    const conversations = await Conversation.find({
+      members: { $in: [seekerId] },
+    });
+
+    const receiverData = conversations.map(async (conversation) => {
+      const receiverId = conversation.members.find(
+        (member) => member !== seekerId
+      );
+      const company = await Company.findById(receiverId);
+      // return {
+      //   company: { email: company.email, company: company.company },
+      //   conversationId: conversation._id,
+      // };
+    });
+    res.status(200).json(receiverData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.sendMessage = async (req, res) => {
+  try {
+    const { conversationId, senderId, message, receiverId = " " } = req.body;
+    const decoded = jwtToken.verify(senderId, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (!seekerId || !message) return res.json("fill required fields");
+    if (conversationId == "new" && receiverId) {
+      const newChat = new Conversation({ members: [seekerId, receiverId] });
+      await newChat.save();
+      const newMessage = new Messages({
+        conversationId: newChat._id,
+        seekerId,
+        message,
+      });
+      await newMessage.save();
+      res.status(200).json("messages sended successfully");
+    }
+    const newMessage = new Messages({ conversationId, seekerId, message });
+    await newMessage.save();
+    res.status(200).json("messages sended successfully");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getMessage = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    console.log(conversationId);
+    const { senderId, receiverId } = req.query;
+    if (conversationId === "new ") return res.status(200).json([]);
+    const messages = await Messages.find({ conversationId });
+    const messageCompanyData = messages.map(async (message) => {
+      const company = await Company.findById(message.senderId);
+      return {
+        company: { email: company.email, company: company.company },
+        message: message.message,
+      };
+    });
+    res.status(200).json(messageCompanyData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.companies = async (req, res) => {
+  try {
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (seekerId) {
+      const seekerData = await User.findOne(
+        { _id: seekerId },
+        { _id: 1, username: 1, image: 1 }
+      );
+      const companies = await Company.find(
+        {},
+        { _id: 1, company: 1, email: 1, image: 1 }
+      );
+      res
+        .status(200)
+        .json({ status: true, companies: companies, seeker: seekerData });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

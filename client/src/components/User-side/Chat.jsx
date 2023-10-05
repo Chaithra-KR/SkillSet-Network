@@ -1,189 +1,284 @@
-import React from "react";
-import { FaSearch } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { UserApi } from "../../configs/api";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { FaPaperPlane } from "react-icons/fa";
 
 const Chat = () => {
+  const seeker = useSelector((state) => state?.seekerDetails.seekerToken);
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [companies, setCompanies] = useState([]);
+  const [user, setUser] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const messageRef = useRef(null);
+
+  const handleCompanyClick = (company) => {
+    setSelectedCompany(company);
+    fetchMessages("new", company._id);
+  };
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await axios.get(
+          `${UserApi}companies?data=${encodeURIComponent(seeker)}`
+        );
+        setUser(res.data.seeker);
+        setCompanies(res.data.companies);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    const fetchConversations = async () => {
+      try {
+        const res = await axios.get(
+          `${UserApi}getChat?data=${encodeURIComponent(seeker)}`,
+        );
+        const resData = res.data.receiverData;
+        setConversations(resData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCompanies();
+    fetchConversations();
+    messageRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [seeker, messages?.length]);
+
+  const sendMessage = async (receiver) => {
+    try {
+      console.log(receiver);
+      const companyId = messages?.receiver;
+      const res = await axios.post(`${UserApi}sendMessage`, {
+        conversationId: messages?.conversationId,
+        senderId: seeker,
+        receiverId: companyId,
+        message,
+      });
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchMessages = async (conversationId, receiver) => {
+    console.log("conversationId:", conversationId, "receiver:", receiver);
+    const res = await axios.get(
+      `${UserApi}getMessage/${conversationId}?senderId=${seeker}&&receiverId=${receiver}`
+    );
+    const resData = res.data.messageCompanyData;
+    setMessages({ messages: resData, receiver, conversationId });
+  };
+
   return (
-    <>
-      <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
-        <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
-          <div class="relative flex items-center space-x-4">
-            <div class="relative">
-              <span class="absolute text-green-500 right-0 bottom-0">
-                <svg width="20" height="20">
-                  <circle cx="8" cy="8" r="8" fill="currentColor"></circle>
-                </svg>
-              </span>
+    <div className="w-screen flex">
+      <div className="w-[25%] h-screen bg-secondary overflow-scroll">
+        <div className="flex items-center my-8 mx-14">
+          <div>
+            {user.image ? (
               <img
-                src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                alt=""
-                class="w-10 sm:w-16 h-10 sm:h-16 rounded-full"
+                src={user.image}
+                className="w-[100px] h-[100px] rounded-full p-[2px] border border-primary"
               />
-            </div>
-            <div class="flex flex-col leading-tight">
-              <div class="text-2xl mt-1 flex items-center">
-                <span class="text-gray-700 mr-3">Anderson Vanhron</span>
-              </div>
-              <span class="text-lg text-gray-600">Junior Developer</span>
-            </div>
+            ) : (
+              <img
+                src="/profile.png"
+                className="w-[100px] h-[100px] rounded-full p-[2px] border border-primary"
+              />
+            )}
           </div>
-          <div class="flex items-center space-x-2">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-lg border h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
-            >
-              <FaSearch />
-            </button>
+          <div className="ml-8">
+            <h3 className="text-2xl">{user?.username || "No Company Data"}</h3>
+            <p className="text-lg font-light">My Account</p>
           </div>
         </div>
-        <div
-          id="messages"
-          class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-        >
-          <div class="chat-message">
-            <div class="flex items-end">
-              <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
-                <div>
-                  <span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">
-                    Can be verified on any platform using docker
-                  </span>
-                </div>
+        <hr />
+        <div className="mx-14 mt-10">
+          <div className="text-primary text-lg">Messages</div>
+          <div>
+            {/* {conversations.length > 0 ? (
+              conversations.map(({ conversationId, user }) => {
+                return (
+                  <div className="flex items-center py-8 border-b border-b-gray-300">
+                    <div
+                      className="cursor-pointer flex items-center"
+                      onClick={() => fetchMessages(conversationId, user)}
+                    >
+                      <div>
+                        <img
+                          src={Img1}
+                          className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"
+                        />
+                      </div>
+                      <div className="ml-6">
+                        <h3 className="text-lg font-semibold">
+                          {user?.fullName}
+                        </h3>
+                        <p className="text-sm font-light text-gray-600">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center text-lg font-semibold mt-24">
+                No Conversations
               </div>
-              <img
-                src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                alt="My profile"
-                class="w-6 h-6 rounded-full order-1"
-              />
-            </div>
-          </div>
-          <div class="chat-message">
-            <div class="flex items-end justify-end">
-              <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
-                <div>
-                  <span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white ">
-                    Your error message says permission denied, npm global
-                    installs must be given root privileges.
-                  </span>
-                </div>
-              </div>
-              <img
-                src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-                alt="My profile"
-                class="w-6 h-6 rounded-full order-2"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-          <div class="relative flex">
-            <span class="absolute inset-y-0 flex items-center">
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-full h-12 w-12 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  class="h-6 w-6 text-gray-600"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                  ></path>
-                </svg>
-              </button>
-            </span>
-            <input
-              type="text"
-              placeholder="Write your message!"
-              class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
-            />
-            <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  class="h-6 w-6 text-gray-600"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                  ></path>
-                </svg>
-              </button>
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  class="h-6 w-6 text-gray-600"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
-              </button>
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  class="h-6 w-6 text-gray-600"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-              </button>
-              <button
-                type="button"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
-              >
-                <span class="font-bold">Send</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="h-6 w-6 ml-2 transform rotate-90"
-                >
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-                </svg>
-              </button>
-            </div>
+            )} */}
           </div>
         </div>
       </div>
-    </>
+      <div className="w-[50%] h-screen bg-white flex flex-col items-center">
+        {selectedCompany ? (
+          <div className="w-[75%] bg-secondary h-[80px] my-14 rounded-full flex items-center px-14 py-2">
+            <div className="cursor-pointer">
+              <div>
+                {selectedCompany.image ? (
+                  <img
+                    src={selectedCompany.image}
+                    className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"
+                    alt={selectedCompany.company}
+                  />
+                ) : (
+                  <img
+                    src="/profile.png"
+                    className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"
+                    alt="Default Company Image"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="ml-6 mr-auto">
+              <h3 className="text-lg">{selectedCompany.company}</h3>
+              <p className="text-sm font-light text-gray-600">
+                {selectedCompany.email}
+              </p>
+            </div>
+            <div className="cursor-pointer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="icon icon-tabler icon-tabler-phone-outgoing"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="black"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
+                <line x1="15" y1="9" x2="20" y2="4" />
+                <polyline points="16 4 20 4 20 8" />
+              </svg>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center text-lg font-semibold mt-24">
+            No Messages or No Conversation Selected
+          </div>
+        )}
+
+        <div className="h-[75%] w-full shadow-sm">
+          <div className="p-14">
+            {selectedCompany ? (
+              <>
+                <div
+                  className={`max-w-[40%] rounded-b-xl p-4 mb-6 
+                      ? "bg-primary text-white rounded-tl-xl ml-auto"
+                      : "bg-secondary rounded-tr-xl"
+                  } `}
+                >
+                  {message}
+                </div>
+                <div ref={messageRef}></div>
+              </>
+            ) : (
+              <div className="text-center text-lg font-semibold mt-24">
+                No Company Selected
+              </div>
+            )}
+          </div>
+        </div>
+        {selectedCompany ? (
+          <div className=" w-[600px] flex items-center border shadow-md rounded-full bg-gray-300 ">
+            <input
+              placeholder=" Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-[75%] p-4 bg-gray-300 rounded-full"
+            />
+            <div
+              className={`ml-4 p-2 cursor-pointer bg-light rounded-full ${
+                !message && "pointer-events-none"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => sendMessage(selectedCompany._id)}
+                className="inline-flex items-center justify-center rounded-lg px-3 py-2 transition duration-500 ease-in-out text-white bg-pink-500 hover:bg-pink-400 focus:outline-none"
+              >
+                <span className="font-bold pr-2">Send</span>
+                <FaPaperPlane />
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <div className="w-[25%] h-screen bg-gray-50 px-8 py-16 overflow-scroll">
+        <div className="text-primary text-lg">People</div>
+        <div>
+          {companies && companies.length > 0 ? (
+            companies.map((company) => {
+              return (
+                <div
+                  className="flex items-center py-8 border-b border-b-gray-300"
+                  key={company._id}
+                >
+                  <div
+                    className="cursor-pointer flex items-center"
+                    // onClick={() => fetchMessages("new", company._id)}
+                    onClick={() => handleCompanyClick(company)}
+                  >
+                    <div>
+                      {company.image ? (
+                        <img
+                          src={company.image}
+                          className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"
+                        />
+                      ) : (
+                        <img
+                          src="/profile.png"
+                          className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"
+                        />
+                      )}
+                    </div>
+                    <div className="ml-6">
+                      <h3 className="text-lg font-semibold">
+                        {company?.company}
+                      </h3>
+                      <p className="text-sm font-light text-gray-600">
+                        {company?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center text-lg font-semibold mt-24">
+              No Companies
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
