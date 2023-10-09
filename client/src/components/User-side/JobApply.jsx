@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "antd";
 import { TiDeleteOutline, TiEdit } from "react-icons/ti";
@@ -101,6 +101,7 @@ const JobApply = () => {
     }
   };
 
+  const navigate = useNavigate()
   const token = useSelector((state) => {
     return state?.seekerDetails.seekerToken;
   });
@@ -130,6 +131,8 @@ const JobApply = () => {
               color: "#fff",
             },
           });
+            navigate("/jobView")
+
         });
     } catch (error) {
       console.log(error);

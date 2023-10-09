@@ -13,7 +13,6 @@ import {
 } from "react-icons/fa";
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState(true);
   const navigate = useNavigate();
 
   const [userDetails, setUserDetails] = useState({
@@ -30,8 +29,8 @@ const Profile = () => {
     experience: null,
     posts: null,
   });
-
   const [appliedJobs, setAppliedJobs] = useState([]);
+
   const rawDate = userDetails.dob;
   console.log(userDetails, "this is the object");
   let formattedDate = null;
@@ -70,16 +69,6 @@ const Profile = () => {
     handleProfile();
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString(undefined, options);
-    return formattedDate;
-  };
 
   return (
     <>
@@ -256,136 +245,6 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center mt-4 lg:mt-8 mb-4">
-                <div className="flex flex-wrap">
-                  <div>
-                    <button
-                      className={`p-1 w-20 ml-5 border rounded-full shadow-md ${
-                        activeTab === true
-                          ? "bg-pink-400 text-white"
-                          : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab(true)}
-                    >
-                      Posts
-                    </button>
-                    <button
-                      className={`p-1 w-20 ml-5 border rounded-full shadow-md ${
-                        activeTab === false
-                          ? "bg-pink-400 text-white"
-                          : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab(false)}
-                    >
-                      Jobs
-                    </button>
-                  </div>
-                </div>
-              </div>
-              {activeTab === true ? (
-                <div>
-                  {userDetails.posts ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-white">
-                      {userDetails.posts.map((post, index) => (
-                        <div key={post._id} className="mb-2 ml-7 p-3">
-                          <img
-                            src={post.picture}
-                            alt={`image ${index + 1}`}
-                            className="h-48 rounded-3 flex justify-center items-center"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-white w-full h-72 sm:h-96 flex flex-col justify-center items-center">
-                      <div>
-                        <p className="text-black">No posts available</p>
-                        <button
-                          className="p-1 sm:p-2 w-24 sm:w-32 mt-4 border text-white rounded-full bg-pink-400"
-                          onClick={() => {
-                            navigate("/home");
-                          }}
-                        >
-                          Post now
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <section>
-                {appliedJobs && appliedJobs.length > 0 ? (
-                  <div>
-                    {appliedJobs.map((val) => (
-                      <div className="container pb-2" key={val._id}>
-                        <div className="md:mx-auto">
-                          <ul className="space-y-4">
-                            <li className="flex flex-wrap items-center justify-between p-4 bg-white border rounded-lg shadow-md">
-                              <div className="flex-grow flex items-center">
-                                <div className="relative mr-4">
-                                  {val.company.image ? (
-                                    <img
-                                      className="rounded-full w-20 h-20 border-persian-orange p-2"
-                                      src={val.company.image}
-                                      alt="user"
-                                    />
-                                  ) : (
-                                    <img
-                                      className="rounded-full w-24 h-24 border-2 border-persian-orange p-2"
-                                      src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
-                                      alt="user"
-                                    />
-                                  )}
-                                </div>
-                                <div>
-                                  <h4 className="text-lg font-semibold">
-                                    {val.company.company}
-                                  </h4>
-                                  <h5 className="text-black">
-                                    Position: {val.job.position}
-                                  </h5>
-                                  <p className="text-gray-500">
-                                    Skills:{" "}
-                                    {val.job.skills.map((skill, i) => (
-                                      <>
-                                        {skill}
-                                        {val.job.skills.length - 1 === i ? "" : " , "}
-                                      </>
-                                    ))}
-                                  </p>
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-sm pl-1 pb-1 text-gray-400">
-                                  Applied date: {formatDate(val.appliedDate)}
-                                </p>
-                                <p className="px-4 py-2 text-black bg-gray-100 rounded-md">
-                                  Salary: Rs.{val.job.salary}/-
-                                </p>
-                              </div>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-white w-full h-72 sm:h-96 flex flex-col justify-center items-center">
-                  <div>
-                    <p className="text-black">No applied jobs are available at the moment!</p>
-                    <button
-                      className="p-1 sm:p-2 w-24 sm:w-32 mt-4 text-white border xl:ml-20 rounded-full bg-pink-400"
-                      onClick={() => {
-                        navigate("/jobView");
-                      }}
-                    >
-                      Apply now
-                    </button>
-                  </div>
-                </div>
-                )}
-                </section>
-              )}
             </div>
           </div>
         </div>

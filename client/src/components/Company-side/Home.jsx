@@ -46,6 +46,10 @@ const Home = () => {
     navigate("/company/company-Jobs");
   };
 
+  const handleMessageView = () => {
+    navigate("/company/chat-with-seeker");
+  };
+
   const handleProfileAccess = () => {
     navigate("/company/company-profile");
   };
@@ -80,7 +84,7 @@ const Home = () => {
               </div>
               <div className="mt-6 text-center">
                 <h1 className="text-xl font-semibold">
-                  {companyDetails.username}
+                  {companyDetails.company}
                 </h1>
                 <h2 className="text-sm text-gray-600">
                   {companyDetails.headline}
@@ -100,7 +104,7 @@ const Home = () => {
                   Edit Profile
                 </button>
                 <button
-                  onClick={handleEditProfileAccess}
+                  onClick={handleMessageView}
                   className="bg-pink-600 rounded px-9 py-1 text-white"
                 >
                   Chat

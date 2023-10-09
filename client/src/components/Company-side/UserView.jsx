@@ -34,7 +34,6 @@ const UserView = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const userId = queryParams.get("userId");
-  console.log(userId, "userid");
 
   const [showContactForm, setShowContactForm] = useState(false);
 

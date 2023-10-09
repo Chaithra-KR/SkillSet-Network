@@ -28,18 +28,12 @@ userRouter.post('/changePassword',userController.changePassword)
 
 userRouter.post('/changePassword',userController.changePassword)
 
-userRouter.post('/chat',userController.chat)
+userRouter.get('/singlePost', userController.singlePost)
 
 userRouter.get('/getChat',userController.getChat)
 userRouter.post('/sendMessage',userController.sendMessage)
 userRouter.get('/getMessage/:conversationId',userController.getMessage)
 userRouter.get('/companies',userController.companies)
-
-
-
-
-
-
 
 
 module.exports = userRouter;

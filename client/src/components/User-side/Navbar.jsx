@@ -10,6 +10,7 @@ import {
   FaComment,
   FaUser,
   FaCog,
+  FaImage,
 } from "react-icons/fa";
 
 const Navbar = () => {
@@ -24,8 +25,16 @@ const Navbar = () => {
     navigate("/home");
   };
 
+  const handlePotsView = () => {
+    navigate("/posts");
+  };
+
   const handleProfileView = () => {
     navigate("/my-profile");
+  };
+
+  const handleMessageView = () => {
+    navigate("/chat-with-company");
   };
 
   const handleLogout = () => {
@@ -84,6 +93,12 @@ const Navbar = () => {
             >
               <FaBriefcase className="fill-current text-pink-500" />
             </button>
+            <button
+              onClick={handlePotsView}
+              className="p-1 pl-2 border border-transparent rounded hover:bg-gray-50"
+            >
+              <FaImage className="fill-current text-pink-500" />
+            </button>
             <button className="p-1 pl-2 border border-transparent rounded hover:bg-gray-50">
               <FaComment className="fill-current text-pink-500" />
             </button>
@@ -116,13 +131,24 @@ const Navbar = () => {
 
           <button
             onClick={handleJobView}
-            className="pl-5 border border-transparent rounded flex flex-col items-center"
+            className="px-5 border border-transparent rounded flex flex-col items-center"
           >
             <FaBriefcase className="fill-current text-pink-500" />
             Jobs
           </button>
 
-          <button className="pl-5 border border-transparent rounded flex flex-col items-center">
+          <button
+            onClick={handlePotsView}
+            className=" border border-transparent rounded flex flex-col items-center"
+          >
+            <FaImage className="fill-current text-pink-500" />
+            Posts
+          </button>
+
+          <button
+            onClick={handleMessageView}
+            className="pl-5 border border-transparent rounded flex flex-col items-center"
+          >
             <FaComment className="fill-current text-pink-500" />
             Messaging
           </button>
