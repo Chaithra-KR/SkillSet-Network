@@ -35,5 +35,7 @@ userRouter.post('/sendMessage',userController.sendMessage)
 userRouter.get('/getMessage/:conversationId',userController.getMessage)
 userRouter.get('/companies',userController.companies)
 
+userRouter.post('/requestAsEmploy',userController.requestAsEmploy)
+
 
 module.exports = userRouter;

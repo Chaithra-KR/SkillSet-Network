@@ -51,6 +51,23 @@ const company = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    userRequests: [
+        {
+          userId: {
+            type: String,
+            ref: "User",
+          },
+          status: {
+            type: String,
+            enum: ["pending", "accepted", "rejected"],
+            default: "request",
+          },
+          requestDate:{
+            type:Date,
+            default:Date.now
+        }
+        },
+      ],      
     address: [
         {
             building:{

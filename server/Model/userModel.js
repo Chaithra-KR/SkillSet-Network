@@ -66,6 +66,20 @@ const user = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Posts",
     }],
+    userRequests: [
+        {
+          companyId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Company",
+          },
+          status: {
+            type: String,
+            enum: ["pending", "accepted", "rejected"],
+            default: "request",
+          },
+        },
+      ],
+      
 })
 
 module.exports = mongoose.model("User",user)

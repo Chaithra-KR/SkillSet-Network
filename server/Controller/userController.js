@@ -15,7 +15,6 @@ exports.otp = async (req, res) => {
     const enteredOtp = parseInt(req.body.otp.join(""));
     const generatedOtp = parseInt(req.app.locals.OTP);
     if (generatedOtp === enteredOtp) {
-      console.log("otp verified");
       const userData = req.body.data;
 
       const city = userData.location.city;
@@ -26,7 +25,6 @@ exports.otp = async (req, res) => {
         district: district,
         state: state,
       };
-      console.log(location, "itsloca");
       const newUser = new User({
         username: userData.username,
         dob: userData.dob,
@@ -147,12 +145,10 @@ exports.profileView = async (req, res) => {
       const seekerData = await User.findOne({ _id: seekerId }).populate(
         "posts"
       );
-      console.log(seekerData, "Seeker Data:");
 
       const appliedJobs = await AppliedJobs.find({ user: seekerId })
         .populate("job")
         .populate("company");
-      console.log(appliedJobs, "appliedJobs");
       if (!seekerData) {
         return res
           .status(404)
@@ -169,10 +165,10 @@ exports.profileView = async (req, res) => {
       const uniqueSkills = [...new Set(seekerData.skills)];
 
       const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } });
-
+      const companies = await Company.find()
       res
         .status(200)
-        .json({ status: true, seekerData, matchedJobs, appliedJobs });
+        .json({ status: true, seekerData, matchedJobs, appliedJobs , companies });
     } else {
       res.json({ status: false, message: "Invalid seekerId" });
     }
@@ -205,6 +201,9 @@ exports.jobView = async (req, res) => {
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
     const seekerId = decoded.id;
+    const appliedJobs = await AppliedJobs.find({ user: seekerId })
+        .populate("job")
+        .populate("company");
     const searchQuery = req.query.q;
 
     const page = parseInt(req.query.page) || 1;
@@ -249,6 +248,7 @@ exports.jobView = async (req, res) => {
       perPage,
       totalCount,
       paginationCount,
+      appliedJobs
     });
   } catch (error) {
     console.log(error);
@@ -400,7 +400,6 @@ exports.changePassword = async (req, res) => {
     });
 
     if (!userWithCurrentPassword) {
-      console.log(userWithCurrentPassword);
       return res.json({
         success: false,
         message: "Incorrect current password",
@@ -422,12 +421,15 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-exports.chat = async (req, res) => {
+exports.singlePost = async (req, res) => {
   try {
-    const { senderId, receiverId } = req.body;
-    const newChat = new Conversation({ members: [senderId, receiverId] });
-    await newChat.save();
-    res.status(200).json("chat created successfully");
+    const { imageId } = req.query;
+    if (imageId) {
+      const seekerData = await Posts.findOne({ _id: imageId })
+      res.status(200).json({ status: true, seekerData });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -437,23 +439,25 @@ exports.getChat = async (req, res) => {
   try {
     const userId = req.query.data;
     const decoded = jwtToken.verify(userId, process.env.SECRET_KEY);
-    // const decoded = req.id
     const seekerId = decoded.id;
     const conversations = await Conversation.find({
       members: { $in: [seekerId] },
     });
 
-    const receiverData = conversations.map(async (conversation) => {
-      const receiverId = conversation.members.find(
-        (member) => member !== seekerId
-      );
-      const company = await Company.findById(receiverId);
-      // return {
-      //   company: { email: company.email, company: company.company },
-      //   conversationId: conversation._id,
-      // };
-    });
-    res.status(200).json(receiverData);
+    const receiverData = await Promise.all(
+      conversations.map(async (conversation) => {
+        const receiverId = conversation.members.find(
+          (member) => member !== seekerId
+        );
+        const company = await Company.findById(receiverId);
+        return {
+          company: { email: company.email, company: company.company,image:company.image },
+          conversationId: conversation._id,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, receiverData });
   } catch (error) {
     console.log(error);
   }
@@ -461,7 +465,7 @@ exports.getChat = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
   try {
-    const { conversationId, senderId, message, receiverId = " " } = req.body;
+    const { conversationId, senderId, message, receiverId } = req.body;
     const decoded = jwtToken.verify(senderId, process.env.SECRET_KEY);
     const seekerId = decoded.id;
     if (!seekerId || !message) return res.json("fill required fields");
@@ -470,36 +474,62 @@ exports.sendMessage = async (req, res) => {
       await newChat.save();
       const newMessage = new Messages({
         conversationId: newChat._id,
-        seekerId,
+        senderId:seekerId,
         message,
       });
       await newMessage.save();
-      res.status(200).json("messages sended successfully");
+      res.status(200).json({
+        conversationId,
+        newMessage,
+        message: "Message sent successfully",
+      });
+    }else{
+      const newMessage = new Messages({ conversationId, senderId:seekerId, message });
+      await newMessage.save();
+      res.status(200).json({
+              conversationId,
+              newMessage,
+              message: "Message sent successfully",
+            });
     }
-    const newMessage = new Messages({ conversationId, seekerId, message });
-    await newMessage.save();
-    res.status(200).json("messages sended successfully");
+
   } catch (error) {
     console.log(error);
   }
 };
 
+
 exports.getMessage = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    console.log(conversationId);
     const { senderId, receiverId } = req.query;
-    if (conversationId === "new ") return res.status(200).json([]);
+    if (conversationId === "new") return res.status(200).json([]);
     const messages = await Messages.find({ conversationId });
-    const messageCompanyData = messages.map(async (message) => {
-      const company = await Company.findById(message.senderId);
-      return {
-        company: { email: company.email, company: company.company },
-        message: message.message,
-      };
-    });
-    res.status(200).json(messageCompanyData);
+    const messageSeekerData = await Promise.all(
+      messages.map(async (message) => {
+        const seeker = await User.findById(message.senderId);
+        if (seeker && seeker.email) {
+          return {
+            seeker: {
+              email: seeker.email,
+              username: seeker.username,
+              image: seeker.image,
+            },
+            message: message.message,
+          };
+        } else {
+          return {
+            seeker: { email: "N/A", username: "N/A" ,image: "N/A" },
+            message: message.message,
+          };
+        }
+      })
+    );
+    console.log(messageSeekerData, "messageCompanyData");
+    res.status(200).json({ success: true, messageSeekerData });
   } catch (error) {
+    console.log(error);
+    // res.status(500).json({ success: false, error: "Internal Server Error" });
     console.log(error);
   }
 };
@@ -526,5 +556,34 @@ exports.companies = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+exports.requestAsEmploy = async (req, res) => {
+  try {
+    const { token, companyId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+      const request = {
+        userId: seekerId,
+        status: "pending",
+        companyId: companyId,
+      };
+
+      await User.findByIdAndUpdate(seekerId, {
+        $push: { userRequests: request },
+      });
+      await Company.findByIdAndUpdate(companyId, {
+        $push: { userRequests: request },
+      });
+
+      res.status(200).json({
+        success: true,
+        status: "pending",
+        message: "Request sent successfully",
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

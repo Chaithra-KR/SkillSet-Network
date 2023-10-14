@@ -27,5 +27,14 @@ companyRouter.post('/postComment' ,companyController.postComment)
 
 companyRouter.post('/changePassword' ,companyController.changePassword)
 
+companyRouter.get('/getChat',companyController.getChat)
+companyRouter.post('/sendMessage',companyController.sendMessage)
+companyRouter.get('/getMessage/:conversationId',companyController.getMessage)
+companyRouter.get('/seekers',companyController.seekers)
+
+companyRouter.post('/acceptEmployee',companyController.acceptEmployee)
+companyRouter.post('/rejectEmployee',companyController.rejectEmployee)
+
+
 
 module.exports = companyRouter;

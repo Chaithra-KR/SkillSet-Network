@@ -50,6 +50,9 @@ const Home = () => {
     navigate("/company/chat-with-seeker");
   };
 
+  const handleOpenChat = () => {
+    navigate(`/company/chat-with-seeker`);
+  };
   const handleProfileAccess = () => {
     navigate("/company/company-profile");
   };
@@ -115,12 +118,9 @@ const Home = () => {
 
           <div>
             <div className="flex flex-wrap justify-between mt-3">
-              <button className="w-full md:w-1/2 lg:w-1/3 xl:w-[390px] bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded">
-                New Post
-              </button>
               <button
                 onClick={handleJobView}
-                className="w-full md:w-1/2 lg:w-1/3 xl:w-[390px] bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded"
+                className="w-full md:w-[600px] xl:w-[800px]  hover:text-white bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded"
               >
                 New Job
               </button>
@@ -170,7 +170,10 @@ const Home = () => {
                       </div>
                     </div>
                     <div className="mt-4 text-center">
-                      <button className="bg-color3 text-black hover:text-white border rounded px-4 py-2 hover:bg-pink-500">
+                      <button
+                        onClick={handleOpenChat}
+                        className="bg-color3 text-black hover:text-white border rounded px-4 py-2 hover:bg-pink-500"
+                      >
                         Message
                       </button>
                       <button

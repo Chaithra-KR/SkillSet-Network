@@ -16,6 +16,8 @@ import Saved from '../Pages/User/Saved';
 import JobApplyNow from '../Pages/User/JobApplyNow';
 import ResetPassword from '../Pages/User/ResetPassword';
 import ChatWithCompany from '../Pages/User/ChatWithCompany';
+import MyPosts from '../Pages/User/MyPosts';
+import SinglePost from '../Pages/User/SinglePost';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -84,7 +86,11 @@ const User = () => {
             <Route path='/change-password' element={seeker ? <ResetPassword/> : <UserAccess/>}/>
 
             <Route path='/chat-with-company' element={seeker ? <ChatWithCompany/> : <UserAccess/>}/>
+
+            <Route path='/posts' element={seeker ? <MyPosts/> : <UserAccess/>}/>
            
+            <Route path='/singlePost' element={seeker ? <SinglePost/> : <UserAccess/>}/>  
+
         </Routes>
       </ErrorBoundary>
     </Fragment>

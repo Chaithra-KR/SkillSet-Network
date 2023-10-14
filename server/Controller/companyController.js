@@ -8,7 +8,8 @@ const Position = require("../Model/jobPosition");
 const AppliedJobs = require("../Model/appliedJobs");
 const Posts = require("../Model/posts");
 const PremiumRevenue = require("../Model/premiumRevenue");
-
+const Messages = require("../Model/messages");
+const Conversation = require("../Model/conversation");
 
 const jwtToken = require("jsonwebtoken");
 
@@ -66,9 +67,7 @@ exports.generateOtp = async (req, res) => {
       }
     });
   } catch (error) {
-    res
-      
-      .json({ success: false, serverMessage: "Internal Server Error" });
+    res.json({ success: false, serverMessage: "Internal Server Error" });
   }
 };
 
@@ -169,13 +168,13 @@ exports.premiumPayment = async (req, res) => {
         password: companyData.password,
         role: "company",
         premium: 5000,
-        premiumStatus:true
+        premiumStatus: true,
       });
       await newCompany.save();
       const premiumRevenue = new PremiumRevenue({
         company: newCompany._id,
         amount: 5000,
-        premiumStatus:true
+        premiumStatus: true,
       });
       await premiumRevenue.save();
       res.status(200).json({
@@ -313,10 +312,14 @@ exports.notifications = async (req, res) => {
     // const decoded = req.id
     const companyId = decoded.id;
     if (companyId) {
-      const companyData = await Company.findOne({ _id: companyId }).populate(
-        "jobs"
-      );
-      const user = await AppliedJobs.find().populate("user").populate("job");
+      const companyData = await Company.findOne({ _id: companyId })
+        .populate("jobs")
+        .populate("userRequests.userId");
+
+      const user = await AppliedJobs.find()
+        .populate("user")
+        .populate("job")
+        .sort({ appliedDate: -1 });
 
       const applicantData = user.filter((value) => {
         return value.company === companyId;
@@ -327,6 +330,7 @@ exports.notifications = async (req, res) => {
       });
       const uniqueSkills = [...new Set(allJobSkills)];
       const matchedUsers = await User.find({ skills: { $in: uniqueSkills } });
+      console.log(companyData, "companyData");
       res
         .status(200)
         .json({ status: true, companyData, applicantData, matchedUsers });
@@ -414,7 +418,6 @@ exports.postComment = async (req, res) => {
   }
 };
 
-
 exports.changePassword = async (req, res) => {
   try {
     const { password, confirmPassword, currentPassword } = req.body.data;
@@ -444,7 +447,10 @@ exports.changePassword = async (req, res) => {
       });
     }
     if (password !== confirmPassword) {
-      return res.json({ success: false, message: "Passwords do not match on confirm" });
+      return res.json({
+        success: false,
+        message: "Passwords do not match on confirm",
+      });
     }
     company.password = password;
     await company.save();
@@ -455,3 +461,301 @@ exports.changePassword = async (req, res) => {
     console.error("Error changing password:", error);
   }
 };
+
+exports.getChat = async (req, res) => {
+  try {
+    const token = req.query.data;
+    const decoded = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    const conversations = await Conversation.find({
+      members: { $in: [companyId] },
+    });
+    const receiverData = await Promise.all(
+      conversations.map(async (conversation) => {
+        const receiverId = conversation.members.find(
+          (member) => member !== companyId
+        );
+        const seeker = await User.findById(receiverId);
+        return {
+          seeker: {
+            email: seeker.email,
+            username: seeker.username,
+            image: seeker.image,
+          },
+          conversationId: conversation._id,
+        };
+      })
+    );
+    res.status(200).json({ success: true, receiverData });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.sendMessage = async (req, res) => {
+  try {
+    const { conversationId, senderId, message, receiverId } = req.body;
+    const decoded = jwtToken.verify(senderId, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    if (!companyId || !message) return res.json("fill required fields");
+    if (conversationId == "new" && receiverId) {
+      const newChat = new Conversation({ members: [companyId, receiverId] });
+      await newChat.save();
+      const newMessage = new Messages({
+        conversationId: newChat._id,
+        senderId: companyId,
+        message,
+      });
+      await newMessage.save();
+      res.status(200).json({
+        conversationId,
+        newMessage,
+        message: "Message sent successfully",
+      });
+    } else {
+      const newMessage = new Messages({
+        conversationId,
+        senderId: companyId,
+        message,
+      });
+      await newMessage.save();
+      res.status(200).json({
+        conversationId,
+        newMessage,
+        message: "Message sent successfully",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getMessage = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const { senderId, receiverId } = req.query;
+    if (conversationId === "new") return res.status(200).json([]);
+    const messages = await Messages.find({ conversationId });
+    const messageCompanyData = await Promise.all(
+      messages.map(async (message) => {
+        const company = await Company.findById(message.senderId);
+        if (company && company.email) {
+          return {
+            company: {
+              email: company.email,
+              company: company.company,
+              image: company.image,
+            },
+            message: message.message,
+          };
+        } else {
+          return {
+            company: { email: "N/A", company: "N/A", image: "N/A" },
+            message: message.message,
+          };
+        }
+      })
+    );
+    console.log(messageCompanyData, "messageCompanyData");
+    res.status(200).json({ success: true, messageCompanyData });
+  } catch (error) {
+    console.log(error);
+    // res.status(500).json({ success: false, error: "Internal Server Error" });
+    console.log(error);
+  }
+};
+
+exports.seekers = async (req, res) => {
+  try {
+    const token = req.query.data;
+    const decoded = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    if (companyId) {
+      const companyData = await Company.findOne(
+        { _id: companyId },
+        { _id: 1, company: 1, image: 1 }
+      );
+      const seekers = await User.find(
+        {},
+        { _id: 1, username: 1, email: 1, image: 1 }
+      );
+      res
+        .status(200)
+        .json({ status: true, seekers: seekers, company: companyData });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// exports.acceptEmployee = async (req, res) => {
+//   try {
+//     const userId = req.body.data;
+//     const { company } = req.body;
+//     console.log(company);
+//     const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+//     const companyId = decoded.id;
+//     if (companyId) {
+//       const request = {
+//         userId: userId,
+//         status: "accepted",
+//         companyId: companyId,
+//       };
+
+//       await Company.findByIdAndUpdate(companyId, {
+//         $push: { userRequests: request },
+//       });
+//       await User.findByIdAndUpdate(userId, {
+//         $push: { userRequests: request },
+//       });
+
+//       res.status(200).json({
+//         success: true,
+//         status: "accepted",
+//         message: "Request accepted",
+//       });
+//     } else {
+//       res.json({ status: false });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+exports.acceptEmployee = async (req, res) => {
+  try {
+    const userId = req.body.data;
+    const { company } = req.body;
+    console.log(company);
+    const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    if (companyId) {
+      const updatedCompany = await Company.findOneAndUpdate(
+        {
+          _id: companyId,
+          "userRequests.userId": userId,
+          "userRequests.status": "pending",
+        },
+        {
+          $set: { "userRequests.$.status": "accepted" },
+        }
+      );
+
+      const updatedUser = await User.findOneAndUpdate(
+        {
+          _id: userId,
+          "userRequests.companyId": companyId,
+          "userRequests.status": "pending",
+        },
+        {
+          $set: { "userRequests.$.status": "accepted" },
+        }
+      );
+
+      if (updatedCompany && updatedUser) {
+        res.status(200).json({
+          success: true,
+          status: "accepted",
+          message: "Request accepted",
+        });
+      } else {
+        res.status(200).json({ status: false });
+      }
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+// exports.rejectEmployee = async (req, res) => {
+//   try {
+//     const userId = req.body.data;
+//     const { company } = req.body;
+//     console.log(company);
+//     const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+//     const companyId = decoded.id;
+//     if (companyId) {
+//       const request = {
+//         userId: userId,
+//         status: "rejected",
+//         companyId: companyId,
+//       };
+
+//       await Company.findByIdAndUpdate(companyId, {
+//         $push: { userRequests: request },
+//       });
+//       await User.findByIdAndUpdate(userId, {
+//         $push: { userRequests: request },
+//       });
+
+//       res.status(200).json({
+//         success: true,
+//         status: "rejected",
+//         message: "Request rejected",
+//       });
+//     } else {
+//       res.json({ status: false });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+exports.rejectEmployee = async (req, res) => {
+  try {
+    const userId = req.body.data;
+    const { company } = req.body;
+    console.log(company);
+    const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
+    const companyId = decoded.id;
+    if (companyId) {
+      const request = {
+        userId: userId,
+        status: "rejected",
+        companyId: companyId,
+      };
+
+      const updatedCompany = await Company.findOneAndUpdate(
+        {
+          _id: companyId,
+          "userRequests.userId": userId,
+          "userRequests.status": "pending",
+        },
+        {
+          $set: { "userRequests.$.status": "rejected" },
+        }
+      );
+
+      const updatedUser = await User.findOneAndUpdate(
+        {
+          _id: userId,
+          "userRequests.companyId": companyId,
+          "userRequests.status": "pending",
+        },
+        {
+          $set: { "userRequests.$.status": "rejected" },
+        }
+      );
+
+      if (updatedCompany && updatedUser) {
+        res.status(200).json({
+          success: true,
+          status: "rejected",
+          message: "Request rejected",
+        });
+      } else {
+        res.status(200).json({ status: false });
+      }
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
