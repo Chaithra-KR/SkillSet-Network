@@ -33,7 +33,11 @@ const Home = () => {
   };
 
   const handleShowNewPost = () => {
-    navigate("/posts");
+    if(userDetails.premiumStatus === true){
+      navigate("/posts");
+    }else{
+      navigate("/upgrade-premium")
+    }
   };
   useEffect(() => {
     const handleJobDetails = async () => {

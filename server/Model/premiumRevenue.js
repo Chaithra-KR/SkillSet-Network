@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const premiumRevenueSchema = mongoose.Schema({
   company: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Company',
+    ref: "Company",
   },
   amount: {
     type: Number,
@@ -13,10 +13,14 @@ const premiumRevenueSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  premiumStatus:{
-    type:Boolean,
-    default:false
-},
+  premiumStatus: {
+    type: Boolean,
+    default: false,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
-module.exports = mongoose.model('PremiumRevenue', premiumRevenueSchema);
+module.exports = mongoose.model("PremiumRevenue", premiumRevenueSchema);

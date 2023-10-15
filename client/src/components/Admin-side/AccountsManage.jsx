@@ -30,7 +30,12 @@ const AccountsManage = () => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     return (
       account._id.includes(lowerCaseQuery) ||
-      account.company.company.toLowerCase().includes(lowerCaseQuery)
+      (account.user
+        ? account.user.name.toLowerCase().includes(lowerCaseQuery)
+        : false) ||
+      (account.company
+        ? account.company.company.toLowerCase().includes(lowerCaseQuery)
+        : false)
     );
   });
 
@@ -51,7 +56,9 @@ const AccountsManage = () => {
           <thead>
             <tr>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                <span className="font-bold leading-none opacity-70">SI No:</span>
+                <span className="font-bold leading-none opacity-70">
+                  SI No:
+                </span>
               </th>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
                 <span className="font-bold leading-none opacity-70">
@@ -62,13 +69,17 @@ const AccountsManage = () => {
                 <span className="font-bold leading-none opacity-70">Name</span>
               </th>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                <span className="font-bold leading-none opacity-70">Headline</span>
+                <span className="font-bold leading-none opacity-70">
+                  Headline
+                </span>
               </th>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
                 <span className="font-bold leading-none opacity-70">Email</span>
               </th>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                <span className="font-bold leading-none opacity-70">Amount</span>
+                <span className="font-bold leading-none opacity-70">
+                  Amount
+                </span>
               </th>
             </tr>
           </thead>
@@ -82,13 +93,19 @@ const AccountsManage = () => {
                   <span className="font-normal">{val._id}</span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
-                  <span className="font-normal">{val.company.company}</span>
+                  <span className="font-normal">
+                    {val.user ? val.user.name : val.company.company}
+                  </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
-                  <span className="font-normal">{val.company.headline}</span>
+                  <span className="font-normal">
+                    {val.user ? val.user.headline : val.company.headline}
+                  </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
-                  <span className="font-normal">{val.company.email}</span>
+                  <span className="font-normal">
+                    {val.user ? val.user.email : val.company.email}
+                  </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
                   <span className="font-normal">{val.amount}</span>
@@ -98,7 +115,9 @@ const AccountsManage = () => {
           </tbody>
         </table>
       ) : (
-        <div className="p-4 text-center">No accounts matching the search criteria.</div>
+        <div className="p-4 text-center">
+          No accounts matching the search criteria.
+        </div>
       )}
     </section>
   );

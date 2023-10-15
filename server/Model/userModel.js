@@ -66,6 +66,10 @@ const user = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Posts",
     }],
+    premiumStatus:{
+        type:Boolean,
+        default:false
+    },
     userRequests: [
         {
           companyId: {

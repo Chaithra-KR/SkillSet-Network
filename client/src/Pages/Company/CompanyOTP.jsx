@@ -15,11 +15,8 @@ const CompanyOTP = () => {
     const handleSubmit = (e)=>{
       e.preventDefault()
       Axios.post(`${CompanyApi}company-otp`,{data :location?.state.data, otp:otp }).then((res)=>{
-        console.log(res,"the data ---------------------------------------");
         if(res.data.success===true){ 
-          console.log("------------------------next otp");
           const data = res.data.companyData
-          console.log(data,"yuyuyy");
           navigate('/company/company-premium',{state:{data}});
         }else{
           console.log("Invalid OTP");

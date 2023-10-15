@@ -1,25 +1,26 @@
 import React from "react";
 import StripeCheckout from "react-stripe-checkout";
-import { CompanyApi } from "../../configs/api";
-import { useLocation } from "react-router-dom";
-import Navbar from "./Navbar";
-import { companyAxiosInstance } from "../../configs/axios/axios";
+import { UserApi } from "../../configs/api";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import Navbar from "./Navbar";
+import { useSelector } from "react-redux";
 
-const CompanyPremium = () => {
-  const amount = 5000;
+const UpgradePremium = () => {
+  const amount = 1000;
   const publishableKey =
     "pk_test_51NnZNQSCHRF9RPPWsxW5yF4ncPLLrR1Rc2svGQE5sK7DmkYyq47cRGIl1Yt5IwSwQyv4733qE0wxt4fCguIykQz300vFWMcSuW";
-  const location = useLocation();
+  const seeker = useSelector((state) => {
+    return state?.seekerDetails.seekerToken;
+  });
 
   const payNow = async (token, amount) => {
     try {
-      const response = await axios.post(`${CompanyApi}company-payment`, {
+      const response = await axios.post(`${UserApi}upgradePayment`, {
+        userToken: seeker,
         token: token.id,
         amount: amount.toString(),
         currency: "INR",
-        data: location?.state.data,
       });
 
       if (response.status === 200) {
@@ -36,12 +37,12 @@ const CompanyPremium = () => {
               paymentIntent.next_action.redirect_to_url.url,
               "_blank"
             );
-            navigate("/company/company-login");
+            navigate("/posts");
             showToast("Payment successful", "#00ff00");
           }
         } else {
           window.open(response.data.data, "_blank");
-          navigate("/company/company-login");
+          navigate("/posts");
           showToast(response.data.message, "#00ff00");
         }
       } else {
@@ -88,28 +89,27 @@ const CompanyPremium = () => {
             Unlock the Full Potential of SkillSet Network!
           </h1>
           <p>
-            Upgrade to our Premium Company Account for 9 months and supercharge
+            Upgrade to our Premium seeker Account for 9 months and supercharge
             your hiring process.
             <br />
-            With Premium, your company gains exclusive access to a powerful
+            With Premium, your account gains exclusive access to a powerful
             suite of features and benefits:
           </p>
           <br />
           <ul className="ml-11 list-disc">
-            <li>Post unlimited job listings to reach a wider talent pool.</li>
             <li>
-              Highlight your company's profile to attract top-tier candidates.
+              Post unlimited posts to hired fast by attracting your account.
             </li>
+            <li>Highlight your profile to attract top-tier candidates.</li>
             <li>
-              Advanced search filters to find the perfect match for your team.
+              Advanced search filters to find the perfect match for your skills.
             </li>
-            <li>Premium badge to boost your company's credibility.</li>
+            <li>Premium badge to boost your account credibility.</li>
           </ul>
           <br />
           <p>
-            Invest in your company's growth and hire the best talent
-            effortlessly. Join SkillSet Network Premium <br />
-            today and discover the future of recruitment!
+            Join SkillSet Network Premium today and discover the future of
+            recruitment!
           </p>
           <br />
           <div className="flex justify-center">
@@ -124,7 +124,7 @@ const CompanyPremium = () => {
               zipCode
               image="/skillset-logo.jpg"
             >
-              <button className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">
+              <button className="bg-pink-500 hover-bg-pink-700 text-white font-bold py-2 px-4 rounded">
                 Pay Now
               </button>
             </StripeCheckout>
@@ -135,4 +135,4 @@ const CompanyPremium = () => {
   );
 };
 
-export default CompanyPremium;
+export default UpgradePremium;

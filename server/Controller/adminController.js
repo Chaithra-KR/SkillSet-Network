@@ -141,7 +141,6 @@ exports.viewDashboard = async (req, res) => {
       },
     ]);
     const premiumAccountsCount = await PremiumRevenue.find().countDocuments();
-    console.log("revenue:", revenue[0].subtotal);
     res.status(200).json({
       success: true,
       companiesCount,
@@ -207,9 +206,11 @@ exports.viewJobManage = async (req, res) => {
 
 exports.accounts = async (req, res) => {
   try {
-    const accounts = await PremiumRevenue.find().populate("company");
+    const accounts = await PremiumRevenue.find()
+      .populate("company")
+      .populate("user");
     if (accounts) {
-      console.log(accounts,"accounts");
+      console.log(accounts, "accounts");
       res.status(200).json({ status: true, accounts });
     } else {
       res.json({ status: false });

@@ -37,5 +37,8 @@ userRouter.get('/companies',userController.companies)
 
 userRouter.post('/requestAsEmploy',userController.requestAsEmploy)
 
+userRouter.post('/upgradePayment',userController.upgradePayment)
+
+
 
 module.exports = userRouter;

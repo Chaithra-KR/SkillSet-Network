@@ -18,6 +18,7 @@ import ResetPassword from '../Pages/User/ResetPassword';
 import ChatWithCompany from '../Pages/User/ChatWithCompany';
 import MyPosts from '../Pages/User/MyPosts';
 import SinglePost from '../Pages/User/SinglePost';
+import UpgradePremium from '../components/User-side/UpgradePremium';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -90,6 +91,9 @@ const User = () => {
             <Route path='/posts' element={seeker ? <MyPosts/> : <UserAccess/>}/>
            
             <Route path='/singlePost' element={seeker ? <SinglePost/> : <UserAccess/>}/>  
+
+            <Route path='/upgrade-premium' element={seeker ? <UpgradePremium/> : <UserAccess/>}/>  
+
 
         </Routes>
       </ErrorBoundary>

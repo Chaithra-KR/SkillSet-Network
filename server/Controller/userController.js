@@ -9,6 +9,8 @@ const Posts = require("../Model/posts");
 const Conversation = require("../Model/conversation");
 const Company = require("../Model/companyModel");
 const Messages = require("../Model/messages");
+const PremiumRevenue = require("../Model/premiumRevenue");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 exports.otp = async (req, res) => {
   try {
@@ -165,10 +167,14 @@ exports.profileView = async (req, res) => {
       const uniqueSkills = [...new Set(seekerData.skills)];
 
       const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } });
-      const companies = await Company.find()
-      res
-        .status(200)
-        .json({ status: true, seekerData, matchedJobs, appliedJobs , companies });
+      const companies = await Company.find();
+      res.status(200).json({
+        status: true,
+        seekerData,
+        matchedJobs,
+        appliedJobs,
+        companies,
+      });
     } else {
       res.json({ status: false, message: "Invalid seekerId" });
     }
@@ -202,8 +208,8 @@ exports.jobView = async (req, res) => {
     const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
     const seekerId = decoded.id;
     const appliedJobs = await AppliedJobs.find({ user: seekerId })
-        .populate("job")
-        .populate("company");
+      .populate("job")
+      .populate("company");
     const searchQuery = req.query.q;
 
     const page = parseInt(req.query.page) || 1;
@@ -248,7 +254,7 @@ exports.jobView = async (req, res) => {
       perPage,
       totalCount,
       paginationCount,
-      appliedJobs
+      appliedJobs,
     });
   } catch (error) {
     console.log(error);
@@ -425,7 +431,7 @@ exports.singlePost = async (req, res) => {
   try {
     const { imageId } = req.query;
     if (imageId) {
-      const seekerData = await Posts.findOne({ _id: imageId })
+      const seekerData = await Posts.findOne({ _id: imageId });
       res.status(200).json({ status: true, seekerData });
     } else {
       res.json({ status: false });
@@ -451,7 +457,11 @@ exports.getChat = async (req, res) => {
         );
         const company = await Company.findById(receiverId);
         return {
-          company: { email: company.email, company: company.company,image:company.image },
+          company: {
+            email: company.email,
+            company: company.company,
+            image: company.image,
+          },
           conversationId: conversation._id,
         };
       })
@@ -474,7 +484,7 @@ exports.sendMessage = async (req, res) => {
       await newChat.save();
       const newMessage = new Messages({
         conversationId: newChat._id,
-        senderId:seekerId,
+        senderId: seekerId,
         message,
       });
       await newMessage.save();
@@ -483,21 +493,23 @@ exports.sendMessage = async (req, res) => {
         newMessage,
         message: "Message sent successfully",
       });
-    }else{
-      const newMessage = new Messages({ conversationId, senderId:seekerId, message });
+    } else {
+      const newMessage = new Messages({
+        conversationId,
+        senderId: seekerId,
+        message,
+      });
       await newMessage.save();
       res.status(200).json({
-              conversationId,
-              newMessage,
-              message: "Message sent successfully",
-            });
+        conversationId,
+        newMessage,
+        message: "Message sent successfully",
+      });
     }
-
   } catch (error) {
     console.log(error);
   }
 };
-
 
 exports.getMessage = async (req, res) => {
   try {
@@ -519,7 +531,7 @@ exports.getMessage = async (req, res) => {
           };
         } else {
           return {
-            seeker: { email: "N/A", username: "N/A" ,image: "N/A" },
+            seeker: { email: "N/A", username: "N/A", image: "N/A" },
             message: message.message,
           };
         }
@@ -564,26 +576,114 @@ exports.requestAsEmploy = async (req, res) => {
     const { token, companyId } = req.body.data;
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
     const seekerId = decoded.id;
-      const request = {
-        userId: seekerId,
-        status: "pending",
-        companyId: companyId,
-      };
+    const request = {
+      userId: seekerId,
+      status: "pending",
+      companyId: companyId,
+    };
 
-      await User.findByIdAndUpdate(seekerId, {
-        $push: { userRequests: request },
-      });
-      await Company.findByIdAndUpdate(companyId, {
-        $push: { userRequests: request },
-      });
+    await User.findByIdAndUpdate(seekerId, {
+      $push: { userRequests: request },
+    });
+    await Company.findByIdAndUpdate(companyId, {
+      $push: { userRequests: request },
+    });
 
-      res.status(200).json({
-        success: true,
-        status: "pending",
-        message: "Request sent successfully",
-      });
+    res.status(200).json({
+      success: true,
+      status: "pending",
+      message: "Request sent successfully",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+
+exports.upgradePayment = async (req, res) => {
+  try {
+    const { token, userToken, amount, currency } = req.body;
+    const decoded = jwtToken.verify(userToken, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (seekerId) {
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: "card",
+        card: {
+          token: token,
+        },
+      });
+      const parseAmount = parseInt(amount) * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: parseAmount,
+        currency,
+        payment_method_types: ["card"],
+        payment_method: paymentMethod.id,
+        confirm: true,
+        return_url: "http://localhost:3000/posts",
+      });
+      const retrievedPaymentIntent = await stripe.paymentIntents.retrieve(
+        paymentIntent.id
+      );
+      if (paymentIntent.status === "requires_action") {
+        await User.findOneAndUpdate({ _id: seekerId }, { premiumStatus: true });
+        const premiumRevenue = new PremiumRevenue({
+          user: seekerId,
+          amount: 1000,
+          premiumStatus: true,
+        });
+        await premiumRevenue.save();
+        res.status(200).json({
+          data: paymentIntent.next_action.redirect_to_url.url,
+          success: true,
+          message: "Premium upgraded!",
+        });
+      } else if (paymentIntent.status === "succeeded") {
+        res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ success: false });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+// exports.upgradePayment = async (req, res) => {
+//   try {
+//     const { token, amount, currency } = req.body;
+//     console.log("token", token);
+//     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+//     const seekerId = decoded.id;
+
+//     if (!seekerId) {
+//       throw new Error("Invalid or expired token");
+//     }
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ["card"],
+//       line_items: [
+//         {
+//           price_data: {
+//             currency: "inr",
+//             unit_amount: parseInt(amount) * 100,
+//           },
+//         },
+//       ],
+//       mode: "payment",
+//       success_url: "http://localhost:3000/posts",
+//       cancel_url: "http://localhost:3000/login",
+//     });
+//     console.log(session.id);
+//     await User.findOneAndUpdate({ _id: seekerId }, { premiumStatus: true });
+//     const premiumRevenue = new PremiumRevenue({
+//       user: seekerId,
+//       amount: 1000,
+//       premiumStatus: true,
+//     });
+//     await premiumRevenue.save();
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, error: "Internal server error" });
+//   }
+// };

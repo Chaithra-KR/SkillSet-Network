@@ -590,40 +590,6 @@ exports.seekers = async (req, res) => {
   }
 };
 
-// exports.acceptEmployee = async (req, res) => {
-//   try {
-//     const userId = req.body.data;
-//     const { company } = req.body;
-//     console.log(company);
-//     const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
-//     const companyId = decoded.id;
-//     if (companyId) {
-//       const request = {
-//         userId: userId,
-//         status: "accepted",
-//         companyId: companyId,
-//       };
-
-//       await Company.findByIdAndUpdate(companyId, {
-//         $push: { userRequests: request },
-//       });
-//       await User.findByIdAndUpdate(userId, {
-//         $push: { userRequests: request },
-//       });
-
-//       res.status(200).json({
-//         success: true,
-//         status: "accepted",
-//         message: "Request accepted",
-//       });
-//     } else {
-//       res.json({ status: false });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 exports.acceptEmployee = async (req, res) => {
   try {
     const userId = req.body.data;
@@ -670,41 +636,6 @@ exports.acceptEmployee = async (req, res) => {
     console.log(error);
   }
 };
-
-
-// exports.rejectEmployee = async (req, res) => {
-//   try {
-//     const userId = req.body.data;
-//     const { company } = req.body;
-//     console.log(company);
-//     const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
-//     const companyId = decoded.id;
-//     if (companyId) {
-//       const request = {
-//         userId: userId,
-//         status: "rejected",
-//         companyId: companyId,
-//       };
-
-//       await Company.findByIdAndUpdate(companyId, {
-//         $push: { userRequests: request },
-//       });
-//       await User.findByIdAndUpdate(userId, {
-//         $push: { userRequests: request },
-//       });
-
-//       res.status(200).json({
-//         success: true,
-//         status: "rejected",
-//         message: "Request rejected",
-//       });
-//     } else {
-//       res.json({ status: false });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 exports.rejectEmployee = async (req, res) => {
   try {
@@ -758,4 +689,3 @@ exports.rejectEmployee = async (req, res) => {
     console.log(error);
   }
 };
-
