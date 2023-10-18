@@ -3,10 +3,11 @@ import { UserApi } from "../../configs/api";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { FaPaperPlane, FaPhone } from "react-icons/fa";
+import { io } from "socket.io-client";
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({ resData: [], receiver: null, conversationId: null });
   const [message, setMessage] = useState("");
   const [companies, setCompanies] = useState([]);
   const [user, setUser] = useState("");
@@ -18,13 +19,20 @@ const Chat = () => {
     seekerName: state?.seekerDetails.seekerName,
   }));
 
-  const handleCompanyClick = (company) => {
-    console.log(company, "company");
-    setSelectedCompany(company);
-    fetchMessages("new", company);
-  };
+  const socket = io("http://localhost:4000");
+
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("connected");
+    });
+    socket.on("error", (err) => {
+      console.log(err);
+    });
+    socket.on("receiver", (message, conversationId, sender) => {
+      fetchMessages(conversationId, sender);
+    });
+
     const fetchCompanies = async () => {
       try {
         const res = await axios.get(
@@ -36,6 +44,7 @@ const Chat = () => {
         console.error(error);
       }
     };
+
     const fetchConversations = async () => {
       try {
         const res = await axios.get(
@@ -51,11 +60,14 @@ const Chat = () => {
     fetchCompanies();
     fetchConversations();
     messageRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [seekerToken, messages?.length]);
+  }, [seekerToken]);
 
   const sendMessage = async (receiver) => {
     try {
       const companyId = receiver;
+
+      socket.emit("send", message, messages?.conversationId, seekerToken);
+
       const res = await axios.post(`${UserApi}sendMessage`, {
         conversationId: messages?.conversationId,
         senderId: seekerToken,
@@ -68,7 +80,7 @@ const Chat = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
 
   const fetchMessages = async (conversationId, receiver) => {
     const res = await axios.get(
@@ -77,8 +89,13 @@ const Chat = () => {
     const resData = res.data.messageSeekerData;
     console.log(resData);
     setMessages({ resData, receiver, conversationId });
-    console.log(receiver, "receiver");
     setSelectedCompany(receiver);
+  };
+
+  
+  const handleCompanyClick = (company) => {
+    setSelectedCompany(company);
+    fetchMessages("new", company);
   };
 
   return (

@@ -2,7 +2,17 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { companyLogout } from "../../Store/storeSlices/companyAuth";
-import { FaBars, FaBell, FaHome, FaBriefcase, FaComment, FaUser, FaCog } from "react-icons/fa";
+import {
+  FaBars,
+  FaBell,
+  FaHome,
+  FaBriefcase,
+  FaComment,
+  FaUser,
+  FaCog,
+} from "react-icons/fa";
+import { MdDashboard } from "react-icons/md";
+
 import { Button, Modal } from "antd";
 
 const Navbar = () => {
@@ -11,7 +21,6 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOpenForSettings, setModalOpenForSettings] = useState(false);
-
 
   const handleProfileView = () => {
     navigate("/company/company-profile");
@@ -27,6 +36,10 @@ const Navbar = () => {
 
   const handleHomeView = () => {
     navigate("/company/central-hub");
+  };
+
+  const handleOverView = () => {
+    navigate("/company/overview");
   };
 
   const handleMessageView = () => {
@@ -86,9 +99,16 @@ const Navbar = () => {
               <FaBriefcase className="fill-current text-pink-500" />
             </button>
             <button className="p-1 border border-transparent rounded hover:bg-gray-50">
-            <FaComment
-            onClick={handleMessageView}
-            className="fill-current text-pink-500" />
+              <FaComment
+                onClick={handleMessageView}
+                className="fill-current text-pink-500"
+              />
+            </button>
+            <button
+              onClick={handleOverView}
+              className="pl-3 border border-transparent rounded flex flex-col items-center"
+            >
+              <MdDashboard className="fill-current text-pink-500" />
             </button>
             <button
               onClick={handleProfileView}
@@ -132,11 +152,19 @@ const Navbar = () => {
           </button>
 
           <button
-          onClick={handleMessageView}
+            onClick={handleMessageView}
             className="pl-3 border border-transparent rounded flex flex-col items-center"
           >
             <FaComment className="fill-current text-pink-500" />
             Messaging
+          </button>
+
+          <button
+            onClick={handleOverView}
+            className="pl-3 border border-transparent rounded flex flex-col items-center"
+          >
+            <MdDashboard className="fill-current text-pink-500" />
+            Overview
           </button>
 
           <button
@@ -146,7 +174,7 @@ const Navbar = () => {
             <FaUser className="fill-current text-pink-500" />
             Profile
           </button>
-          
+
           <button
             onClick={handleNotificationsView}
             className="px-3 border border-transparent rounded flex flex-col items-center"

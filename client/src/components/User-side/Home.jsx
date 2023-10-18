@@ -33,10 +33,10 @@ const Home = () => {
   };
 
   const handleShowNewPost = () => {
-    if(userDetails.premiumStatus === true){
+    if (userDetails.premiumStatus === true) {
       navigate("/posts");
-    }else{
-      navigate("/upgrade-premium")
+    } else {
+      navigate("/upgrade-premium");
     }
   };
   useEffect(() => {
@@ -124,11 +124,18 @@ const Home = () => {
                 >
                   Chat
                 </button>
-                <div className="pt-8">
-                  <button className="bg-pink-600 rounded px-5 py-1 text-white">
-                    Premium
-                  </button>
-                </div>
+                {userDetails.premiumStatus === true ? null : (
+                  <div className="pt-8">
+                    <button
+                      onClick={() => {
+                        navigate("/upgrade-premium");
+                      }}
+                      className="bg-pink-600 rounded px-5 py-1 text-white"
+                    >
+                      Premium
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -220,23 +227,16 @@ const Home = () => {
                                 </div>
 
                                 <div>
-                                  {val.userRequests &&
-                                  val.userRequests.length > 0 ? (
-                                    val.userRequests.map((value) => (
+                                  {userDetails.userRequests &&
+                                  userDetails.userRequests.length > 0 ? (
+                                    userDetails.userRequests.map((value) => (
                                       <div key={value._id}>
                                         {value.status === "pending" ? (
-                                          <button className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none">
-                                            Pending
-                                          </button>
-                                        ) : value.status === "requested" ? (
-                                          <button
-                                           
-                                            className="bg-pink-500 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-700 transition-colors duration-300 focus:outline-none"
-                                          >
+                                          <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none">
                                             Requested
                                           </button>
                                         ) : value.status === "accepted" ? (
-                                          <button className="bg-green-500 text-white px-3 py-1 mt-2 rounded-md hover-bg-green-700 transition-colors duration-300 focus:outline-none">
+                                          <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-green-700 transition-colors duration-300 focus:outline-none">
                                             Employ
                                           </button>
                                         ) : value.status === "rejected" ? (

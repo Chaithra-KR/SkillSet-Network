@@ -3,38 +3,47 @@ import { CompanyApi } from "../../configs/api";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { FaPaperPlane, FaPhone } from "react-icons/fa";
+import { io } from "socket.io-client";
 
 const Chat = () => {
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState("");
+  const [seeker, setSeeker] = useState([]);
+  const [user, setUser] = useState("");
+  const [selectedSeeker, setSelectedSeeker] = useState(null);
+  const messageRef = useRef(null);
+
   const { companyToken, companyName } = useSelector((state) => ({
     companyToken: state?.companyDetails.companyToken,
     companyName: state?.companyDetails.companyName,
   }));
 
-  const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
-  const [seeker, setSeekers] = useState([]);
-  const [user, setUser] = useState("");
-  const [selectedSeeker, setSelectedSeeker] = useState(null);
-  const messageRef = useRef(null);
-
-  const handleSeekerClick = (seeker) => {
-    setSelectedSeeker(seeker);
-    fetchMessages("new", seeker);
-  };
+  const socket = io("http://localhost:4000");
 
   useEffect(() => {
-    const fetchSeeker = async () => {
+    socket.on("connect", () => {
+      console.log("connected");
+    });
+    socket.on("error", (err) => {
+      console.log(err);
+    });
+    socket.on("receiver", (message, conversationId, sender) => {
+      fetchMessages(conversationId, sender);
+    });
+
+    const fetchSeekers = async () => {
       try {
         const res = await axios.get(
           `${CompanyApi}seekers?data=${encodeURIComponent(companyToken)}`
         );
         setUser(res.data.company);
-        setSeekers(res.data.seekers);
+        setSeeker(res.data.seekers);
       } catch (error) {
         console.error(error);
       }
     };
+
     const fetchConversations = async () => {
       try {
         const res = await axios.get(
@@ -46,15 +55,18 @@ const Chat = () => {
         console.error(error);
       }
     };
-    
-    fetchSeeker();
+
+    fetchSeekers();
     fetchConversations();
     messageRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [companyToken, messages?.length]);
+  }, [companyToken]);
 
   const sendMessage = async (receiver) => {
     try {
       const seekerId = receiver;
+      
+      socket.emit("send", message, messages?.conversationId, companyToken);
+
       const res = await axios.post(`${CompanyApi}sendMessage`, {
         conversationId: messages?.conversationId,
         senderId: companyToken,
@@ -67,8 +79,7 @@ const Chat = () => {
     } catch (error) {
       console.error(error);
     }
-  };
-
+  }
 
   const fetchMessages = async (conversationId, receiver) => {
     const res = await axios.get(
@@ -77,8 +88,12 @@ const Chat = () => {
     const resData = res.data.messageCompanyData;
     console.log(resData);
     setMessages({ resData, receiver, conversationId });
-    console.log(receiver, "receiver");
     setSelectedSeeker(receiver);
+  };
+
+  const handleSeekerClick = (seeker) => {
+    setSelectedSeeker(seeker);
+    fetchMessages("new", seeker);
   };
 
   return (

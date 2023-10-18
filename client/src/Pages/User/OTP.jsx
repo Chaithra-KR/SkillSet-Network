@@ -12,40 +12,71 @@ const OTP = () => {
 
     console.log(location.state.data);
     
-    const handleSubmit = (e)=>{
-      e.preventDefault()
-      Axios.post(`${UserApi}otp`,{data :location?.state.data, otp:otp }).then((res)=>{
-        console.log(res);
-        if(res.data.success){
-          navigate('/login')
-          const showToast = () => {
-            toast.success(res.data.message, {
-              duration: 3000,
-              position: 'top-center',
-              style: {
-                background: '#00ff00',
-                color: '#fff',
-              },
-            });
-          };
-          showToast()
-        }else{
-          console.log("Invalid OTP");
-          toast.error(res.data.message,{
-            duration:3000,
-            position:'top-center',
-            style:{
-              background:'#ff0000',
-              color:'#fff'
-            }
-          })
+    // const handleSubmit = (e)=>{
+    //   e.preventDefault()
+    //   Axios.post(`${UserApi}otp`,{data :location?.state.data, otp:otp }).then((res)=>{
+    //     console.log(res);
+    //     if(res.data.success){
+    //       navigate('/login')
+    //       const showToast = () => {
+    //         toast.success(res.data.message, {
+    //           duration: 3000,
+    //           position: 'top-center',
+    //           style: {
+    //             background: '#00ff00',
+    //             color: '#fff',
+    //           },
+    //         });
+    //       };
+    //       showToast()
+    //     }else{
+    //       console.log("Invalid OTP");
+    //       toast.error(res.data.message,{
+    //         duration:3000,
+    //         position:'top-center',
+    //         style:{
+    //           background:'#ff0000',
+    //           color:'#fff'
+    //         }
+    //       })
 
-        }
-      }).catch((error)=>{
-        console.log(error);
-      })
-    }
+    //     }
+    //   }).catch((error)=>{
+    //     console.log(error);
+    //   })
+    // }
   
+    const handleSubmit = (e) => {
+      e.preventDefault();
+    
+      Axios.post(`${UserApi}otp`, { data: location?.state.data, otp: otp })
+        .then((res) => {
+          console.log(res);
+          if (res.data.success) {
+            navigate('/login');
+            showToast(res.data.message, 'success');
+          } else {
+            console.log('Invalid OTP');
+            showToast(res.data.message, 'error');
+          }
+        })
+        .catch((error) => {
+          console.error('Axios Error:', error);
+          showToast('An error occurred while processing your request.', 'error');
+        });
+    };
+    
+    const showToast = (message, type) => {
+      toast(message, {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: type === 'success' ? '#00ff00' : '#ff0000',
+          color: '#fff',
+        },
+      });
+    };
+    
     // Function to handle input changes
     const handleInputChange = (e, index) => {
       const newOtp = [...otp];

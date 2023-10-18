@@ -10,13 +10,9 @@ import {
   FaMapMarker,
   FaBook,
 } from "react-icons/fa";
-import { Button, Modal } from "antd";
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState(true);
   const [applicantData, setApplicantData] = useState([]);
-  const [selectedNotification, setSelectedNotification] = useState(null);
-
   const [companyDetails, setCompanyDetails] = useState({
     company: null,
     startedDate: null,
@@ -29,14 +25,6 @@ const Profile = () => {
     address: null,
   });
 
-  const openModal = (notification) => {
-    setSelectedNotification(notification);
-  };
-
-  const closeModal = () => {
-    setSelectedNotification(null);
-  };
-
   const navigate = useNavigate();
 
   const rawDate = companyDetails.startedDate;
@@ -47,7 +35,7 @@ const Profile = () => {
 
   const data = useSelector((state) => {
     return state?.companyDetails.companyToken;
-  });
+  }); 
 
   const handleEditProfile = async () => {
     try {
@@ -60,32 +48,19 @@ const Profile = () => {
   useEffect(() => {
     const handleProfile = async () => {
       try {
-        console.log("entering to the axios profile");
         const response = await companyAxiosInstance
           .get(`${CompanyApi}companyProfile?data=${encodeURIComponent(data)}`)
-          .then((res) => {
-            let companyData = res.data.companyData;
-            let applicantData = res.data.applicantData;
+            let companyData = response.data.companyData;
+            let applicantData = response.data.applicantData;
             setCompanyDetails(companyData);
             setApplicantData(applicantData);
-          });
       } catch (error) {
         console.log(error);
       }
     };
-    handleProfile();
+    handleProfile();  
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    };
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString(undefined, options);
-    return formattedDate;
-  };
 
   return (
     <>
@@ -136,10 +111,8 @@ const Profile = () => {
                       <p className="text-xs text-muted mb-0">Jobs</p>
                     </div>
                     <div className="ml-5">
-                    {applicantData ? (
-                        <p className="mb-1 text-lg">
-                          {applicantData.length}
-                        </p>
+                      {applicantData ? (
+                        <p className="mb-1 text-lg">{applicantData.length}</p>
                       ) : (
                         <p className="mb-1 text-lg">No requests</p>
                       )}
@@ -250,228 +223,6 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center mt-4 lg:mt-8 mb-4">
-                <div className="flex flex-wrap">
-                  <div>
-                    <button
-                      className={`p-1 w-20 ml-5 border rounded-full shadow-md ${
-                        activeTab === true
-                          ? "bg-pink-400 text-white"
-                          : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab(true)}
-                    >
-                      Jobs
-                    </button>
-                    <button
-                      className={`p-1 w-24 ml-5 border rounded-full shadow-md ${
-                        activeTab === false
-                          ? "bg-pink-400 text-white"
-                          : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab(false)}
-                    >
-                      Hire pool
-                    </button>
-                    <button
-                      className={`p-1 w-24 ml-5 border rounded-full shadow-md ${
-                        activeTab === "people" ? "bg-pink-400" : "bg-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("people")}
-                    >
-                      People
-                    </button>
-                  </div>
-                </div>
-              </div>
-              {activeTab === true ? (
-                <section>
-                  {companyDetails.jobs
-                    ? companyDetails.jobs.map((val) => (
-                        <div className="container pb-2">
-                          <div className="md:mx-auto">
-                            <ul className="space-y-4">
-                              <li className="flex flex-wrap items-center justify-between p-4 bg-white border rounded-lg shadow-md">
-                                <div className="flex-grow flex items-center">
-                                  <div>
-                                    <h5 className="text-black">
-                                      Position : {val.position}
-                                    </h5>
-                                    <p className="text-gray-500">
-                                      Skills :{" "}
-                                      {val.skills.map((skill, i) => (
-                                        <>
-                                          {skill}
-                                          {val.skills.length - 1 === i
-                                            ? ""
-                                            : " , "}
-                                        </>
-                                      ))}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div>
-                                  <p className="text-sm pl-1 pb-1 text-gray-400">
-                                    Shared date : {formatDate(val.date)}
-                                  </p>
-                                  <p className="px-4 py-2 text-black bg-gray-100 rounded-md">
-                                    Salary: Rs.{val.salary}/-
-                                  </p>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      ))
-                    : null}
-                </section>
-              ) : (
-                <section>
-                  {applicantData.length > 0
-                    ? applicantData.map((val) => (
-                        <div className="p-4 bg-white rounded-lg shadow-md mb-3">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center space-x-2">
-                              {val.user.image ? (
-                                <img
-                                  className="rounded-full w-14 h-14 mx-auto flex items-center justify-center border-persian-orange p-2"
-                                  src={val.user.image}
-                                  alXt="user"
-                                />
-                              ) : (
-                                <img
-                                  className="rounded-full w-14 h-14 mx-auto flex items-center justify-center border-persian-orange p-2"
-                                  src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
-                                  alt="user"
-                                />
-                              )}
-                              <div>
-                                <p>
-                                  <scan className="font-semibold">
-                                    {val.user.username}{" "}
-                                  </scan>{" "}
-                                  applied for{" "}
-                                  {val.job && val.job.position ? (
-                                    <scan className="font-semibold">
-                                      {val.job.position}
-                                    </scan>
-                                  ) : null}
-                                </p>
-                                <p className="text-sm">{val.coverLetter}</p>
-                              </div>
-                            </div>
-                            <div className="space-x-2">
-                              <Button
-                                className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
-                                type="pink"
-                                onClick={() => openModal(val)}
-                              >
-                                View
-                              </Button>
-                              <Modal
-                                title="Application letter"
-                                visible={selectedNotification === val}
-                                onCancel={closeModal}
-                                footer={null}
-                              >
-                                <p className="mb-2">
-                                  <span className="font-bold mr-1">
-                                    Subject :
-                                  </span>{" "}
-                                  Application for
-                                  {val.job && val.job.position ? (
-                                    <span className="ml-1 font-bold">
-                                      {val.job.position}{" "}
-                                    </span>
-                                  ) : null}
-                                  at you company
-                                </p>
-
-                                <p>Dear sir,</p>
-
-                                <p className="mb-1">
-                                  I am writing to apply for the{" "}
-                                  {val.job && val.job.position ? (
-                                    <span className="font-bold mr-1">
-                                      {val.job.position}{" "}
-                                    </span>
-                                  ) : null}
-                                  position at your company. Attached is my CV
-                                  outlining my relevant skills
-                                  {val.experience ? (
-                                    <scan className="ml-1">
-                                      and{" "}
-                                      <span className="font-bold">
-                                        {val.experience}.
-                                      </span>
-                                    </scan>
-                                  ) : (
-                                    <scan>.</scan>
-                                  )}{" "}
-                                </p>
-
-                                <p className="mb-1">
-                                  I have a strong track record in{" "}
-                                  <span className="font-bold mr-1">
-                                    {val.skills.map((skill, i) => (
-                                      <>
-                                        {skill}
-                                        {val.skills.length - 2 === i
-                                          ? " and "
-                                          : val.skills.length - 1 === i
-                                          ? ""
-                                          : ", "}
-                                      </>
-                                    ))}
-                                  </span>
-                                  . I am eager to bring these skills to your
-                                  company and contribute to your team's success.
-                                </p>
-
-                                <p className="mb-1">
-                                  I am available for an interview at{" "}
-                                  <span className="font-bold mr-1">
-                                    {val.phone}
-                                  </span>{" "}
-                                  or via email at{" "}
-                                  <span className="font-bold mr-1">
-                                    {val.email}
-                                  </span>
-                                  .
-                                </p>
-                                <p className="mb-2">
-                                  Thank you for considering my application.
-                                </p>
-
-                                <p>Sincerely,</p>
-                                <p className="font-bold mb-2">{val.name}</p>
-                                <div className="flex items-center">
-                                  <p className="uppercase text-sm text-black font-bold">
-                                    Resume / CV :
-                                  </p>
-                                  <button
-                                    onClick={() =>
-                                      window.open(userDetails.cv, "_blank")
-                                    }
-                                    className=" ml-1 px-4 py-1 border border-pink-300 rounded-lg shadow hover:bg-gray-200 hover:border-gray-300"
-                                  >
-                                    {val.name}_CV
-                                  </button>
-                                </div>
-                              </Modal>
-                              <button className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none">
-                                Connect
-                              </button>
-                            </div>
-                          </div>
-                          <p className="flex justify-end text-xs text-gray-500">
-                            {formatDate(val.appliedDate)}
-                          </p>
-                        </div>
-                      ))
-                    : null}
-                </section>
-              )}
             </div>
           </div>
         </div>

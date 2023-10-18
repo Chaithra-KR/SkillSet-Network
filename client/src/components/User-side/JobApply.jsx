@@ -13,6 +13,7 @@ const JobApply = () => {
   const [editingSkillIndex, setEditingSkillIndex] = useState("");
   const [changedData, setChangedData] = useState({});
   const [cvFile, setCvFile] = useState(null);
+  const [cvFileName, setCvFileName] = useState("");
 
   const {
     register,
@@ -22,8 +23,8 @@ const JobApply = () => {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const jobId = queryParams.get('jobId');
-  console.log(jobId,"jobId");
+  const jobId = queryParams.get("jobId");
+  console.log(jobId, "jobId");
 
   const addSkill = () => {
     const skillInput = document.getElementById("skill-input");
@@ -56,12 +57,12 @@ const JobApply = () => {
 
   // Function to handle file change for image and CV
   const handleFileChange = async (e) => {
-    console.log(e.target.files[0], "ll");
     const file = e.target.files[0];
     if (file) {
       const fileType = file.type;
       if (fileType === "application/pdf") {
         setCvFile(file);
+        setCvFileName(file.name);
       }
     }
   };
@@ -101,7 +102,7 @@ const JobApply = () => {
     }
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const token = useSelector((state) => {
     return state?.seekerDetails.seekerToken;
   });
@@ -111,7 +112,7 @@ const JobApply = () => {
       console.log(applyData, "applyData");
       changedData.skills = skills;
       const requestData = {
-         data: { ...changedData, ...applyData ,jobId},
+        data: { ...changedData, ...applyData, jobId },
         token: token,
         headers: {
           "Content-Type": "multipart/form-data",
@@ -120,7 +121,7 @@ const JobApply = () => {
       console.log(changedData, "changedData");
       await axios
         .post(`${UserApi}applyJob`, {
-            requestData,
+          requestData,
         })
         .then((res) => {
           toast.success(res.data.message, {
@@ -131,8 +132,7 @@ const JobApply = () => {
               color: "#fff",
             },
           });
-            navigate("/jobView")
-
+          navigate("/jobView");
         });
     } catch (error) {
       console.log(error);
@@ -168,7 +168,7 @@ const JobApply = () => {
                     htmlFor="cv"
                     className="cursor-pointer w-full border p-2 text-sm rounded-lg text-black"
                   >
-                    Select your CV
+                    {cvFileName ? cvFileName : "Select your CV"}{" "}
                   </label>
                   <Button
                     className="ml-2 bg-pink-400 text-white"
@@ -248,19 +248,12 @@ const JobApply = () => {
                     </label>
                     <textarea
                       {...register("experience", {
-                        required: true,
                         pattern: /^.{1,180}$/,
                       })}
                       type="text"
                       id="experience"
                       className="px-3 py-2 h-32 border rounded-lg w-full"
                     ></textarea>
-                    {errors.experience &&
-                      errors.experience.type === "required" && (
-                        <label className="text-sm text-red-600">
-                          Please enter the experience
-                        </label>
-                      )}
                     {errors.experience &&
                       errors.experience.type === "pattern" && (
                         <label className="text-sm text-red-600">
@@ -363,10 +356,28 @@ const JobApply = () => {
                     </div>
                   </div>
                   <div className="col-span-1">
-                    <label htmlFor="phone" className="text-left">Phone:</label>
-                    <input {...register("phone", {required:true, pattern: /^[0-9]{10}$/})} type="tel" id="phone" className="px-3 py-2 border rounded-lg w-full"/>
-                    {errors.phone && errors.phone.type === "pattern" && (<label className='text-sm text-red-600'>Please enter a valid 10-digit phone number</label>)}
-                    {errors.phone && errors.phone.type === "required" && (<label className='text-sm text-red-600'>Please enter the phone number</label>)}
+                    <label htmlFor="phone" className="text-left">
+                      Phone:
+                    </label>
+                    <input
+                      {...register("phone", {
+                        required: true,
+                        pattern: /^[0-9]{10}$/,
+                      })}
+                      type="tel"
+                      id="phone"
+                      className="px-3 py-2 border rounded-lg w-full"
+                    />
+                    {errors.phone && errors.phone.type === "pattern" && (
+                      <label className="text-sm text-red-600">
+                        Please enter a valid 10-digit phone number
+                      </label>
+                    )}
+                    {errors.phone && errors.phone.type === "required" && (
+                      <label className="text-sm text-red-600">
+                        Please enter the phone number
+                      </label>
+                    )}
                   </div>
                 </div>
               </li>

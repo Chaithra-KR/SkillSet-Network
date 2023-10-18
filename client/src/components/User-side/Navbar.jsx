@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { seekerLogout } from "../../Store/storeSlices/seekerAuth";
 import { Button, Modal } from "antd";
 import {
@@ -12,21 +12,19 @@ import {
   FaCog,
   FaImage,
 } from "react-icons/fa";
+import { UserApi } from "../../configs/api";
+import axios from "axios";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOpenForSettings, setModalOpenForSettings] = useState(false);
-
+  const [userDetails, setUserDetails] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleHomeView = () => {
     navigate("/home");
-  };
-
-  const handlePotsView = () => {
-    navigate("/posts");
   };
 
   const handleProfileView = () => {
@@ -56,6 +54,14 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  const handlePotsView = () => {
+    if (userDetails.premiumStatus === true) {
+      navigate("/posts");
+    } else {
+      navigate("/upgrade-premium");
+    }
+  };
+
   const handleCancel = () => {
     setModalOpen(false);
   };
@@ -68,12 +74,30 @@ const Navbar = () => {
     setModalOpenForSettings(false);
   };
 
+  const seeker = useSelector((state) => state?.seekerDetails.seekerToken);
+
+  useEffect(() => {
+    const handleJobDetails = async () => {
+      try {
+        const res = await axios.get(
+          `${UserApi}userProfile?data=${encodeURIComponent(seeker)}`
+        );
+        setUserDetails(res.data.seekerData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    handleJobDetails();
+  }, [seeker]);
+
   return (
     <div className="h-16 w-full bg-white">
       <div className="flex justify-between">
         <div className="w-34 h-12 pt-2 pl-5 flex justify-center">
           <img className="w-18 h-12" src="/skillset-logo.jpg" alt="" />
         </div>
+    {console.log(userDetails.premiumStatus)}
+
         <div className="p-3.5 md:hidden">
           <Button onClick={showModal}>
             <FaBars />

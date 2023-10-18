@@ -1,33 +1,44 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const cookieParser = require('cookie-parser');
-const stripe = require('stripe')(process.env.STRIPE_KEY)
+const mongoose = require("mongoose");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
+const { Server } = require("socket.io");
 
 // Set port
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection",(socket)=>{
+  socket.on("send",(message,conversationId,sender)=>{
+    io.emit("receiver",message,conversationId,sender)
+  })
+})
 
 // Env
 dotenv.config();
 
 // Mongoose
 mongoose
-  .connect('mongodb://127.0.0.1:27017/SkillSet-NetWork', {
+  .connect("mongodb://127.0.0.1:27017/SkillSet-NetWork", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log('Database connected');
+    console.log("Database connected");
   })
   .catch((err) => {
     console.log(err);
   });
-
 
 // Middleware
 app.use(cookieParser());
@@ -38,18 +49,18 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Access'],
+    allowedHeaders: ["Content-Type", "Access"],
   })
 );
 
 // Routers
-const User = require('./Router/User');
-const Admin = require('./Router/Admin');
-const Company = require('./Router/Company');
+const User = require("./Router/User");
+const Admin = require("./Router/Admin");
+const Company = require("./Router/Company");
 
-app.use('/', User);
-app.use('/company', Company);
-app.use('/admin', Admin);
+app.use("/", User);
+app.use("/company", Company);
+app.use("/admin", Admin);

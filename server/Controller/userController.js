@@ -11,6 +11,7 @@ const Company = require("../Model/companyModel");
 const Messages = require("../Model/messages");
 const PremiumRevenue = require("../Model/premiumRevenue");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
+const bcrypt = require("bcrypt");
 
 exports.otp = async (req, res) => {
   try {
@@ -27,13 +28,14 @@ exports.otp = async (req, res) => {
         district: district,
         state: state,
       };
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
       const newUser = new User({
         username: userData.username,
         dob: userData.dob,
         headline: userData.headline,
         about: userData.about,
         email: userData.email,
-        password: userData.password,
+        password: hashedPassword,
         location: location,
         phone: userData.phone,
         role: "seeker",
@@ -86,14 +88,15 @@ exports.verifyLogin = async (req, res) => {
   try {
     console.log("ready to login");
     const { email, password } = req.body.data;
-    const validUser = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email });
 
-    if (validUser) {
-      if (validUser.access == false) {
-        const validPassword = await User.findOne({ password: password });
-        if (validPassword) {
+    if (user) {
+      if (user.access === false) {
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+        if (isPasswordMatch) {
           const token = jwtToken.sign(
-            { id: validPassword._id },
+            { id: user._id },
             process.env.SECRET_KEY,
             {
               expiresIn: "30d",
@@ -101,15 +104,15 @@ exports.verifyLogin = async (req, res) => {
           );
           const necessaryData = {
             token,
-            role: validPassword.role,
-            username: validUser.username,
+            role: user.role,
+            username: user.username,
           };
           console.log(token, "its token");
           console.log("welcome");
           res.status(200).json({
             success: true,
             necessaryData,
-            message: `Welcome ${validUser.username}!`,
+            message: `Welcome ${user.username}!`,
           });
         } else {
           console.log("!password");
@@ -390,7 +393,6 @@ exports.changePassword = async (req, res) => {
 
     const token = req.body.token;
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
-    // const decoded = req.id
     const seekerId = decoded.id;
     console.log(seekerId);
     const user = await User.findById(seekerId);
@@ -400,24 +402,26 @@ exports.changePassword = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    const userWithCurrentPassword = await User.findOne({
-      _id: seekerId,
-      password: currentPassword,
-    });
 
-    if (!userWithCurrentPassword) {
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!passwordMatch) {
       return res.json({
         success: false,
         message: "Incorrect current password",
       });
     }
+
     if (password !== confirmPassword) {
       return res.json({
         success: false,
         message: "Passwords do not match on confirm",
       });
     }
-    user.password = password;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+
     await user.save();
     return res
       .status(200)
@@ -449,7 +453,6 @@ exports.getChat = async (req, res) => {
     const conversations = await Conversation.find({
       members: { $in: [seekerId] },
     });
-
     const receiverData = await Promise.all(
       conversations.map(async (conversation) => {
         const receiverId = conversation.members.find(
@@ -466,7 +469,6 @@ exports.getChat = async (req, res) => {
         };
       })
     );
-
     res.status(200).json({ success: true, receiverData });
   } catch (error) {
     console.log(error);
@@ -489,6 +491,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
+        success:true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -501,6 +504,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
+        success:true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -648,42 +652,3 @@ exports.upgradePayment = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
-
-// exports.upgradePayment = async (req, res) => {
-//   try {
-//     const { token, amount, currency } = req.body;
-//     console.log("token", token);
-//     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
-//     const seekerId = decoded.id;
-
-//     if (!seekerId) {
-//       throw new Error("Invalid or expired token");
-//     }
-
-//     const session = await stripe.checkout.sessions.create({
-//       payment_method_types: ["card"],
-//       line_items: [
-//         {
-//           price_data: {
-//             currency: "inr",
-//             unit_amount: parseInt(amount) * 100,
-//           },
-//         },
-//       ],
-//       mode: "payment",
-//       success_url: "http://localhost:3000/posts",
-//       cancel_url: "http://localhost:3000/login",
-//     });
-//     console.log(session.id);
-//     await User.findOneAndUpdate({ _id: seekerId }, { premiumStatus: true });
-//     const premiumRevenue = new PremiumRevenue({
-//       user: seekerId,
-//       amount: 1000,
-//       premiumStatus: true,
-//     });
-//     await premiumRevenue.save();
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, error: "Internal server error" });
-//   }
-// };

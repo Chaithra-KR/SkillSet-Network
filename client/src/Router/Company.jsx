@@ -16,6 +16,7 @@ import UserProfileView from "../Pages/Company/UserProfileView";
 import SinglePostView from "../Pages/Company/SinglePostView";
 import ResetPassword from "../Pages/Company/ResetPassword";
 import ChatWithUser from "../Pages/Company/ChatWithUser";
+import CompanyOverview from "../Pages/Company/CompanyOverview";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -119,10 +120,15 @@ const Company = () => {
             path="/chat-with-seeker"
             element={company ? <ChatWithUser /> : <CompanyAccess />}
           />
+
+          <Route
+            path="/overview"
+            element={company ? <CompanyOverview /> : <CompanyAccess />}
+          />
         </Routes>
       </ErrorBoundary>
     </Fragment>
   );
 };
-  
+
 export default Company;

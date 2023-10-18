@@ -34,6 +34,15 @@ const EditProfile = () => {
     return state?.companyDetails.companyToken;
   });
 
+  const validateImageType = (file) => {
+    if (!file) {
+      return false;
+    }
+    const validImageTypes = ["image/jpeg", "image/png", "image/jpg"];
+    return validImageTypes.includes(file.type);
+  };
+
+
   const handleProfileEditSuccess = async (e) => {
     changedData.image = profilePic;
     await axios
@@ -120,14 +129,23 @@ const EditProfile = () => {
             )}
           </div>
           <div className="mb-4">
+            
             <input
-              type="file"
-              className="hidden"
-              onChange={(event) => {
-                setImageSelect(event.target.files[0]);
-              }}
-              id="fileInput"
-            />
+                  type="file"
+                  className="hidden"
+                  onChange={(event) => {
+                    const selectedFile = event.target.files[0];
+                    if (validateImageType(selectedFile)) {
+                      setImageSelect(selectedFile);
+                    } else {
+                      toast.error(
+                        "Please select a valid image file (e.g., JPG, PNG)."
+                      );
+                    }
+                  }}
+                  id="fileInput"
+                  accept="image/*"
+                />
             <label
               htmlFor="fileInput"
               className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"

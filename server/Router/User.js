@@ -2,12 +2,11 @@ const express = require("express")
 const userRouter = express.Router();
 const userController = require('../Controller/userController')
 const {localOtpVariables} = require('../Middleware/otpAuth');
-const {sendEmail} = require("../Middleware/nodemailerAuth");
 const { UserAuth} = require("../Middleware/userAuth");
 
 
 
-userRouter.get('/generateOtp' ,sendEmail ,localOtpVariables, userController.generateOtp)
+userRouter.get('/generateOtp', localOtpVariables, userController.generateOtp)
 userRouter.post('/otp', localOtpVariables , userController.otp)
 
 userRouter.post('/verifyLogin' ,userController.verifyLogin)

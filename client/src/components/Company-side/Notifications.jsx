@@ -119,6 +119,11 @@ const Notifications = () => {
   const handleUserProfileView = (userId) => {
     navigate(`/company/view-userProfile?userId=${userId}`);
   };
+
+  const handleMessageView = () => {
+    navigate("/company/chat-with-seeker");
+  };
+  
   return (
     <div className="w-full h-screen mb-10 bg-white">
       <div className="flex flex-col md:flex-row lg:flex-row">
@@ -278,7 +283,7 @@ const Notifications = () => {
                                 </button>
                               </div>
                             </Modal>
-                            <button className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none">
+                            <button onClick={handleMessageView} className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none">
                               Connect
                             </button>
                           </div>
@@ -322,75 +327,78 @@ const Notifications = () => {
                           </div>
 
                           <>
-  {element.status === "pending" ? (
-    <>
-      <div className="space-x-2">
-        <Button
-          className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
-          type="pink"
-          onClick={() => openAcceptModal(element)}
-        >
-          Accept
-        </Button>
-        <Modal
-          title="Accept as employee"
-          visible={selectedToAccept === element}
-          onCancel={closeAcceptModal}
-          footer={null}
-        >
-          <p>
-            Are you sure to accept {element.userId.username} as an employee at your company?
-          </p>
-          <button
-            className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
-            type="pink"
-            onClick={() => {
-              handleAccept(element.userId._id);
-            }}
-          >
-            Accept
-          </button>
-        </Modal>
-      </div>
+                            {element.status === "pending" ? (
+                              <>
+                                <div className="space-x-2">
+                                  <Button
+                                    className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                    type="pink"
+                                    onClick={() => openAcceptModal(element)}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Modal
+                                    title="Accept as employee"
+                                    visible={selectedToAccept === element}
+                                    onCancel={closeAcceptModal}
+                                    footer={null}
+                                  >
+                                    <p>
+                                      Are you sure to accept{" "}
+                                      {element.userId.username} as an employee
+                                      at your company?
+                                    </p>
+                                    <button
+                                      className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                      type="pink"
+                                      onClick={() => {
+                                        handleAccept(element.userId._id);
+                                      }}
+                                    >
+                                      Accept
+                                    </button>
+                                  </Modal>
+                                </div>
 
-      <Button
-        className="bg-pink-300 text-white px-3 py-1 mt-2 ml-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
-        type="pink"
-        onClick={() => openRejectModal(element)}
-      >
-        Reject
-      </Button>
-      <Modal
-        title="Reject employee request"
-        visible={selectedToReject === element}
-        onCancel={closeRejectModal}
-        footer={null}
-      >
-        <p>
-          Are you sure to reject {element.userId.username}'s employee request to your company?
-        </p>
-        <button
-          onClick={() => {
-            handleReject(element.userId._id);
-          }}
-          className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
-          type="pink"
-        >
-          Reject
-        </button>
-      </Modal>
-    </>
-  ) : element.status === "accepted" ? (
-    <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-green-700 transition-colors duration-300 focus:outline-none">
-      Accepted
-    </button>
-  ) : element.status === "rejected" ? (
-    <button className="bg-red-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-red-700 transition-colors duration-300 focus:outline-none">
-      Rejected
-    </button>
-  ) : null}
-</>
-
+                                <Button
+                                  className="bg-pink-300 text-white px-3 py-1 mt-2 ml-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                  type="pink"
+                                  onClick={() => openRejectModal(element)}
+                                >
+                                  Reject
+                                </Button>
+                                <Modal
+                                  title="Reject employee request"
+                                  visible={selectedToReject === element}
+                                  onCancel={closeRejectModal}
+                                  footer={null}
+                                >
+                                  <p>
+                                    Are you sure to reject{" "}
+                                    {element.userId.username}'s employee request
+                                    to your company?
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      handleReject(element.userId._id);
+                                    }}
+                                    className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                    type="pink"
+                                  >
+                                    Reject
+                                  </button>
+                                </Modal>
+                              </>
+                            ) : element.status === "accepted" ? (
+                              <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-green-700 transition-colors duration-300 focus:outline-none">
+                                Accepted
+                              </button>
+                            ) : element.status === "rejected" ? (
+                              <button className="bg-red-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-red-700 transition-colors duration-300 focus:outline-none">
+                                Rejected
+                              </button>
+                            ) : null}
+                          </>
                         </div>
                       </div>
                       <p className="flex justify-end text-xs text-gray-500">

@@ -1,5 +1,4 @@
 const otpGenerator = require("otp-generator");
-const nodemailer = require("nodemailer");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const Company = require("../Model/companyModel");
 const User = require("../Model/userModel");
@@ -10,18 +9,9 @@ const Posts = require("../Model/posts");
 const PremiumRevenue = require("../Model/premiumRevenue");
 const Messages = require("../Model/messages");
 const Conversation = require("../Model/conversation");
-
+const bcrypt = require("bcrypt");
+const { sendEmail } = require("../Middleware/nodemailerAuth");
 const jwtToken = require("jsonwebtoken");
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 exports.otp = async (req, res) => {
   try {
@@ -50,22 +40,16 @@ exports.generateOtp = async (req, res) => {
     console.log(OTP, "otp");
     req.app.locals.OTP = OTP;
     const mailFormat = {
-      from: "narphocart@gmail.com",
-
       to: req.query.data,
       subject: "SkillSet Network : One Time Password",
       html: `<h4>Hai dear,</h4><br>
                     <p>Welcome to SkillSet portal! Thank you for registration. Your One Time Password (OTP) is "+ OTP + "</p>
                     <span>Sincerely,</span><h4>SkillSet Network</h4>`,
     };
-    transporter.sendMail(mailFormat, (error, data) => {
-      if (error) {
-        res.json({ success: false });
-      } else {
-        console.log("you can enter otp to the rendered page");
-        res.json({ success: true });
-      }
-    });
+    sendEmail(mailFormat.to, mailFormat.subject, mailFormat.html);
+
+    console.log("you can enter otp on the rendered page");
+    res.status(200).json({ success: true });
   } catch (error) {
     res.json({ success: false, serverMessage: "Internal Server Error" });
   }
@@ -75,22 +59,29 @@ exports.verifyCompanyLogin = async (req, res) => {
   try {
     const { email, password } = req.body.data;
     const validUser = await Company.findOne({ email: email });
+
     if (validUser) {
       if (validUser.access == false) {
-        const validPassword = await Company.findOne({ password: password });
-        if (validPassword) {
+        const passwordMatch = await bcrypt.compare(
+          password,
+          validUser.password
+        );
+
+        if (passwordMatch) {
           const token = jwtToken.sign(
-            { id: validPassword._id },
+            { id: validUser._id },
             process.env.COMPANY_SECRET_KEY,
             {
               expiresIn: "30d",
             }
           );
+
           const necessaryData = {
             token,
-            role: validPassword.role,
+            role: validUser.role, // Use validUser.role, not validPassword.role
             company: validUser.company,
           };
+
           res.status(200).json({
             success: true,
             necessaryData,
@@ -118,6 +109,54 @@ exports.verifyCompanyLogin = async (req, res) => {
       .json({ success: false, serverMessage: "Internal Server Error" });
   }
 };
+
+// exports.verifyCompanyLogin = async (req, res) => {
+//   try {
+//     const { email, password } = req.body.data;
+//     const validUser = await Company.findOne({ email: email });
+//     if (validUser) {
+//       if (validUser.access == false) {
+//         const validPassword = await Company.findOne({ password: password });
+//         if (validPassword) {
+//           const token = jwtToken.sign(
+//             { id: validPassword._id },
+//             process.env.COMPANY_SECRET_KEY,
+//             {
+//               expiresIn: "30d",
+//             }
+//           );
+//           const necessaryData = {
+//             token,
+//             role: validPassword.role,
+//             company: validUser.company,
+//           };
+//           res.status(200).json({
+//             success: true,
+//             necessaryData,
+//             message: `Welcome ${validUser.company}!`,
+//           });
+//         } else {
+//           res.json({ success: false, message: "Incorrect password!" });
+//         }
+//       } else {
+//         res.json({
+//           success: false,
+//           accessBlocked:
+//             "This website has prevented you from browsing this URL!",
+//         });
+//       }
+//     } else {
+//       res.json({
+//         success: false,
+//         emailMessage: "Email did not match our records, Please Register!",
+//       });
+//     }
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ success: false, serverMessage: "Internal Server Error" });
+//   }
+// };
 
 exports.premiumPayment = async (req, res) => {
   try {
@@ -158,6 +197,9 @@ exports.premiumPayment = async (req, res) => {
         state: state,
         phone: phone,
       };
+
+      const hashedPassword = await bcrypt.hash(companyData.password, 10);
+
       const newCompany = new Company({
         company: companyData.company,
         email: companyData.email,
@@ -165,7 +207,7 @@ exports.premiumPayment = async (req, res) => {
         headline: companyData.headline,
         about: companyData.about,
         email: companyData.email,
-        password: companyData.password,
+        password: hashedPassword,
         role: "company",
         premium: 5000,
         premiumStatus: true,
@@ -213,9 +255,22 @@ exports.profileView = async (req, res) => {
         return value.company === companyId;
       });
 
+      const Employees = await User.aggregate([
+        {
+          $unwind: "$userRequests",
+        },
+        {
+          $match: {
+            "userRequests.status": "accepted",
+          },
+        },
+      ]);
+
+      console.log(Employees, "Employees");
+
       res
         .status(200)
-        .json({ status: true, companyData, applicantData, matchedUsers });
+        .json({ status: true, companyData, applicantData, matchedUsers, Employees });
     } else {
       res.json({ status: false });
     }
@@ -424,9 +479,8 @@ exports.changePassword = async (req, res) => {
 
     const token = req.body.token;
     const decoded = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
-    // const decoded = req.id
     const companyId = decoded.id;
-    console.log(companyId);
+
     const company = await Company.findById(companyId);
 
     if (!company) {
@@ -434,26 +488,33 @@ exports.changePassword = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Company not found" });
     }
-    const companyWithCurrentPassword = await Company.findOne({
-      _id: companyId,
-      password: currentPassword,
-    });
 
-    if (!companyWithCurrentPassword) {
-      console.log(companyWithCurrentPassword);
+    // Compare the provided currentPassword with the stored bcrypt-hashed password
+    const passwordMatch = await bcrypt.compare(
+      currentPassword,
+      company.password
+    );
+
+    if (!passwordMatch) {
       return res.json({
         success: false,
         message: "Incorrect current password",
       });
     }
+
     if (password !== confirmPassword) {
       return res.json({
         success: false,
         message: "Passwords do not match on confirm",
       });
     }
-    company.password = password;
+
+    // Hash the new password and update the company's password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    company.password = hashedPassword;
+
     await company.save();
+
     return res
       .status(200)
       .json({ success: true, message: "Password updated successfully" });
@@ -461,6 +522,50 @@ exports.changePassword = async (req, res) => {
     console.error("Error changing password:", error);
   }
 };
+
+// exports.changePassword = async (req, res) => {
+//   try {
+//     const { password, confirmPassword, currentPassword } = req.body.data;
+
+//     const token = req.body.token;
+//     const decoded = jwtToken.verify(token, process.env.COMPANY_SECRET_KEY);
+//     // const decoded = req.id
+//     const companyId = decoded.id;
+//     console.log(companyId);
+//     const company = await Company.findById(companyId);
+
+//     if (!company) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Company not found" });
+//     }
+//     const companyWithCurrentPassword = await Company.findOne({
+//       _id: companyId,
+//       password: currentPassword,
+//     });
+
+//     if (!companyWithCurrentPassword) {
+//       console.log(companyWithCurrentPassword);
+//       return res.json({
+//         success: false,
+//         message: "Incorrect current password",
+//       });
+//     }
+//     if (password !== confirmPassword) {
+//       return res.json({
+//         success: false,
+//         message: "Passwords do not match on confirm",
+//       });
+//     }
+//     company.password = password;
+//     await company.save();
+//     return res
+//       .status(200)
+//       .json({ success: true, message: "Password updated successfully" });
+//   } catch (error) {
+//     console.error("Error changing password:", error);
+//   }
+// };
 
 exports.getChat = async (req, res) => {
   try {
@@ -508,6 +613,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
+        success:true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -520,6 +626,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
+        success:true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -645,12 +752,6 @@ exports.rejectEmployee = async (req, res) => {
     const decoded = jwtToken.verify(company, process.env.COMPANY_SECRET_KEY);
     const companyId = decoded.id;
     if (companyId) {
-      const request = {
-        userId: userId,
-        status: "rejected",
-        companyId: companyId,
-      };
-
       const updatedCompany = await Company.findOneAndUpdate(
         {
           _id: companyId,

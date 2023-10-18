@@ -21,7 +21,7 @@ const EditProfile = () => {
     dob: "",
     image: "",
     phone: "",
-    cv:"",
+    cv: "",
     experience: "",
   });
 
@@ -30,6 +30,7 @@ const EditProfile = () => {
   const [changedData, setChangedData] = useState({});
   const [imageSelect, setImageSelect] = useState("");
   const [cvFile, setCvFile] = useState(null);
+  const [cvFileName, setCvFileName] = useState("");
 
   const location = useLocation();
 
@@ -78,8 +79,16 @@ const EditProfile = () => {
       const fileType = file.type;
       if (fileType === "application/pdf") {
         setCvFile(file);
+        setCvFileName(file.name);
       }
     }
+  };
+  const validateImageType = (file) => {
+    if (!file) {
+      return false;
+    }
+    const validImageTypes = ["image/jpeg", "image/png", "image/jpg"];
+    return validImageTypes.includes(file.type);
   };
 
   // Function to upload profile image to Cloudinary
@@ -160,15 +169,15 @@ const EditProfile = () => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    })
-      toast.success("Profile updated!", {
-        duration: 3000,
-        position: "top-right",
-        style: {
-          background: "#B00043",
-          color: "#fff",
-        },
-      });
+    });
+    toast.success("Profile updated!", {
+      duration: 3000,
+      position: "top-right",
+      style: {
+        background: "#B00043",
+        color: "#fff",
+      },
+    });
   };
 
   useEffect(() => {
@@ -179,10 +188,9 @@ const EditProfile = () => {
         }
         const response = await Axios.get(
           `${UserApi}userProfile?data=${encodeURIComponent(token)}`
-        ).then((res) => {
-          setUserDetails(res.data.seekerData);
-          setSkills(res.data.seekerData.skills);
-        });
+        );
+        setUserDetails(response.data.seekerData);
+        setSkills(response.data.seekerData.skills);
       } catch (error) {
         console.log(error);
       }
@@ -210,64 +218,79 @@ const EditProfile = () => {
               cloudName="skillsetnetwork"
               publicId={changedData.image}
               width="auto"
-              height="150"  
+              height="150"
               crop="scale"
               alt="Profile"
             />
           ) : (
             <img
-            src={userDetails.image || "https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"}
+              src={
+                userDetails.image ||
+                "https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
+              }
               alt="default"
             />
           )}
         </div>
 
+        <ul className="mt-4 mb-3">
+          <li className="grid gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="col-span-1">
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(event) => {
+                    const selectedFile = event.target.files[0];
+                    if (validateImageType(selectedFile)) {
+                      setImageSelect(selectedFile);
+                    } else {
+                      toast.error(
+                        "Please select a valid image file (e.g., JPG, PNG)."
+                      );
+                    }
+                  }}
+                  id="fileInput"
+                  accept="image/*"
+                />
 
-            <ul className="mt-4 mb-3">
-              <li className="grid gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="col-span-1">
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(event) => {
-                        setImageSelect(event.target.files[0]);
-                      }}
-                      id="fileInput"
-                    />
-                    <label
-                      htmlFor="fileInput"
-                      className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"
-                    >
-                      Select Image
-                    </label>
-                    <Button className="ml-2" onClick={handleUploadImage}>
-                      Upload
-                    </Button>
-                  </div>
-                  <div className="col-span-1">
+                <label
+                  htmlFor="fileInput"
+                  className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"
+                >
+                  Select Image
+                </label>
+                <Button className="ml-2" onClick={handleUploadImage}>
+                  Upload
+                </Button>
+              </div>
+              <div className="col-span-1">
+                <div className="flex items-center">
                   <input
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
-                      id="cv"
-                      accept=".pdf"
-                    />
-                    <label
-                      htmlFor="cv"
-                      className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"
-                    >
-                      Select your CV
-                    </label>
-                    <Button className="ml-2" onClick={handleUploadCV}>
-                      Upload
-                    </Button>
-                  </div>
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    id="cv"
+                    accept=".pdf"
+                  />
+                  <label
+                    htmlFor="cv"
+                    className="cursor-pointer w-full border p-2 text-sm rounded-lg text-black"
+                  >
+                    {cvFileName ? cvFileName : "Select your CV"}{" "}
+                  </label>
+                  <Button
+                    className="ml-2 bg-pink-400 text-white"
+                    onClick={handleUploadCV}
+                  >
+                    Upload
+                  </Button>
                 </div>
-              </li>
-            </ul>
-        
-        
+              </div>
+            </div>
+          </li>
+        </ul>
+
         <form onSubmit={handleSubmit(handleProfileEditSuccess)}>
           <fieldset>
             <ul>
@@ -294,12 +317,11 @@ const EditProfile = () => {
                         Please enter the username
                       </label>
                     )}
-                    {errors.username &&
-                      errors.username.type === "pattern" && (
-                        <label className="text-sm text-red-600">
-                          Please enter valid username
-                        </label>
-                      )}
+                    {errors.username && errors.username.type === "pattern" && (
+                      <label className="text-sm text-red-600">
+                        Please enter valid username
+                      </label>
+                    )}
                   </div>
 
                   <div className="col-span-1">
@@ -318,18 +340,16 @@ const EditProfile = () => {
                         handleFieldChange("headline", e.target.value)
                       }
                     />
-                    {errors.headline &&
-                      errors.headline.type === "required" && (
-                        <label className="text-sm text-red-600">
-                          Please enter the headline
-                        </label>
-                      )}
-                    {errors.headline &&
-                      errors.headline.type === "pattern" && (
-                        <label className="text-sm text-red-600">
-                          Please enter a valid headline (maximum 56 characters)
-                        </label>
-                      )}
+                    {errors.headline && errors.headline.type === "required" && (
+                      <label className="text-sm text-red-600">
+                        Please enter the headline
+                      </label>
+                    )}
+                    {errors.headline && errors.headline.type === "pattern" && (
+                      <label className="text-sm text-red-600">
+                        Please enter a valid headline (maximum 56 characters)
+                      </label>
+                    )}
                   </div>
                 </div>
               </li>
@@ -353,7 +373,8 @@ const EditProfile = () => {
                     {errors.experience &&
                       errors.experience.type === "pattern" && (
                         <label className="text-sm text-red-600">
-                          Please enter a valid experience (maximum 180 characters)
+                          Please enter a valid experience (maximum 180
+                          characters)
                         </label>
                       )}
                   </div>
@@ -373,12 +394,11 @@ const EditProfile = () => {
                       }
                     ></textarea>
 
-                    {errors.about &&
-                      errors.about.type === "pattern" && (
-                        <label className="text-sm text-red-600">
-                          Please enter a valid about (maximum 180 characters)
-                        </label>
-                      )}
+                    {errors.about && errors.about.type === "pattern" && (
+                      <label className="text-sm text-red-600">
+                        Please enter a valid about (maximum 180 characters)
+                      </label>
+                    )}
                   </div>
                 </div>
               </li>
