@@ -431,6 +431,105 @@ exports.changePassword = async (req, res) => {
   }
 };
 
+exports.emailVerify = async (req, res) => {
+  try {
+    const { email } = req.body.data;
+
+    const authEmail = await User.findOne({email:email})
+    if(authEmail){
+      const {email} = authEmail
+      const requestEmail = email
+      if (email !== requestEmail) {
+        return res.json({
+          success: false,
+          message: "You are not registered with us, please register!",
+        });
+      }else{
+        const OTP = otpGenerator.generate(6, {
+          lowerCaseAlphabets: false,
+          upperCaseAlphabets: false,
+          specialChars: false,
+        });
+        console.log(OTP, "otp");
+        console.log(req.query.data, "reciever");
+
+        req.app.locals.OTP = OTP;
+        const mailFormat = {
+          to: req.query.data,
+          subject: "SkillSet Network : One Time Password",
+          html:
+            "<h4>Hai dear,</h4><br><p>Welcome to SkillSet portal! Thank you for registration. Your One Time Password (OTP) is " +
+            OTP +
+            "</p><span>Sincerely,</span><h4>SkillSet Network</h4>",
+        };
+    
+        sendEmail(mailFormat.to, mailFormat.subject, mailFormat.html);
+        return res.json({ success: true});
+      }
+    }else{
+      return res.json({
+        success: false,
+        message: "You are not registered with us, please register!",
+      });
+    }
+
+  } catch (error) {
+    console.error("Error changing password:", error);
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { password, confirmPassword } = req.body.data;
+    const {email} = req.body.emailData
+    console.log(email,"email");
+    const authEmail = await User.findOne({email:email})
+    if(authEmail){
+      if (password !== confirmPassword) {
+        return res.json({
+          success: false,
+          message: "Passwords do not match on confirm",
+        });
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      authEmail.password = hashedPassword;
+  
+      await authEmail.save();
+      return res
+        .status(200)
+        .json({ success: true, message: "Password updated successfully" });
+    }else{
+      return res.json({
+        success: false,
+        message: "You are not registered with us, please register!",
+      });
+    }
+    
+  } catch (error) {
+    console.error("Error changing password:", error);
+  }
+};
+
+exports.forgotPasswordOtp = async (req, res) => {
+  try {
+    console.log("here");
+    const enteredOtp = parseInt(req.body.otp.join(""));
+    const generatedOtp = parseInt(req.app.locals.OTP);
+
+    if (generatedOtp === enteredOtp) {
+      res.status(200).json({ success: true});
+    } else {
+      console.log("invalid otp");
+      res.json({ success: false, message: "Invalid OTP!" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, serverMessage: "Internal Server Error" });
+  }
+};
+
 exports.singlePost = async (req, res) => {
   try {
     const { imageId } = req.query;
@@ -478,11 +577,12 @@ exports.getChat = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   try {
     const { conversationId, senderId, message, receiverId } = req.body;
+    console.log(receiverId._id,"receiverId");
     const decoded = jwtToken.verify(senderId, process.env.SECRET_KEY);
     const seekerId = decoded.id;
     if (!seekerId || !message) return res.json("fill required fields");
     if (conversationId == "new" && receiverId) {
-      const newChat = new Conversation({ members: [seekerId, receiverId] });
+      const newChat = new Conversation({ members: [seekerId, receiverId._id] });
       await newChat.save();
       const newMessage = new Messages({
         conversationId: newChat._id,

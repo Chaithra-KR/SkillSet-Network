@@ -16,6 +16,8 @@ const Home = () => {
   const [matchedJobs, setMatchedJobs] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [showRequestSection, setShowRequestSection] = useState(false);
+  const [companyStatus, setCompanyStatus] = useState({});
+  const [refresh, setRefresh] = useState(true);
 
   const navigate = useNavigate();
   const seeker = useSelector((state) => state?.seekerDetails.seekerToken);
@@ -48,12 +50,18 @@ const Home = () => {
         setUserDetails(res.data.seekerData);
         setMatchedJobs(res.data.matchedJobs);
         setCompanies(res.data.companies);
+        const userRequestsStatus = {};
+        res.data.seekerData.userRequests.forEach((request) => {
+          userRequestsStatus[request.companyId] = request.status;
+        });
+        setCompanyStatus(userRequestsStatus);
+        
       } catch (error) {
         console.error(error);
       }
     };
     handleJobDetails();
-  }, [seeker]);
+  }, [seeker,refresh]);
 
   const handleRequestAsEmploy = async (company) => {
     try {
@@ -71,6 +79,11 @@ const Home = () => {
             color: "#fff",
           },
         });
+        if (refresh === true) {
+          setRefresh(false);
+        } else {
+          setRefresh(true);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -225,12 +238,35 @@ const Home = () => {
                                     )}
                                   </div>
                                 </div>
-
                                 <div>
+                                  {companyStatus[val._id] === "pending" ? (
+                                    <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none">
+                                      Requested
+                                    </button>
+                                  ) : companyStatus[val._id] === "accepted" ? (
+                                    <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-green-700 transition-colors duration-300 focus:outline-none">
+                                      Employ
+                                    </button>
+                                  ) : companyStatus[val._id] === "rejected" ? (
+                                    <button className="bg-red-500 text-white px-3 py-1 mt-2 rounded-md hover-bg-red-700 transition-colors duration-300 focus:outline-none">
+                                      Rejected
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => {
+                                        handleRequestAsEmploy(val._id);
+                                      }}
+                                      className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                    >
+                                      Request
+                                    </button>
+                                  )}
+                                </div>
+                                {/* <div>
                                   {userDetails.userRequests &&
                                   userDetails.userRequests.length > 0 ? (
                                     userDetails.userRequests.map((value) => (
-                                      <div key={value._id}>
+                                      <div>
                                         {value.status === "pending" ? (
                                           <button className="bg-pink-600 text-white px-3 py-1 mt-2 rounded-md hover-bg-pink-500 transition-colors duration-300 focus:outline-none">
                                             Requested
@@ -265,7 +301,7 @@ const Home = () => {
                                       Request
                                     </button>
                                   )}
-                                </div>
+                                </div> */}
                               </li>
                             </ul>
                           </div>

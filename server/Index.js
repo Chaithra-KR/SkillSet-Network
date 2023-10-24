@@ -6,24 +6,6 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 
-// Set port
-const PORT = process.env.PORT || 4000;
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-  },
-});
-io.on("connection",(socket)=>{
-  socket.on("send",(message,conversationId,sender)=>{
-    io.emit("receiver",message,conversationId,sender)
-  })
-})
-
 // Env
 dotenv.config();
 
@@ -64,3 +46,22 @@ const Company = require("./Router/Company");
 app.use("/", User);
 app.use("/company", Company);
 app.use("/admin", Admin);
+
+
+// Set port
+const PORT = process.env.PORT || 4000;
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection",(socket)=>{
+  socket.on("send",(message,conversationId,sender)=>{
+    io.emit("receiver",message,conversationId,sender)
+  })
+})

@@ -15,6 +15,8 @@ const Notifications = () => {
   const [matchedUsers, setMatchedUsers] = useState([]);
   const [companyData, setCompanyData] = useState([]);
   const [activeTab, setActiveTab] = useState(true);
+  const [refresh, setRefresh] = useState(true);
+
   const navigate = useNavigate();
 
   const company = useSelector((state) => {
@@ -39,7 +41,7 @@ const Notifications = () => {
       }
     };
     handleNotificationDetails();
-  }, []);
+  }, [refresh]);
 
   const handleAccept = async (data) => {
     console.log("data", data);
@@ -56,6 +58,11 @@ const Notifications = () => {
               color: "#fff",
             },
           });
+          if (refresh === true) {
+            setRefresh(false);
+          } else {
+            setRefresh(true);
+          }
         }
       });
   };
@@ -75,6 +82,11 @@ const Notifications = () => {
               color: "#fff",
             },
           });
+          if (refresh === true) {
+            setRefresh(false);
+          } else {
+            setRefresh(true);
+          }
         }
       });
   };
@@ -123,7 +135,7 @@ const Notifications = () => {
   const handleMessageView = () => {
     navigate("/company/chat-with-seeker");
   };
-  
+
   return (
     <div className="w-full h-screen mb-10 bg-white">
       <div className="flex flex-col md:flex-row lg:flex-row">
@@ -152,11 +164,11 @@ const Notifications = () => {
             {activeTab ? (
               <div>
                 {notification.length > 0
-                  ? notification.map((val) => (
-                      <div className="p-4 bg-white rounded-lg shadow-md mb-3">
+                  ? notification.map((val,i) => (
+                      <div key={i} className="p-4 bg-white rounded-lg shadow-md mb-3">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center space-x-2">
-                            {val.user.image ? (
+                            {val.user && val.user.image ? (
                               <img
                                 className="rounded-full w-14 h-14 mx-auto flex items-center justify-center border-persian-orange p-2"
                                 src={val.user.image}
@@ -169,19 +181,26 @@ const Notifications = () => {
                                 alt="user"
                               />
                             )}
+
                             <div>
-                              <p>
-                                <scan className="font-semibold">
-                                  {val.user.username}{" "}
-                                </scan>{" "}
-                                applied for{" "}
-                                {val.job && val.job.position ? (
-                                  <scan className="font-semibold">
-                                    {val.job.position}
-                                  </scan>
-                                ) : null}
-                              </p>
-                              <p className="text-sm">{val.coverLetter}</p>
+                              {val.user && val.user.username ? (
+                                <>
+                                  <p>
+                                    <scan className="font-semibold">
+                                      {val.user.username}{" "}
+                                    </scan>{" "}
+                                    applied for{" "}
+                                    {val.job && val.job.position ? (
+                                      <scan className="font-semibold">
+                                        {val.job.position}
+                                      </scan>
+                                    ) : null}
+                                  </p>
+                                  <p className="text-sm">{val.coverLetter}</p>
+                                </>
+                              ) : (
+                                <p>User information not available</p>
+                              )}
                             </div>
                           </div>
                           <div className="space-x-2">
@@ -283,7 +302,10 @@ const Notifications = () => {
                                 </button>
                               </div>
                             </Modal>
-                            <button onClick={handleMessageView} className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none">
+                            <button
+                              onClick={handleMessageView}
+                              className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                            >
                               Connect
                             </button>
                           </div>

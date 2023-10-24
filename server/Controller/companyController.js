@@ -604,7 +604,7 @@ exports.sendMessage = async (req, res) => {
     const companyId = decoded.id;
     if (!companyId || !message) return res.json("fill required fields");
     if (conversationId == "new" && receiverId) {
-      const newChat = new Conversation({ members: [companyId, receiverId] });
+      const newChat = new Conversation({ members: [companyId, receiverId._id] });
       await newChat.save();
       const newMessage = new Messages({
         conversationId: newChat._id,

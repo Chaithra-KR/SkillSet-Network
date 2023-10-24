@@ -393,8 +393,7 @@ const UserAccess = () => {
                     Welcome Back!
                   </h2>
                   <fieldset>
-                    <ul>
-                      <ul className="m-1 p-1">
+                      <ul>
                         <li className="mb-4">
                           <label
                             htmlFor="email"
@@ -418,7 +417,7 @@ const UserAccess = () => {
                             </label>
                           )}
                         </li>
-                        <li className="mb-4">
+                        <li className="mb-2">
                           <label
                             htmlFor="password"
                             className="text-left block pb-2"
@@ -439,7 +438,7 @@ const UserAccess = () => {
                             )}
                         </li>
                       </ul>
-                    </ul>
+                    <h5 onClick={()=>{ navigate("/verify-email")}} className="text-blue-500 text-center pb-5 flex justify-start">Forgot password ?</h5>
                   </fieldset>
                   <button className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">
                     Login

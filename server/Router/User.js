@@ -26,6 +26,10 @@ userRouter.post('/newPost',userController.newPost)
 userRouter.post('/changePassword',userController.changePassword)
 
 userRouter.post('/changePassword',userController.changePassword)
+userRouter.post('/emailVerify',userController.emailVerify)
+userRouter.post('/forgotPassword',userController.forgotPassword)
+userRouter.post('/forgotPasswordOtp',userController.forgotPasswordOtp)
+
 
 userRouter.get('/singlePost', userController.singlePost)
 

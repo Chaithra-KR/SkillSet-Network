@@ -59,13 +59,17 @@ const Chat = () => {
     fetchSeekers();
     fetchConversations();
     messageRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [companyToken]);
+  }, [companyToken,selectedSeeker]);
 
   const sendMessage = async (receiver) => {
     try {
+      if (!selectedSeeker) {
+        return;
+      }
+
       const seekerId = receiver;
-      
-      socket.emit("send", message, messages?.conversationId, companyToken);
+
+      socket.emit("send", message, messages?.conversationId, seekerId);
 
       const res = await axios.post(`${CompanyApi}sendMessage`, {
         conversationId: messages?.conversationId,
@@ -79,7 +83,7 @@ const Chat = () => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const fetchMessages = async (conversationId, receiver) => {
     const res = await axios.get(
@@ -170,8 +174,10 @@ const Chat = () => {
       </div>
       <div className="w-[50%] h-screen bg-white flex flex-col items-center">
         {selectedSeeker ? (
-          <div className="w-full bg-secondary h-[80px] my-14 rounded-full flex items-center px-14 py-2">
+          <div className="w-full bg-secondary h-[80px] my-7 rounded-full flex items-center px-14 py-2">
             <div className="cursor-pointer">
+              {console.log(selectedSeeker, "selectedSeeker's id")}
+
               <div>
                 {selectedSeeker.image ? (
                   <img
@@ -200,10 +206,10 @@ const Chat = () => {
           </div>
         ) : null}
         <div className="h-[70%] w-full">
-          <div className="px-10">
+          <div className="px-10 h-full overflow-y-scroll">
             {selectedSeeker ? (
               <>
-                {messages && messages.resData && messages.resData.length > 0 ? (
+                { messages && messages.resData && messages.resData.length > 0 ? (
                   messages.resData.map((message, index) => (
                     <div className="flex" key={index}>
                       {seeker.map((seeker) => (
@@ -269,7 +275,7 @@ const Chat = () => {
             >
               <button
                 type="button"
-                onClick={() => sendMessage(selectedSeeker._id)}
+                onClick={() => sendMessage(selectedSeeker)}
                 className="inline-flex items-center justify-center rounded-lg px-3 py-2 transition duration-500 ease-in-out text-white bg-pink-500 hover:bg-pink-400 focus:outline-none"
               >
                 <span className="font-bold pr-2">Send</span>

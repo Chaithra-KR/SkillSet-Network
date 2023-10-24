@@ -73,16 +73,7 @@ const JobView = () => {
     fetchData();
   }, [seeker, page, perPage]);
 
-  const handleSearch = () => {
-    const regex = new RegExp(searchQuery, "i");
-    const filtered = searchQuery
-      ? jobs.filter(
-          (job) => regex.test(job.position) || regex.test(job.company.company)
-        )
-      : jobs;
-
-    setFilteredJobs(filtered);
-  };
+  const isSearching = searchQuery !== "";
 
   const handleApplyJob = (jobId) => {
     navigate(`/apply-job?jobId=${jobId}`);
@@ -114,13 +105,31 @@ const JobView = () => {
     setSelectedJob(null);
   };
 
-  const handleFilterByJob = () => {
-    const filteredByJob = filterByJob
-      ? jobs.filter((job) => job.position === filterByJob)
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+
+    const regex = new RegExp(query, "i");
+    const filtered = query
+      ? jobs.filter(
+          (job) => regex.test(job.position) || regex.test(job.company.company)
+        )
       : jobs;
 
+    setFilteredJobs(filtered);
+  };
+
+  const handleFilterByJob = (event) => {
+    const query = event.target.value;
+    setFilterByJob(query);
+  
+    const filteredByJob = query
+      ? jobs.filter((job) => job.position === query)
+      : jobs;
+  
     setFilteredJobs(filteredByJob);
   };
+  
 
   return (
     <>
@@ -229,15 +238,9 @@ const JobView = () => {
                     type="text"
                     placeholder="Search by position or company..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearch}
                     className="border rounded-lg px-4 py-2 w-64 sm:w-72 md:w-96 focus:outline-none focus:border-pink-300"
                   />
-                  <button
-                    onClick={handleSearch}
-                    className="bg-pink-500 text-white px-4 py-2 ml-2 rounded-lg"
-                  >
-                    Search
-                  </button>
                 </div>
                 <button
                   onClick={() => {
@@ -251,9 +254,9 @@ const JobView = () => {
                   <label htmlFor="jobFilter">Filter by Job: </label>
                   <select
                     id="jobFilter"
-                    className="border rounded-lg px-4 py-2 w-64 sm:w-25 md:w-50 focus:outline-none focus:border-pink-300"
+                    className="border rounded-lg px-4 py-2 w-64 sm:w-25 md:w-50 focus:outline-none focus-border-pink-300"
                     value={filterByJob}
-                    onChange={(e) => setFilterByJob(e.target.value)}
+                    onChange={handleFilterByJob}
                   >
                     <option value="">Select Job</option>
                     {jobPosition.map((job) => (
@@ -262,12 +265,6 @@ const JobView = () => {
                       </option>
                     ))}
                   </select>
-                  <button
-                    onClick={handleFilterByJob}
-                    className="bg-pink-500 text-white px-4 py-2 ml-2 rounded-lg"
-                  >
-                    Filter
-                  </button>
                 </div>
               </div>
 
@@ -526,7 +523,6 @@ const JobView = () => {
                               </>
                             ))}
                           </p>
-                          {/* <p className='text-green-500'>5 of 5 skills match your profile - you may be a good fit</p> */}
                           <div className="mt-3">
                             <h3 className="font-bold">Requirements </h3>
                             <p>{job.requirements}</p>
@@ -549,10 +545,10 @@ const JobView = () => {
                 )}
               </ul>
 
-              {filteredJobs.length > 0 ? (
+              {!isSearching && paginationCount > 1 && (
                 <div>
                   <div className="flex justify-center">
-                    <span className="text-gray-500 ">
+                    <span className="text-gray-500">
                       Page {Math.min(page, paginationCount)} of{" "}
                       {paginationCount}
                     </span>
@@ -577,7 +573,7 @@ const JobView = () => {
                     </button>
                   </div>
                 </div>
-              ) : null}
+              )}
             </>
           )}
         </div>

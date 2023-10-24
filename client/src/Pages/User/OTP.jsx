@@ -11,40 +11,7 @@ const OTP = () => {
     const navigate = useNavigate()
 
     console.log(location.state.data);
-    
-    // const handleSubmit = (e)=>{
-    //   e.preventDefault()
-    //   Axios.post(`${UserApi}otp`,{data :location?.state.data, otp:otp }).then((res)=>{
-    //     console.log(res);
-    //     if(res.data.success){
-    //       navigate('/login')
-    //       const showToast = () => {
-    //         toast.success(res.data.message, {
-    //           duration: 3000,
-    //           position: 'top-center',
-    //           style: {
-    //             background: '#00ff00',
-    //             color: '#fff',
-    //           },
-    //         });
-    //       };
-    //       showToast()
-    //     }else{
-    //       console.log("Invalid OTP");
-    //       toast.error(res.data.message,{
-    //         duration:3000,
-    //         position:'top-center',
-    //         style:{
-    //           background:'#ff0000',
-    //           color:'#fff'
-    //         }
-    //       })
 
-    //     }
-    //   }).catch((error)=>{
-    //     console.log(error);
-    //   })
-    // }
   
     const handleSubmit = (e) => {
       e.preventDefault();

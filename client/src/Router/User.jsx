@@ -19,6 +19,8 @@ import ChatWithCompany from '../Pages/User/ChatWithCompany';
 import MyPosts from '../Pages/User/MyPosts';
 import SinglePost from '../Pages/User/SinglePost';
 import UpgradePremium from '../components/User-side/UpgradePremium';
+import ForgotPassword from '../components/User-side/forgotPassword';
+import EmailVerify from '../components/User-side/EmailVerify';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -64,7 +66,7 @@ const User = () => {
         <Routes>
             <Route path='/' element={!seeker ? <StartingHome/>: <UserHome/>}/>
 
-            <Route path='/seek-Or-com' element={!seeker ?<SeekerOrCompany/> : <UserHome/>}/>
+            <Route path='/seek-Or-com' element={!seeker ? <SeekerOrCompany/> : <UserHome/>}/>
 
             <Route path='/Otp' element={!seeker ? <OTP/> : <UserHome/> }/>
 
@@ -92,7 +94,11 @@ const User = () => {
            
             <Route path='/singlePost' element={seeker ? <SinglePost/> : <UserAccess/>}/>  
 
-            <Route path='/upgrade-premium' element={seeker ? <UpgradePremium/> : <UserAccess/>}/>  
+            <Route path='/upgrade-premium' element={seeker ? <UpgradePremium/> : <UserAccess/>}/> 
+
+            <Route path='/verify-email' element={!seeker ? <EmailVerify/> : <UserHome/>}/>  
+
+            <Route path='/forgotPassword' element={!seeker ? <ForgotPassword/> : <UserHome/>}/>  
 
 
         </Routes>

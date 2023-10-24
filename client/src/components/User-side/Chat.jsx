@@ -7,7 +7,11 @@ import { io } from "socket.io-client";
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState({ resData: [], receiver: null, conversationId: null });
+  const [messages, setMessages] = useState({
+    resData: [],
+    receiver: null,
+    conversationId: null,
+  });
   const [message, setMessage] = useState("");
   const [companies, setCompanies] = useState([]);
   const [user, setUser] = useState("");
@@ -20,7 +24,6 @@ const Chat = () => {
   }));
 
   const socket = io("http://localhost:4000");
-
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -60,13 +63,17 @@ const Chat = () => {
     fetchCompanies();
     fetchConversations();
     messageRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [seekerToken]);
+  }, [seekerToken,selectedCompany]);
 
   const sendMessage = async (receiver) => {
     try {
+      if (!selectedCompany) {
+        return;
+      }
+
       const companyId = receiver;
 
-      socket.emit("send", message, messages?.conversationId, seekerToken);
+      socket.emit("send", message, messages?.conversationId, companyId);
 
       const res = await axios.post(`${UserApi}sendMessage`, {
         conversationId: messages?.conversationId,
@@ -76,11 +83,12 @@ const Chat = () => {
       });
       if (res.data.success) {
         setMessage("");
+        setSelectedCompany(companies.find((company) => company._id === companyId));
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const fetchMessages = async (conversationId, receiver) => {
     const res = await axios.get(
@@ -92,7 +100,6 @@ const Chat = () => {
     setSelectedCompany(receiver);
   };
 
-  
   const handleCompanyClick = (company) => {
     setSelectedCompany(company);
     fetchMessages("new", company);
@@ -172,7 +179,7 @@ const Chat = () => {
       </div>
       <div className="w-[50%] h-screen bg-white flex flex-col items-center">
         {selectedCompany ? (
-          <div className="w-full bg-secondary h-[80px] my-14 rounded-full flex items-center px-14 py-2">
+          <div className="w-full bg-secondary h-[80px] my-7 rounded-full flex items-center px-14 py-2">
             <div className="cursor-pointer">
               <div>
                 {selectedCompany.image ? (
@@ -202,21 +209,23 @@ const Chat = () => {
           </div>
         ) : null}
         <div className="h-[70%] w-full">
-          <div className="px-10">
+          <div className="px-10 h-full overflow-y-scroll">
             {selectedCompany ? (
               <>
-                {messages && messages.resData && messages.resData.length > 0 ? (
+                { messages && messages.resData && messages.resData.length > 0 ? (
                   messages.resData.map((message, index) => (
                     <div className="flex" key={index}>
                       {companies.map((company) => (
                         <div key={company.company}>
                           {message.seeker.username !== seekerName &&
                           selectedCompany.company === company.company ? (
-                            <img
+                            <>
+                            <img 
                               src={company.image || "/profile.png"}
                               alt={company.company}
                               className="w-[32px] mr-2 h-[32px] rounded-full"
                             />
+                            </>
                           ) : null}
                         </div>
                       ))}
@@ -271,7 +280,7 @@ const Chat = () => {
             >
               <button
                 type="button"
-                onClick={() => sendMessage(selectedCompany._id)}
+                onClick={() => sendMessage(selectedCompany)}
                 className="inline-flex items-center justify-center rounded-lg px-3 py-2 transition duration-500 ease-in-out text-white bg-pink-500 hover:bg-pink-400 focus:outline-none"
               >
                 <span className="font-bold pr-2">Send</span>

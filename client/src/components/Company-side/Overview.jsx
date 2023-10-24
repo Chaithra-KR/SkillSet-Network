@@ -170,7 +170,7 @@ const Overview = () => {
                   <div className="p-4 bg-white rounded-lg shadow-md mb-3 w-6/12">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
-                        {val.user.image ? (
+                        {val.user && val.user.image ? (
                           <img
                             className="rounded-full w-24 h-18 mx-auto flex items-center justify-center border-persian-orange p-2"
                             src={val.user.image}
@@ -184,18 +184,24 @@ const Overview = () => {
                           />
                         )}
                         <div>
-                          <p>
-                            <scan className="font-semibold">
-                              {val.user.username}{" "}
-                            </scan>{" "}
-                            applied for the position{" "}
-                            {val.job && val.job.position ? (
-                              <scan className="font-semibold">
-                                {val.job.position}
-                              </scan>
-                            ) : null}
-                          </p>
-                          <p className="text-sm">{val.coverLetter}</p>
+                          {val.user && val.user.username ? (
+                            <>
+                              <p>
+                                <scan className="font-semibold">
+                                  {val.user.username}{" "}
+                                </scan>{" "}
+                                applied for the position{" "}
+                                {val.job && val.job.position ? (
+                                  <scan className="font-semibold">
+                                    {val.job.position}
+                                  </scan>
+                                ) : null}
+                              </p>
+                              <p className="text-sm">{val.coverLetter}</p>
+                            </>
+                          ) : (
+                            <p>User information not available</p>
+                          )}
                         </div>
                       </div>
                       <div className="space-x-2">
@@ -305,7 +311,7 @@ const Overview = () => {
         ) : null}
         {showEmployees === true ? (
           <ul className="mt-2 flex flex-wrap">
-            {employees.length > 0 ? ( // Add parentheses here
+            {employees.length > 0 ? (
               employees.map((employee, i) => (
                 <li
                   className="w-56 p-4 bg-white rounded-lg shadow-md mr-4 mb-4"
@@ -321,7 +327,7 @@ const Overview = () => {
                     ) : (
                       <img
                         className="rounded-full w-24 h-24 mx-auto border-2 border-persian-orange p-2"
-                        src="https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
+                        src="/profile.png"
                         alt="user"
                       />
                     )}
