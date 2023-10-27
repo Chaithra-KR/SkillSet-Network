@@ -12,6 +12,7 @@ const Messages = require("../Model/messages");
 const PremiumRevenue = require("../Model/premiumRevenue");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 const bcrypt = require("bcrypt");
+const { json } = require("express");
 
 exports.otp = async (req, res) => {
   try {
@@ -74,7 +75,6 @@ exports.generateOtp = async (req, res) => {
 
     sendEmail(mailFormat.to, mailFormat.subject, mailFormat.html);
 
-    console.log("you can enter otp on the rendered page");
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error generating OTP:", error);
@@ -86,7 +86,6 @@ exports.generateOtp = async (req, res) => {
 
 exports.verifyLogin = async (req, res) => {
   try {
-    console.log("ready to login");
     const { email, password } = req.body.data;
     const user = await User.findOne({ email: email });
 
@@ -107,8 +106,6 @@ exports.verifyLogin = async (req, res) => {
             role: user.role,
             username: user.username,
           };
-          console.log(token, "its token");
-          console.log("welcome");
           res.status(200).json({
             success: true,
             necessaryData,
@@ -144,7 +141,6 @@ exports.profileView = async (req, res) => {
     const data = req.query.data;
     const decoded = jwtToken.verify(data, process.env.SECRET_KEY);
     const seekerId = decoded.id;
-    console.log(seekerId);
 
     if (seekerId) {
       const seekerData = await User.findOne({ _id: seekerId }).populate(
@@ -194,7 +190,6 @@ exports.editProfile = async (req, res) => {
     const seekerId = decode.id;
     if (seekerId) {
       await User.updateOne({ _id: seekerId }, data).then((updateAccess) => {
-        console.log(updateAccess);
         res.status(200).json({ status: true, updateAccess });
       });
     } else {
@@ -221,7 +216,6 @@ exports.jobView = async (req, res) => {
     const skip = (page - 1) * perPage;
 
     const jobPosition = await Position.find();
-    console.log(jobPosition, "jobPosition");
 
     const query = {
       $or: [
@@ -278,7 +272,6 @@ exports.saveJob = async (req, res) => {
         { _id: seekerId },
         { $push: { savedJobs: newJobToSaveList } }
       ).then((updateAccess) => {
-        console.log(updateAccess);
         res.status(200).json({ status: true, message: "Job saved" });
       });
     } else {
@@ -301,7 +294,6 @@ exports.savedJobs = async (req, res) => {
       const savedJobs = await Job.find({ _id: { $in: savedJobIds } }).populate(
         "company"
       );
-      console.log(savedJobs, "savedJobs");
       res.status(200).json({ status: true, jobData: savedJobs });
     } else {
       res.status(404).json({ status: false, message: "User not found" });
@@ -322,7 +314,6 @@ exports.applyJob = async (req, res) => {
     const seekerId = decoded.id;
     const jobs = await Job.findOne({ _id: jobId }).populate("company");
     const companyId = jobs.company._id;
-    console.log(seekerId, "seekerId");
     const newAppliedJob = new AppliedJobs({
       cv: cv,
       email: email,
@@ -339,7 +330,6 @@ exports.applyJob = async (req, res) => {
     if (appliedJobOk) {
       const objectId = jobId;
       const find = await Job.findOne({ _id: objectId }).populate("company");
-      console.log(find, "find");
 
       await User.findOneAndUpdate(
         { _id: seekerId },
@@ -366,7 +356,6 @@ exports.newPost = async (req, res) => {
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
     // const decoded = req.id
     const seekerId = decoded.id;
-    console.log(seekerId, "seekerId");
     if (seekerId) {
       const newPost = new Posts({
         caption: caption,
@@ -394,7 +383,6 @@ exports.changePassword = async (req, res) => {
     const token = req.body.token;
     const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
     const seekerId = decoded.id;
-    console.log(seekerId);
     const user = await User.findById(seekerId);
 
     if (!user) {
@@ -435,44 +423,43 @@ exports.emailVerify = async (req, res) => {
   try {
     const { email } = req.body.data;
 
-    const authEmail = await User.findOne({email:email})
-    if(authEmail){
-      const {email} = authEmail
-      const requestEmail = email
+    const authEmail = await User.findOne({ email: email });
+    if (authEmail) {
+      const { email } = authEmail;
+      const requestEmail = email;
       if (email !== requestEmail) {
         return res.json({
           success: false,
           message: "You are not registered with us, please register!",
         });
-      }else{
+      } else {
         const OTP = otpGenerator.generate(6, {
           lowerCaseAlphabets: false,
           upperCaseAlphabets: false,
           specialChars: false,
         });
         console.log(OTP, "otp");
-        console.log(req.query.data, "reciever");
 
         req.app.locals.OTP = OTP;
         const mailFormat = {
           to: req.query.data,
           subject: "SkillSet Network : One Time Password",
           html:
-            "<h4>Hai dear,</h4><br><p>Welcome to SkillSet portal! Thank you for registration. Your One Time Password (OTP) is " +
+            "<h4>Hai dear,</h4><br><p>Welcome back to SkillSet Network! Use " +
             OTP +
+            "to reset your password. Don't share." +
             "</p><span>Sincerely,</span><h4>SkillSet Network</h4>",
         };
-    
+
         sendEmail(mailFormat.to, mailFormat.subject, mailFormat.html);
-        return res.json({ success: true});
+        return res.json({ success: true });
       }
-    }else{
+    } else {
       return res.json({
         success: false,
         message: "You are not registered with us, please register!",
       });
     }
-
   } catch (error) {
     console.error("Error changing password:", error);
   }
@@ -481,31 +468,29 @@ exports.emailVerify = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body.data;
-    const {email} = req.body.emailData
-    console.log(email,"email");
-    const authEmail = await User.findOne({email:email})
-    if(authEmail){
+    const { email } = req.body.emailData;
+    const authEmail = await User.findOne({ email: email });
+    if (authEmail) {
       if (password !== confirmPassword) {
         return res.json({
           success: false,
           message: "Passwords do not match on confirm",
         });
       }
-  
+
       const hashedPassword = await bcrypt.hash(password, 10);
       authEmail.password = hashedPassword;
-  
+
       await authEmail.save();
       return res
         .status(200)
         .json({ success: true, message: "Password updated successfully" });
-    }else{
+    } else {
       return res.json({
         success: false,
         message: "You are not registered with us, please register!",
       });
     }
-    
   } catch (error) {
     console.error("Error changing password:", error);
   }
@@ -513,12 +498,11 @@ exports.forgotPassword = async (req, res) => {
 
 exports.forgotPasswordOtp = async (req, res) => {
   try {
-    console.log("here");
     const enteredOtp = parseInt(req.body.otp.join(""));
     const generatedOtp = parseInt(req.app.locals.OTP);
 
     if (generatedOtp === enteredOtp) {
-      res.status(200).json({ success: true});
+      res.status(200).json({ success: true });
     } else {
       console.log("invalid otp");
       res.json({ success: false, message: "Invalid OTP!" });
@@ -536,6 +520,36 @@ exports.singlePost = async (req, res) => {
     if (imageId) {
       const seekerData = await Posts.findOne({ _id: imageId });
       res.status(200).json({ status: true, seekerData });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.postComment = async (req, res) => {
+  try {
+    const { imageId, token } = req.body;
+    const comment = req.body.data;
+    const decode = jwtToken.verify(token, process.env.SECRET_KEY);
+    // const decode = req.id
+    const seekerId = decode.id;
+    if (seekerId) {
+      const post = await Posts.findById(imageId);
+      const seeker = await User.findOne({ _id: seekerId });
+      const newComment = {
+        comment: comment.comment,
+        company: {
+          name: seeker.username,
+          image: seeker.image,
+        },
+      };
+      post.commentSection.push(newComment);
+      await post.save();
+      res
+        .status(200)
+        .json({ success: true, message: "Commented on the post!" });
     } else {
       res.json({ status: false });
     }
@@ -577,7 +591,6 @@ exports.getChat = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   try {
     const { conversationId, senderId, message, receiverId } = req.body;
-    console.log(receiverId._id,"receiverId");
     const decoded = jwtToken.verify(senderId, process.env.SECRET_KEY);
     const seekerId = decoded.id;
     if (!seekerId || !message) return res.json("fill required fields");
@@ -591,7 +604,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
-        success:true,
+        success: true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -604,7 +617,7 @@ exports.sendMessage = async (req, res) => {
       });
       await newMessage.save();
       res.status(200).json({
-        success:true,
+        success: true,
         conversationId,
         newMessage,
         message: "Message sent successfully",
@@ -641,11 +654,8 @@ exports.getMessage = async (req, res) => {
         }
       })
     );
-    console.log(messageSeekerData, "messageCompanyData");
     res.status(200).json({ success: true, messageSeekerData });
   } catch (error) {
-    console.log(error);
-    // res.status(500).json({ success: false, error: "Internal Server Error" });
     console.log(error);
   }
 };
@@ -750,5 +760,210 @@ exports.upgradePayment = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+exports.visitNetwork = async (req, res) => {
+  try {
+    const token = req.query.data;
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (seekerId) {
+      const otherUsers = await User.find({
+        _id: { $ne: seekerId },
+      });
+
+      const currentUser = await User.findOne({
+        _id: seekerId,
+      });
+
+      const youRequestedTo = otherUsers.filter((value) => {
+        return !value.connections.some((val) => {
+          return (
+            val.receivedRequest === seekerId &&
+            (val.sendedStatus === "accepted" ||
+              val.receivedStatus === "accepted")
+          );
+        });
+      });
+
+      const receivedRequests = otherUsers.filter((value) => {
+        return value.connections.find((val) => {
+          return val.sendedRequest == seekerId;
+        });
+      });
+
+      res.status(200).json({
+        success: true,
+        Users: otherUsers,
+        currentUser: currentUser,
+        requestTo: youRequestedTo,
+        Requests: receivedRequests,
+      });
+    } else {
+      res.json({ success: false, message: "user not found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.sendConnectionRequest = async (req, res) => {
+  try {
+    const { token, recipientUserId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (seekerId) {
+      const recipientUser = await User.findById(recipientUserId);
+      const currentUser = await User.findById(seekerId);
+
+      const senderId = recipientUser._id.toString();
+
+      const checkAlreadyHaveTheSender = currentUser.connections.find((val) => {
+        return val.sendedRequest == senderId;
+      });
+
+      const checkAlreadyHaveTheRequest = recipientUser.connections.find(
+        (val) => {
+          return val.receivedRequest == seekerId;
+        }
+      );
+
+      if (checkAlreadyHaveTheSender || checkAlreadyHaveTheRequest) {
+        res.json({ success: false, message: "already exist" });
+      } else {
+        await User.findByIdAndUpdate(seekerId, {
+          $push: {
+            connections: {
+              sendedRequest: senderId,
+              sendedStatus: "requested",
+            },
+          },
+        });
+
+        await User.findByIdAndUpdate(senderId, {
+          $push: {
+            connections: {
+              receivedRequest: seekerId,
+              receivedStatus: "requested",
+            },
+          },
+        });
+        res.json({ success: true, message: "Connection request sent" });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.acceptConnectionRequest = async (req, res) => {
+  try {
+    const { token, userId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const seekerId = decoded.id;
+    if (seekerId) {
+      const recipientUser = await User.findById(userId); // foreign request sender
+      const currentUser = await User.findById(seekerId); // current request receiver
+      const receiverId = currentUser._id.toString();
+      const senderId = recipientUser._id.toString();
+
+      const havingRequestSender = recipientUser.connections.find((val) => {
+        return (
+          val.sendedRequest === receiverId && val.sendedStatus === "requested"
+        );
+      });
+
+      const havingRequestReceiver = currentUser.connections.find((val) => {
+        return (
+          val.receivedRequest === senderId && val.receivedStatus === "requested"
+        );
+      });
+
+      if (havingRequestSender && havingRequestReceiver) {
+        const requestAccepter = receiverId;
+        const acceptReceiver = senderId;
+
+        await User.findByIdAndUpdate(requestAccepter, {
+          $pull: {
+            connections: {
+              receivedRequest: acceptReceiver,
+            },
+          },
+        });
+        await User.findByIdAndUpdate(acceptReceiver, {
+          $pull: {
+            connections: {
+              sendedRequest: requestAccepter,
+            },
+          },
+        });
+
+        await User.findByIdAndUpdate(requestAccepter, {
+          $push: {
+            connections: {
+              sendedRequest: acceptReceiver,
+              sendedStatus: "accepted",
+              receivedStatus: "accepted",
+            },
+          },
+        });
+
+        await User.findByIdAndUpdate(acceptReceiver, {
+          $push: {
+            connections: {
+              receivedRequest: requestAccepter,
+              receivedStatus: "accepted",
+              sendedStatus: "accepted",
+            },
+          },
+        });
+
+        res.json({ success: true, message: "Connection request accepted!" });
+      } else {
+        console.log("else is working");
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.reportPost = async (req, res) => {
+  try {
+    const { token, postId, reason } = req.body.data;
+    console.log(token, postId, reason);
+    const decoded = jwtToken.verify(token, process.env.SECRET_KEY);
+    const reporterId = decoded.id;
+
+    if (!reporterId) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const post = await Posts.findById(postId);
+    if (!post) {
+      return res.json({ success: false, message: "Post not found" });
+    }
+
+    post.reports.push({
+      seeker: reporterId,
+      reason,
+    });
+
+    await post.save();
+
+    const reporter = await User.findById(reporterId);
+    reporter.reportedPosts.push({
+      post: postId,
+      reason,
+    });
+
+    await reporter.save();
+
+    res.json({ success: true, message: "Post reported successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

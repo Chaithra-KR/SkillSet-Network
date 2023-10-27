@@ -21,6 +21,9 @@ adminRouter.get('/viewJobManage' ,adminController.viewJobManage)
 
 adminRouter.get('/accounts',adminController.accounts)
 
+adminRouter.get('/postReportedNotify',adminController.postReported)
+adminRouter.post('/removeReportedPost',adminController.removeReportedPost)
+
 
 
 module.exports = adminRouter;

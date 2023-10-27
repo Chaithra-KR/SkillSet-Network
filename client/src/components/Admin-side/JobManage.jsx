@@ -24,7 +24,7 @@ const JobManage = () => {
 
   const handleJobSubmit = async (data) => {
     try {
-      axios
+      adminAxiosInstance
         .post(`${AdminApi}jobPosition`, { data: data, token: admin })
         .then((res) => {
           if (refresh === true) {

@@ -19,7 +19,7 @@ const SignIn = () => {
   const handleLoginSubmit = async (data) => {
     try {
       console.log(data);
-      const response = await axios.post(`${AdminApi}adminVerifyLogin`,{data:data});
+      const response = await adminAxiosInstance.post(`${AdminApi}adminVerifyLogin`,{data:data});
       if (response.data.success) {
         localStorage.setItem('adminInformation',JSON.stringify(response.data.necessaryData))
         dispatch(adminDetails(impData))    

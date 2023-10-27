@@ -8,6 +8,7 @@ import {toast} from 'react-hot-toast';
 const Companies = () => {
   const [companies, setCompanies] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [access, setAccess] = useState(true);
   const [isJobsModalOpen, setIsJobsModalOpen] = useState(false);
 
 
@@ -15,16 +16,11 @@ const Companies = () => {
     axios.get(`${AdminApi}companyManagement`).then((res) => {
       setCompanies(res.data.companyData);
     });
-  }, []);
+  }, [access]);
 
   const handleBlockCompany = async (data) =>{
     axios.post(`${AdminApi}blockCompany`,{data:data}).then((res) => {
-      if(res.data.success){
-            // if(access === true){
-            //   setAccess(false)
-            // }else{
-            //   setAccess(true)
-            // }           
+      if(res.data.success){       
         toast.success(res.data.message, {
           duration: 3000,
           position: 'top-center',
@@ -33,6 +29,11 @@ const Companies = () => {
             color: '#fff',
           },
         });
+        if(access===true){
+          setAccess(false)
+         }else{
+          setAccess(true)
+         }
       }
     });
   }
@@ -40,11 +41,6 @@ const Companies = () => {
   const handleUnBlockCompany = async (data) =>{
     axios.post(`${AdminApi}unblockCompany`,{data:data}).then((res) => {
       if(res.data.success){
-          //  if(access===true){
-          //   setAccess(false)
-          //  }else{
-          //   setAccess(true)
-          //  }
         toast.success(res.data.message, {
           duration: 3000,
           position: 'top-center',
@@ -53,6 +49,11 @@ const Companies = () => {
             color: '#fff',
           },
         });
+         if(access===true){
+            setAccess(false)
+           }else{
+            setAccess(true)
+           }
       }else{
         toast.error("something went wrong !")
       }
@@ -143,7 +144,7 @@ const Companies = () => {
                 shadow-md hover:bg-pink-400" type="pink"  onClick={()=>{setIsJobsModalOpen(true);}}>
                 View
               </Button>
-                <Modal title="List of Jobs" open={isJobsModalOpen}  onCancel={()=>{setIsJobsModalOpen(false);}}>
+                <Modal title="List of Jobs" open={isJobsModalOpen} footer={null} onCancel={()=>{setIsJobsModalOpen(false);}}>
                 {company.jobs.map((val,i) => (
                           <>
                           <p>{i+1+". "+val}</p>

@@ -9,6 +9,7 @@ import {
   FaBriefcase,
   FaComment,
   FaUser,
+  FaUsers,
   FaCog,
   FaImage,
 } from "react-icons/fa";
@@ -20,11 +21,16 @@ const Navbar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOpenForSettings, setModalOpenForSettings] = useState(false);
   const [userDetails, setUserDetails] = useState({});
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleHomeView = () => {
     navigate("/home");
+  };
+
+  const handleNetworkView = () => {
+    navigate("/my-network");
   };
 
   const handleProfileView = () => {
@@ -96,7 +102,6 @@ const Navbar = () => {
         <div className="w-34 h-12 pt-2 pl-5 flex justify-center">
           <img className="w-18 h-12" src="/skillset-logo.jpg" alt="" />
         </div>
-    {console.log(userDetails.premiumStatus)}
 
         <div className="p-3.5 md:hidden">
           <Button onClick={showModal}>
@@ -151,6 +156,14 @@ const Navbar = () => {
           >
             <FaHome className="fill-current text-pink-500" />
             Home
+          </button>
+
+          <button
+            onClick={handleNetworkView}
+            className="pl-4 border border-transparent rounded flex flex-col items-center"
+          >
+            <FaUsers className="fill-current text-pink-500" />
+            My Network
           </button>
 
           <button

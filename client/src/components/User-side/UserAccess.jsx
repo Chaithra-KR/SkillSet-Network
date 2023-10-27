@@ -40,8 +40,6 @@ const UserAccess = () => {
   const submitData = async (data) => {
     try {
       const res = await Axios.get(`${UserApi}generateOtp?data=${data.email}`);
-      console.log(res);
-      console.log(res, "oooo");
       navigate("/Otp", { state: { data } });
     } catch (error) {
       console.log(error);

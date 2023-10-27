@@ -94,7 +94,7 @@ const AccountsManage = () => {
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
                   <span className="font-normal">
-                    {val.user ? val.user.name : val.company.company}
+                    {val.user ? val.user.username : val.company.company}
                   </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">

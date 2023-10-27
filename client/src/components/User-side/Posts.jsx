@@ -98,7 +98,7 @@ const Posts = () => {
           token: seeker,
         }).then((res) => {
           setImageSelect("");
-          setActiveTab(false);
+          navigate("/home")
           toast.success(res.data.message, {
             duration: 3000,
             position: "top-right",

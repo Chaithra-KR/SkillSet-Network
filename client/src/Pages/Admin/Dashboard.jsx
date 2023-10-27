@@ -18,6 +18,7 @@ import {
   DesktopOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
+import Notification from '../../components/Admin-side/Notification';
 const { Header, Sider, Content } = Layout;
 
 
@@ -112,11 +113,11 @@ const Dashboard = () => {
               case'4':
                 return <AccountsManage/>;
               case'5':
-                return <div>hai this is notification</div>
+                return <Notification/>
               case'6':
                 return <JobManage/>
               default:
-                return  <h1>yes</h1>;
+                return  null;
             }
           })()}
         </Content>

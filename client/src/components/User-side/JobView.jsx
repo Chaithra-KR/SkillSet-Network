@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import UserLoading from "../Loading/UserLoadings/UserLoading";
 
 const JobView = () => {
+
   const [jobs, setJobs] = useState([]);
   const [jobPosition, setJobPosition] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -150,8 +151,8 @@ const JobView = () => {
               {appliedJobs && appliedJobs.length > 0 ? (
                 <div>
                   <ul className="flex flex-wrap overflow-y-auto p-4">
-                    {appliedJobs.map((val) => (
-                      <li className="w-full md:w-1/5" key={val._id}>
+                    {appliedJobs.map((val,i) => (
+                      <li className="w-full md:w-1/5" key={i}>
                         <div className="box mb-4 p-4 text-center shadow-md">
                           <div className="flex row-auto">
                             <div className="relative mr-4">
@@ -246,7 +247,7 @@ const JobView = () => {
                   onClick={() => {
                     setShowAppliedJobs(true);
                   }}
-                  className="bg-pink-500 text-white px-4 py-2 ml-2 rounded-lg"
+                  className="bg-pink-500 text-white px-4 py-2 ml-2 mt-2 rounded-lg"
                 >
                   See your applied jobs!
                 </button>
@@ -259,8 +260,8 @@ const JobView = () => {
                     onChange={handleFilterByJob}
                   >
                     <option value="">Select Job</option>
-                    {jobPosition.map((job) => (
-                      <option key={job._id} value={job.position}>
+                    {jobPosition.map((job,i) => (
+                      <option key={i} value={job.position}>
                         {job.position}
                       </option>
                     ))}
@@ -317,7 +318,7 @@ const JobView = () => {
                         </Button>
                         <Modal
                           title="About the vacancy"
-                          visible={selectedJob === val}
+                          open={selectedJob === val}
                           footer={null}
                           onCancel={closeModal}
                         >
@@ -463,7 +464,7 @@ const JobView = () => {
                         </Button>
                         <Modal
                           title="About the vacancy"
-                          visible={selectedJob === job}
+                          open={selectedJob === job}
                           onCancel={closeModal}
                           footer={null}
                         >

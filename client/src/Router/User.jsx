@@ -21,6 +21,10 @@ import SinglePost from '../Pages/User/SinglePost';
 import UpgradePremium from '../components/User-side/UpgradePremium';
 import ForgotPassword from '../components/User-side/forgotPassword';
 import EmailVerify from '../components/User-side/EmailVerify';
+import MyNetwork from '../Pages/User/MyNetwork';
+import ViewSeekers from '../Pages/User/ViewSeekers';
+import SinglePostView from '../components/User-side/SinglePostView';
+import SinglePicView from '../Pages/User/SinglePicView';
 
 
 function ErrorFallback({error, resetErrorBoundary}) {
@@ -100,6 +104,11 @@ const User = () => {
 
             <Route path='/forgotPassword' element={!seeker ? <ForgotPassword/> : <UserHome/>}/>  
 
+            <Route path='/my-network' element={seeker ? <MyNetwork/> : <UserAccess/>}/>
+
+            <Route path='/the-seeker' element={seeker ? <ViewSeekers/> : <UserAccess/>}/>
+
+            <Route path='/single-picView' element={seeker ? <SinglePicView/> : <UserAccess/>}/>
 
         </Routes>
       </ErrorBoundary>

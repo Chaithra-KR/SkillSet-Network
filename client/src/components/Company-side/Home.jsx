@@ -69,7 +69,7 @@ const Home = () => {
       <div className="w-full h-screen bg-white">
         <div className="flex flex-col md:flex-row lg:flex-row">
           <div className="w-full md:w-1/2 lg:w-1/3 flex justify-center">
-            <div className="bg-pink-100 w-72 m-5 h-6/6 rounded p-6 flex flex-col items-center">
+            <div className="bg-gray-100 w-72 m-5 h-6/6 rounded p-6 flex flex-col items-center">
               <div className="mt-8">
                 {companyDetails.image ? (
                   <img
@@ -120,7 +120,7 @@ const Home = () => {
             <div className="flex flex-wrap justify-between mt-3">
               <button
                 onClick={handleJobView}
-                className="w-full md:w-[600px] xl:w-[800px]  hover:text-white bg-pink-100 border border-pink-200 hover:bg-pink-500 shadow-md h-14 mb-2 rounded"
+                className="w-full md:w-[600px] xl:w-[800px] bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none h-14 mb-2"
               >
                 New Job
               </button>

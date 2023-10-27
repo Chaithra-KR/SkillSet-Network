@@ -32,6 +32,8 @@ userRouter.post('/forgotPasswordOtp',userController.forgotPasswordOtp)
 
 
 userRouter.get('/singlePost', userController.singlePost)
+userRouter.post('/postComment', userController.postComment)
+
 
 userRouter.get('/getChat',userController.getChat)
 userRouter.post('/sendMessage',userController.sendMessage)
@@ -42,6 +44,12 @@ userRouter.post('/requestAsEmploy',userController.requestAsEmploy)
 
 userRouter.post('/upgradePayment',userController.upgradePayment)
 
+userRouter.get('/visitNetwork',userController.visitNetwork)
+
+userRouter.post('/sendConnectionRequest',userController.sendConnectionRequest)
+userRouter.post('/acceptConnectionRequest',userController.acceptConnectionRequest)
+
+userRouter.post('/reportPost',userController.reportPost)
 
 
 module.exports = userRouter;

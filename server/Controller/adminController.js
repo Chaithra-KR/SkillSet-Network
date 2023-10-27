@@ -2,6 +2,7 @@ const Admin = require("../Model/adminModel");
 const Company = require("../Model/companyModel");
 const User = require("../Model/userModel");
 const Position = require("../Model/jobPosition");
+const Posts = require("../Model/posts");
 const PremiumRevenue = require("../Model/premiumRevenue");
 const jwtToken = require("jsonwebtoken");
 
@@ -16,7 +17,7 @@ exports.adminVerifyLogin = async (req, res) => {
           { id: validPassword._id },
           process.env.ADMIN_SECRET_KEY,
           {
-            expiresIn: "30d",
+            expiresIn: "50d",
           }
         );
         const necessaryData = {
@@ -217,5 +218,59 @@ exports.accounts = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+exports.postReported = async (req, res) => {
+  try {
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    const adminId = decoded.id;
+
+    if (adminId) {
+      const posts = await Posts.find()
+        .populate({
+          path: "user",
+          select: ["-password", "-userRequests", "-savedJobs", "-appliedJobs"],
+        })
+        .populate("reports.seeker");
+      const reports = posts.filter((val) => {
+        return val.reports.length > 0;
+      });
+      console.log(reports);
+      res.status(200).json({ status: true, Reports: reports });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.removeReportedPost = async (req, res) => {
+  try {
+    const { postId, token } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    const adminId = decoded.id;
+
+    if (adminId) {
+      const postToDrop = await Posts.findOne({ _id: postId });
+
+      if (postToDrop) {
+        const deletedPost = await Posts.findOneAndDelete({ _id: postId });
+        await User.findOneAndUpdate(
+          { _id: deletedPost.user._id },
+          { $pull: { posts: postId } }
+        );
+        res.status(200).json({ success: true, message: "Post removed" });
+      } else {
+        res.json({ success: false, message: "Post not found" });
+      }
+    } else {
+      res.json({ success: false, message: "Admin not authorized" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "An error occurred" });
   }
 };

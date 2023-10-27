@@ -148,7 +148,7 @@ const Users = () => {
                 shadow-md hover:bg-pink-400" type="pink"  onClick={()=>{setIsSkillModalOpen(true);findUser(user.email)}}>
                 View
               </Button>
-                <Modal title="List of skills" open={isSkillModalOpen}  onCancel={()=>{setIsSkillModalOpen(false);}}>
+                <Modal title="List of skills" open={isSkillModalOpen} footer={null} onCancel={()=>{setIsSkillModalOpen(false);}}>
                 {user.skills.map((skill,i) => (
                           <>
                           <p>{i+1+". "+skill}</p>
@@ -182,7 +182,7 @@ const Users = () => {
               </Button>
               </td>
              
-              <Modal title="Other details" open={isModalOpen}  onCancel={()=>{setIsModalOpen(false)}}>
+              <Modal title="Other details" open={isModalOpen} footer={null} onCancel={()=>{setIsModalOpen(false)}}>
                     <p>Date of birth : {singleUser.dob}</p>
                     <p>Contact No : {singleUser.phone} </p>
                     {singleUser.experience ? (<p>Experience : {singleUser.experience}</p>) : (<div></div>)}
