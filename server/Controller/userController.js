@@ -733,7 +733,7 @@ exports.upgradePayment = async (req, res) => {
         payment_method_types: ["card"],
         payment_method: paymentMethod.id,
         confirm: true,
-        return_url: "http://localhost:3000/posts",
+        return_url: process.env.USER_PREMIUM,
       });
       const retrievedPaymentIntent = await stripe.paymentIntents.retrieve(
         paymentIntent.id
