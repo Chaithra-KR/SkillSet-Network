@@ -3,7 +3,6 @@ import Users from '../../components/Admin-side/Users';
 import Navbar from '../../components/Admin-side/Navbar';
 import AdminDashboard from '../../components/Admin-side/AdminDashboard';
 import Companies from '../../components/Admin-side/Companies';
-import JobManage from '../../components/Admin-side/jobManage';
 import AccountsManage from '../../components/Admin-side/AccountsManage';
 
 import './ANT/ant.css'
@@ -19,6 +18,7 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
 import Notification from '../../components/Admin-side/Notification';
+import JobManage from '../../components/Admin-side/jobManage';
 const { Header, Sider, Content } = Layout;
 
 
