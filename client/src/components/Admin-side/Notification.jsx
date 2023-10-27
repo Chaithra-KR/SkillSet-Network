@@ -4,6 +4,7 @@ import { AdminApi } from "../../configs/api";
 import { useSelector } from "react-redux";
 import { Button, Modal } from "antd";
 import { toast } from "react-hot-toast";
+import { adminAxiosInstance } from "../../configs/axios/axios";
 
 const Notification = () => {
   const [reports, setReports] = useState([]);
@@ -17,7 +18,7 @@ const Notification = () => {
   useEffect(() => {
     const notify = async () => {
       try {
-        const response = await axios.get(
+        const response = await adminAxiosInstance.get(
           `${AdminApi}postReportedNotify?data=${encodeURIComponent(admin)}`
         );
         setReports(response.data.Reports);
@@ -41,7 +42,7 @@ const Notification = () => {
       postId: postId,
       token: admin,
     };
-    const response = await axios.post(`${AdminApi}removeReportedPost`, {
+    const response = await adminAxiosInstance.post(`${AdminApi}removeReportedPost`, {
       data: data,
     });
     console.log(response, "yt");
@@ -132,7 +133,7 @@ const Notification = () => {
                       <Button
                         onClick={() => showModal(i)}
                         key={val._id}
-                        className="bg-pink-300 ml-4 px-3 py-1 text-white rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                        className="bg-blue-300 ml-4 px-3 py-1 text-white rounded-md hover:bg-blue-500 transition-colors duration-300 focus:outline-none"
                       >
                         View image
                       </Button>
@@ -154,7 +155,7 @@ const Notification = () => {
                         onClick={() => {
                           handleRemoveReportPost(val._id);
                         }}
-                        className="bg-pink-300 ml-4 px-3 py-1  rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                        className="bg-blue-300 ml-4 px-3 py-1  rounded-md hover:bg-blue-500 transition-colors duration-300 focus:outline-none"
                       >
                         Remove post
                       </button>
@@ -172,7 +173,7 @@ const Notification = () => {
             alt="No Data Found"
             className="w-80 h-80 my-10 mx-auto"
           />
-          <p className="text-center text-lg font-bold text-pink-700">
+          <p className="text-center text-lg font-bold text-black">
             No requests found!
           </p>
         </div>

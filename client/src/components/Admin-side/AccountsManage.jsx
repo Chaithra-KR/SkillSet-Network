@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { AdminApi } from "../../configs/api";
 import { useSelector } from "react-redux";
+import { adminAxiosInstance } from "../../configs/axios/axios";
 
 const AccountsManage = () => {
   const [accounts, setAccounts] = useState([]);
@@ -14,7 +15,7 @@ const AccountsManage = () => {
   useEffect(() => {
     const showJobManagement = async () => {
       try {
-        axios
+        await adminAxiosInstance
           .get(`${AdminApi}accounts?data=${encodeURIComponent(admin)}`)
           .then((res) => {
             setAccounts(res.data.accounts);
@@ -48,11 +49,11 @@ const AccountsManage = () => {
           placeholder="Search by ID or Name"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-pink-300 rounded-md p-2"
+          className="border border-gray-300 rounded-md p-2"
         />
       </div>
       {filteredAccounts.length > 0 ? (
-        <table className="w-11/12 ml-8 min-w-max table-auto text-left bg-pink-50">
+        <table className="w-11/12 ml-8 min-w-max table-auto text-left bg-gray-50">
           <thead>
             <tr>
               <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">

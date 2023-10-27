@@ -49,9 +49,17 @@ exports.adminVerifyLogin = async (req, res) => {
 
 exports.userManagement = async (req, res) => {
   try {
-    let userData = await User.find();
-    console.log(userData);
-    res.status(200).json({ success: true, userData });
+    const token = req.query.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      let userData = await User.find();
+      console.log(userData);
+      res.status(200).json({ success: true, userData });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -59,10 +67,17 @@ exports.userManagement = async (req, res) => {
 
 exports.companyManagement = async (req, res) => {
   try {
-    console.log("re");
-    let companyData = await Company.find();
-    console.log(companyData);
-    res.status(200).json({ success: true, companyData });
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      let companyData = await Company.find();
+      console.log(companyData);
+      res.status(200).json({ success: true, companyData });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -70,13 +85,20 @@ exports.companyManagement = async (req, res) => {
 
 exports.blockUser = async (req, res) => {
   try {
-    const userId = req.body.data;
-    const user = await User.findByIdAndUpdate(
-      { _id: userId },
-      { access: true }
-    );
-    const name = user.username;
-    res.status(200).json({ success: true, message: `${name} is blocked!` });
+    const { token, userId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const user = await User.findByIdAndUpdate(
+        { _id: userId },
+        { access: true }
+      );
+      const name = user.username;
+      res.status(200).json({ success: true, message: `${name} is blocked!` });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -84,13 +106,20 @@ exports.blockUser = async (req, res) => {
 
 exports.unblockUser = async (req, res) => {
   try {
-    const userId = req.body.data;
-    const user = await User.findByIdAndUpdate(
-      { _id: userId },
-      { access: false }
-    );
-    const name = user.username;
-    res.status(200).json({ success: true, message: `${name} is unblocked!` });
+    const { token, userId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const user = await User.findByIdAndUpdate(
+        { _id: userId },
+        { access: false }
+      );
+      const name = user.username;
+      res.status(200).json({ success: true, message: `${name} is unblocked!` });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -98,13 +127,20 @@ exports.unblockUser = async (req, res) => {
 
 exports.blockCompany = async (req, res) => {
   try {
-    const companyId = req.body.data;
-    const company = await Company.findByIdAndUpdate(
-      { _id: companyId },
-      { access: true }
-    );
-    const name = company.company;
-    res.status(200).json({ success: true, message: `${name} is blocked!` });
+    const { token, companyId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const company = await Company.findByIdAndUpdate(
+        { _id: companyId },
+        { access: true }
+      );
+      const name = company.company;
+      res.status(200).json({ success: true, message: `${name} is blocked!` });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -112,13 +148,20 @@ exports.blockCompany = async (req, res) => {
 
 exports.unblockCompany = async (req, res) => {
   try {
-    const companyId = req.body.data;
-    const company = await Company.findByIdAndUpdate(
-      { _id: companyId },
-      { access: false }
-    );
-    const name = company.company;
-    res.status(200).json({ success: true, message: `${name} is unblocked!` });
+    const { token, companyId } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const company = await Company.findByIdAndUpdate(
+        { _id: companyId },
+        { access: false }
+      );
+      const name = company.company;
+      res.status(200).json({ success: true, message: `${name} is unblocked!` });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -126,29 +169,37 @@ exports.unblockCompany = async (req, res) => {
 
 exports.viewDashboard = async (req, res) => {
   try {
-    const usersCount = await User.find().countDocuments();
-    const companiesCount = await Company.find().countDocuments();
-    const revenue = await PremiumRevenue.aggregate([
-      {
-        $match: {
-          premiumStatus: true,
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const usersCount = await User.find().countDocuments();
+      const companiesCount = await Company.find().countDocuments();
+      const revenue = await PremiumRevenue.aggregate([
+        {
+          $match: {
+            premiumStatus: true,
+          },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          subtotal: { $sum: "$amount" },
+        {
+          $group: {
+            _id: null,
+            subtotal: { $sum: "$amount" },
+          },
         },
-      },
-    ]);
-    const premiumAccountsCount = await PremiumRevenue.find().countDocuments();
-    res.status(200).json({
-      success: true,
-      companiesCount,
-      usersCount,
-      revenue: revenue[0].subtotal,
-      premiumAccountsCount,
-    });
+      ]);
+      const premiumAccountsCount = await PremiumRevenue.find().countDocuments();
+      res.status(200).json({
+        success: true,
+        companiesCount,
+        usersCount,
+        revenue: revenue[0].subtotal,
+        premiumAccountsCount,
+      });
+    } else {
+      res.json({ status: false });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -156,9 +207,9 @@ exports.viewDashboard = async (req, res) => {
 
 exports.jobPosition = async (req, res) => {
   try {
-    const { job } = req.body.data;
-    const token = req.body.token;
-    const adminId = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    const { job,token } = req.body.data;
+    console.log(job, token);
+    const adminId = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
     // const adminId = req.id
     console.log(job, "job");
     const checkJob = await Position.findOne({ position: job });
@@ -207,12 +258,20 @@ exports.viewJobManage = async (req, res) => {
 
 exports.accounts = async (req, res) => {
   try {
-    const accounts = await PremiumRevenue.find()
-      .populate("company")
-      .populate("user");
-    if (accounts) {
-      console.log(accounts, "accounts");
-      res.status(200).json({ status: true, accounts });
+    const data = req.query.data;
+    const decoded = jwtToken.verify(data, process.env.ADMIN_SECRET_KEY);
+    // const decoded = req.id
+    const adminId = decoded.id;
+    if (adminId) {
+      const accounts = await PremiumRevenue.find()
+        .populate("company")
+        .populate("user");
+      if (accounts) {
+        console.log(accounts, "accounts");
+        res.status(200).json({ status: true, accounts });
+      } else {
+        res.json({ status: false });
+      }
     } else {
       res.json({ status: false });
     }
@@ -272,5 +331,21 @@ exports.removeReportedPost = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "An error occurred" });
+  }
+};
+
+exports.removeJobPosition = async (req, res) => {
+  try {
+    const { jobId, token } = req.body.data;
+    const decoded = jwtToken.verify(token, process.env.ADMIN_SECRET_KEY);
+    const adminId = decoded.id;
+    if (adminId) {
+      await Position.findOneAndDelete({ _id: jobId });
+      res.status(200).json({ success: true, message: "Job position removed" });
+    } else {
+      res.json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

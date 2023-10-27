@@ -46,7 +46,6 @@ const Admin = () => {
   })
 
 
-  console.log(admin,"compp");
   
   return (
     <Fragment>

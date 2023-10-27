@@ -8,10 +8,11 @@ import { Button, Modal } from "antd";
 import { FaTrash } from "react-icons/fa";
 import { adminAxiosInstance } from "../../configs/axios/axios";
 
-const jobManage = () => {
+const JobManage = () => {
   const [open, setOpen] = useState(false);
   const [positions, setJobPositions] = useState({});
   const [refresh, setRefresh] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -22,36 +23,41 @@ const jobManage = () => {
     return state?.adminDetails.adminToken;
   });
 
-  const handleJobSubmit = async (data) => {
+  const handleJobSubmit = async (job) => {
     try {
-      adminAxiosInstance
-        .post(`${AdminApi}jobPosition`, { data: data, token: admin })
-        .then((res) => {
-          if (refresh === true) {
-            setRefresh(false);
-          } else {
-            setRefresh(true);
-          }
-          if (res.data.success == true) {
-            toast.success(res.data.message, {
-              duration: 3000,
-              position: "top-right",
-              style: {
-                background: "#B00043",
-                color: "#fff",
-              },
-            });
-          } else {
-            toast.error(res.data.message, {
-              duration: 3000,
-              position: "top-center",
-              style: {
-                background: "#ff0000",
-                color: "#fff",
-              },
-            });
-          }
+      const data = {
+        job: job.job,
+        token: admin,
+      };
+      console.log(data, "jobposting");
+      const response = await adminAxiosInstance.post(`${AdminApi}jobPosition`, {
+        data,
+      });
+      if (refresh === true) {
+        setRefresh(false);
+      } else {
+        setRefresh(true);
+      }
+      if (response.data.success == true) {
+        toast.success(response.data.message, {
+          duration: 3000,
+          position: "top-right",
+          style: {
+            background: "#B00043",
+            color: "#fff",
+          },
         });
+        handleCancel();
+      } else {
+        toast.error(response.data.message, {
+          duration: 3000,
+          position: "top-center",
+          style: {
+            background: "#ff0000",
+            color: "#fff",
+          },
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -60,12 +66,11 @@ const jobManage = () => {
   useEffect(() => {
     const showJobManagement = async () => {
       try {
-        axios
-          .get(`${AdminApi}viewJobManage?data=${encodeURIComponent(admin)}`)
-          .then((res) => {
-            let jobPosition = res.data.jobPosition;
-            setJobPositions(jobPosition);
-          });
+        const response = await adminAxiosInstance.get(
+          `${AdminApi}viewJobManage?data=${encodeURIComponent(admin)}`
+        );
+        const jobPosition = response.data.jobPosition;
+        setJobPositions(jobPosition);
       } catch (error) {
         console.log(error);
       }
@@ -78,8 +83,35 @@ const jobManage = () => {
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
     setOpen(false);
+  };
+
+  const handleDropJobPosition = async (jobId) => {
+    const data = {
+      jobId: jobId,
+      token: admin,
+    };
+    const response = await adminAxiosInstance.post(
+      `${AdminApi}removeJobPosition`,
+      {
+        data,
+      }
+    );
+    if (response.data.success) {
+      if (refresh === true) {
+        setRefresh(false);
+      } else {
+        setRefresh(true);
+      }
+      toast.success(response.data.message, {
+        duration: 3000,
+        position: "top-center",
+        style: {
+          background: "#B00043",
+          color: "#fff",
+        },
+      });
+    }
   };
 
   return (
@@ -87,12 +119,12 @@ const jobManage = () => {
       <h1 className="flex justify-center pb-5 text-3xl">Job Management</h1>
       <div className="flex justify-end mr-16 mb-5">
         <Button
-          className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-pink-500 shadow-md hover:bg-pink-400"
+          className="p-1 w-20 ml-5 border border-transparent text-white rounded bg-blue-500 shadow-md hover:bg-blue-400"
           onClick={showModal}
         >
           New Job
         </Button>
-        <Modal title="Title" open={open} onCancel={handleCancel}>
+        <Modal title="Title" open={open} footer={null} onCancel={handleCancel}>
           <form className=" w-96" onSubmit={handleSubmit(handleJobSubmit)}>
             <div className="flex justify-between">
               <label htmlFor="job" className="px-3 py-2 ">
@@ -108,7 +140,7 @@ const jobManage = () => {
                 className="px-3 py-2 border rounded-lg w-full"
               />
 
-              <button className="ml-1 px-4 py-2 border rounded-lg shadow bg-pink-600 text-white">
+              <button className="ml-1 px-4 py-2 border rounded-lg shadow bg-blue-600 text-white">
                 Save
               </button>
             </div>
@@ -125,7 +157,7 @@ const jobManage = () => {
           </form>
         </Modal>
       </div>
-      <table className="w-11/12 ml-8 min-w-max table-auto text-left bg-pink-50">
+      <table className="w-11/12 ml-8 min-w-max table-auto text-left bg-gray-50">
         <thead>
           <tr>
             <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -162,9 +194,14 @@ const jobManage = () => {
                   <span className="font-normal">{position.position}</span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
-                  <span className="font-normal cursor-pointer">
+                  <button
+                    onClick={() => {
+                      handleDropJobPosition(position._id);
+                    }}
+                    className="font-normal cursor-pointer"
+                  >
                     <FaTrash />
-                  </span>
+                  </button>
                 </td>
               </tr>
             ))
@@ -177,4 +214,4 @@ const jobManage = () => {
   );
 };
 
-export default jobManage;
+export default JobManage;

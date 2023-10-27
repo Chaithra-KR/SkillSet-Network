@@ -16,6 +16,7 @@ adminRouter.get('/companyManagement',adminController.companyManagement)
 adminRouter.post('/blockCompany',adminController.blockCompany)
 adminRouter.post('/unblockCompany',adminController.unblockCompany)
 
+adminRouter.post('/removeJobPosition',adminController.removeJobPosition)
 adminRouter.post('/jobPosition' , adminController.jobPosition)
 adminRouter.get('/viewJobManage' ,adminController.viewJobManage)
 
@@ -23,7 +24,6 @@ adminRouter.get('/accounts',adminController.accounts)
 
 adminRouter.get('/postReportedNotify',adminController.postReported)
 adminRouter.post('/removeReportedPost',adminController.removeReportedPost)
-
 
 
 module.exports = adminRouter;
