@@ -60,6 +60,8 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+
+
 io.on("connection",(socket)=>{
   socket.on("send",(message,conversationId,sender)=>{
     io.emit("receiver",message,conversationId,sender)
