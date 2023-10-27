@@ -8,7 +8,7 @@ import { Button, Modal } from "antd";
 import { FaTrash } from "react-icons/fa";
 import { adminAxiosInstance } from "../../configs/axios/axios";
 
-const JobManage = () => {
+const jobManage = () => {
   const [open, setOpen] = useState(false);
   const [positions, setJobPositions] = useState({});
   const [refresh, setRefresh] = useState(true);
@@ -177,4 +177,4 @@ const JobManage = () => {
   );
 };
 
-export default JobManage;
+export default jobManage;

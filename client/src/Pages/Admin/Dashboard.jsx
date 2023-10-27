@@ -18,7 +18,8 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme } from 'antd';
 import Notification from '../../components/Admin-side/Notification';
-import JobManage from '../../components/Admin-side/jobManage';
+import JobManage from '../../components/Admin-side/JobManage';
+
 const { Header, Sider, Content } = Layout;
 
 
