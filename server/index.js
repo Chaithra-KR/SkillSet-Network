@@ -11,7 +11,7 @@ dotenv.config();
 
 // Mongoose
 mongoose
-  .connect("mongodb://127.0.0.1:27017/SkillSet-NetWork", {
+  .connect(process.env.MONGODB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
