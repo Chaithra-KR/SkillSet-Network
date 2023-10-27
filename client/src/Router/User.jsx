@@ -19,7 +19,7 @@ import ChatWithCompany from '../Pages/User/ChatWithCompany';
 import MyPosts from '../Pages/User/MyPosts';
 import SinglePost from '../Pages/User/SinglePost';
 import UpgradePremium from '../components/User-side/UpgradePremium';
-import ForgotPassword from '../components/User-side/forgotPassword';
+import ForgotPassword from '../components/User-side/ForgotPassword';
 import EmailVerify from '../components/User-side/EmailVerify';
 import MyNetwork from '../Pages/User/MyNetwork';
 import ViewSeekers from '../Pages/User/ViewSeekers';
