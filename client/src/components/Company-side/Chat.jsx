@@ -19,7 +19,7 @@ const Chat = () => {
     companyName: state?.companyDetails.companyName,
   }));
 
-  const socket = io("http://localhost:4000");
+  const socket = io(import.meta.env.VITE_SocketIo);
 
   useEffect(() => {
     socket.on("connect", () => {

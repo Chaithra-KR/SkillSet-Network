@@ -31,7 +31,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT,
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Access"],
@@ -56,7 +56,7 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin:process.env.CLIENT,
     methods: ["GET", "POST"],
   },
 });

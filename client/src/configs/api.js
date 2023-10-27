@@ -1,3 +1,3 @@
-export const UserApi = "http://localhost:4000/"
-export const AdminApi = "http://localhost:4000/admin/"
-export const CompanyApi = "http://localhost:4000/company/"
+export const UserApi = import.meta.env.VITE_UserApi
+export const AdminApi = import.meta.env.VITE_AdminApi
+export const CompanyApi = import.meta.env.VITE_CompanyApi
