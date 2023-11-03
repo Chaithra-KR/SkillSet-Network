@@ -67,7 +67,6 @@ const UserAccess = () => {
         navigate("/home");
       } else {
         if (response.data.emailMessage) {
-          console.log("Email did not match our records, Please Register!");
           toast.error(response.data.emailMessage, {
             duration: 3000,
             position: "top-center",
@@ -77,7 +76,6 @@ const UserAccess = () => {
             },
           });
         } else if (response.data.message === "Incorrect password!") {
-          console.log("Password is incorrect!");
           toast.error(response.data.message, {
             duration: 3000,
             position: "top-center",
@@ -87,7 +85,6 @@ const UserAccess = () => {
             },
           });
         } else if (response.data.accessBlocked) {
-          console.log("Access Blocked!");
           toast.error(response.data.accessBlocked, {
             duration: 3000,
             position: "top-center",
@@ -391,52 +388,56 @@ const UserAccess = () => {
                     Welcome Back!
                   </h2>
                   <fieldset>
-                      <ul>
-                        <li className="mb-4">
-                          <label
-                            htmlFor="email"
-                            className="text-left block pb-2"
-                          >
-                            Email:
+                    <ul>
+                      <li className="mb-4">
+                        <label htmlFor="email" className="text-left block pb-2">
+                          Email:
+                        </label>
+                        <input
+                          {...register("email", {
+                            required: true,
+                            pattern:
+                              /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                          })}
+                          type="text"
+                          id="username"
+                          className="w-96 p-2 border border-gray-300 rounded"
+                        />
+                        {errors.email && errors.email.type === "required" && (
+                          <label className="text-sm text-red-600">
+                            Please enter the email
                           </label>
-                          <input
-                            {...register("email", {
-                              required: true,
-                              pattern:
-                                /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-                            })}
-                            type="text"
-                            id="username"
-                            className="w-96 p-2 border border-gray-300 rounded"
-                          />
-                          {errors.email && errors.email.type === "required" && (
+                        )}
+                      </li>
+                      <li className="mb-2">
+                        <label
+                          htmlFor="password"
+                          className="text-left block pb-2"
+                        >
+                          Password:
+                        </label>
+                        <input
+                          {...register("password", { required: true })}
+                          type="password"
+                          id="password"
+                          className="w-96 p-2 border border-gray-300 rounded"
+                        />
+                        {errors.password &&
+                          errors.password.type === "required" && (
                             <label className="text-sm text-red-600">
-                              Please enter the email
+                              Please enter the password
                             </label>
                           )}
-                        </li>
-                        <li className="mb-2">
-                          <label
-                            htmlFor="password"
-                            className="text-left block pb-2"
-                          >
-                            Password:
-                          </label>
-                          <input
-                            {...register("password", { required: true })}
-                            type="password"
-                            id="password"
-                            className="w-96 p-2 border border-gray-300 rounded"
-                          />
-                          {errors.password &&
-                            errors.password.type === "required" && (
-                              <label className="text-sm text-red-600">
-                                Please enter the password
-                              </label>
-                            )}
-                        </li>
-                      </ul>
-                    <h5 onClick={()=>{ navigate("/verify-email")}} className="text-blue-500 text-center pb-5 flex justify-start">Forgot password ?</h5>
+                      </li>
+                    </ul>
+                    <h5
+                      onClick={() => {
+                        navigate("/verify-email");
+                      }}
+                      className="text-blue-500 text-center pb-5 flex justify-start"
+                    >
+                      Forgot password ?
+                    </h5>
                   </fieldset>
                   <button className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">
                     Login

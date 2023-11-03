@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 const Footer = () => {
   return (
-    <div className="bg-gray-100 py-10 px-4 md:px-32 mt-10 md:mt-0">
+    <div className="bg-gray-100 py-10 px-4 md:px-32 mt-20 md:mt-0">
       <div className="container mx-auto flex flex-wrap justify-between md:flex-row sm:flex-col">
         <div className="w-full sm:w-1/2 md:w-1/4 mb-8">
           <h1 className="font-bold text-lg">For Talents</h1>
@@ -44,6 +44,6 @@ const Footer = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Footer;

@@ -18,10 +18,12 @@ const EmailVerify = () => {
 
   const submitData = async (data) => {
     try {
-      console.log(data);
-      const response = await axios.post(`${UserApi}emailVerify?data=${data.email}`, {
-        data: data,
-      });
+      const response = await axios.post(
+        `${UserApi}emailVerify?data=${data.email}`,
+        {
+          data: data,
+        }
+      );
       if (response.data.success === false) {
         toast.error(response.data.message, {
           duration: 3000,
@@ -32,7 +34,7 @@ const EmailVerify = () => {
           },
         });
       } else {
-        navigate("/forgotPassword",{state: { data }});
+        navigate("/forgotPassword", { state: { data } });
       }
     } catch (error) {
       console.log(error);

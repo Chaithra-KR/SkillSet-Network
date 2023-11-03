@@ -38,8 +38,6 @@ const ForgotPassword = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
 
-  console.log(location.state.data);
-
   const handleOtpSubmit = (e) => {
     e.preventDefault();
 
@@ -49,7 +47,6 @@ const ForgotPassword = () => {
         otp: otp,
       })
       .then((res) => {
-        console.log(res);
         if (res.data.success) {
           setShowForgot(true);
         } else {
@@ -103,11 +100,9 @@ const ForgotPassword = () => {
       inputRefs.current[0].focus();
     }
   }, []);
-  
 
   const submitData = async (data) => {
     try {
-      console.log(data);
       const response = await axios.post(`${UserApi}forgotPassword`, {
         data: data,
         emailData: location?.state.data,

@@ -168,14 +168,14 @@ exports.profileView = async (req, res) => {
       const matchedJobs = await Job.find({ skills: { $in: uniqueSkills } });
       const companies = await Company.find();
       res.status(200).json({
-        status: true,
+        success: true,
         seekerData,
         matchedJobs,
         appliedJobs,
         companies,
       });
     } else {
-      res.json({ status: false, message: "Invalid seekerId" });
+      res.json({ success: false, message: "Invalid seekerId" });
     }
   } catch (error) {
     console.log(error);
@@ -367,9 +367,9 @@ exports.newPost = async (req, res) => {
         { _id: seekerId },
         { $push: { posts: newPost } }
       );
-      res.status(200).json({ status: true, message: "New post uploaded!" });
+      res.status(200).json({ success: true, message: "New post uploaded!" });
     } else {
-      res.json({ status: false });
+      res.json({ success: false });
     }
   } catch (error) {
     console.log(error);
@@ -777,16 +777,6 @@ exports.visitNetwork = async (req, res) => {
         _id: seekerId,
       });
 
-      const youRequestedTo = otherUsers.filter((value) => {
-        return !value.connections.some((val) => {
-          return (
-            val.receivedRequest === seekerId &&
-            (val.sendedStatus === "accepted" ||
-              val.receivedStatus === "accepted")
-          );
-        });
-      });
-
       const receivedRequests = otherUsers.filter((value) => {
         return value.connections.find((val) => {
           return val.sendedRequest == seekerId;
@@ -797,7 +787,6 @@ exports.visitNetwork = async (req, res) => {
         success: true,
         Users: otherUsers,
         currentUser: currentUser,
-        requestTo: youRequestedTo,
         Requests: receivedRequests,
       });
     } else {

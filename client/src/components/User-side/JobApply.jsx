@@ -24,7 +24,6 @@ const JobApply = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const jobId = queryParams.get("jobId");
-  console.log(jobId, "jobId");
 
   const addSkill = () => {
     const skillInput = document.getElementById("skill-input");
@@ -75,7 +74,6 @@ const JobApply = () => {
     }
 
     try {
-      console.log(cvFile, "cvFile");
       const formData = new FormData();
       formData.append("file", cvFile);
       formData.append("upload_preset", "cvfiles");
@@ -109,7 +107,6 @@ const JobApply = () => {
 
   const handleJobApplying = async (applyData) => {
     try {
-      console.log(applyData, "applyData");
       changedData.skills = skills;
       const requestData = {
         data: { ...changedData, ...applyData, jobId },
@@ -118,7 +115,6 @@ const JobApply = () => {
           "Content-Type": "multipart/form-data",
         },
       };
-      console.log(changedData, "changedData");
       await axios
         .post(`${UserApi}applyJob`, {
           requestData,

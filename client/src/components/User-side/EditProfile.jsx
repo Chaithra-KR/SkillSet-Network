@@ -223,13 +223,7 @@ const EditProfile = () => {
               alt="Profile"
             />
           ) : (
-            <img
-              src={
-                userDetails.image ||
-                "https://w7.pngwing.com/pngs/31/699/png-transparent-profile-profile-picture-human-face-head-man-woman-community-outline-schema-thumbnail.png"
-              }
-              alt="default"
-            />
+            <img src={userDetails.image || "/profile.png"} alt="default" />
           )}
         </div>
 
@@ -256,11 +250,14 @@ const EditProfile = () => {
 
                 <label
                   htmlFor="fileInput"
-                  className="cursor-pointer bg-pink-400 p-2 text-sm rounded-lg text-white"
+                  className="cursor-pointer w-full border p-1 sm:p-2 text-xs sm:text-sm rounded-lg text-black"
                 >
                   Select Image
                 </label>
-                <Button className="ml-2" onClick={handleUploadImage}>
+                <Button
+                  className="ml-2 bg-pink-400 p-1 sm:p-2 text-xs sm:text-sm text-white"
+                  onClick={handleUploadImage}
+                >
                   Upload
                 </Button>
               </div>
@@ -275,12 +272,12 @@ const EditProfile = () => {
                   />
                   <label
                     htmlFor="cv"
-                    className="cursor-pointer w-full border p-2 text-sm rounded-lg text-black"
+                    className="cursor-pointer w-full border p-1 sm:p-2 text-xs sm:text-sm rounded-lg text-black"
                   >
                     {cvFileName ? cvFileName : "Select your CV"}{" "}
                   </label>
                   <Button
-                    className="ml-2 bg-pink-400 text-white"
+                    className="ml-2 bg-pink-400 p-1 sm:p-2 text-xs sm:text-sm text-white"
                     onClick={handleUploadCV}
                   >
                     Upload
@@ -294,7 +291,7 @@ const EditProfile = () => {
         <form onSubmit={handleSubmit(handleProfileEditSuccess)}>
           <fieldset>
             <ul>
-              <li className="grid gap-2">
+              <li className="grid gap-2 text-sm md:text-base">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
                     <label htmlFor="username" className="text-left">
@@ -313,14 +310,14 @@ const EditProfile = () => {
                       }
                     />
                     {errors.username && errors.username.type === "required" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter the username
-                      </label>
+                      </p>
                     )}
                     {errors.username && errors.username.type === "pattern" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter valid username
-                      </label>
+                      </p>
                     )}
                   </div>
 
@@ -341,20 +338,20 @@ const EditProfile = () => {
                       }
                     />
                     {errors.headline && errors.headline.type === "required" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter the headline
-                      </label>
+                      </p>
                     )}
                     {errors.headline && errors.headline.type === "pattern" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter a valid headline (maximum 56 characters)
-                      </label>
+                      </p>
                     )}
                   </div>
                 </div>
               </li>
 
-              <li className="grid gap-2 mt-3">
+              <li className="grid gap-2 mt-3 text-sm md:text-base">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
                     <label htmlFor="experience" className="text-left">
@@ -372,10 +369,10 @@ const EditProfile = () => {
                     ></textarea>
                     {errors.experience &&
                       errors.experience.type === "pattern" && (
-                        <label className="text-sm text-red-600">
+                        <p className="text-sm text-red-600">
                           Please enter a valid experience (maximum 180
                           characters)
-                        </label>
+                        </p>
                       )}
                   </div>
 
@@ -395,15 +392,15 @@ const EditProfile = () => {
                     ></textarea>
 
                     {errors.about && errors.about.type === "pattern" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter a valid about (maximum 180 characters)
-                      </label>
+                      </p>
                     )}
                   </div>
                 </div>
               </li>
 
-              <li className="grid gap-2 mt-3">
+              <li className="grid gap-2 mt-3 text-sm md:text-base">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
                     <label htmlFor="skills" className="text-left">
@@ -428,7 +425,7 @@ const EditProfile = () => {
                       {skills.map((skill, index) => (
                         <div
                           key={index}
-                          className="m-1 p-2 bg-gray-200 text-black rounded-full h-6 text-sm flex items-center"
+                          className="m-1 p-2 bg-gray-200 text-black rounded-full h-6 text-xs md:text-sm flex items-center"
                         >
                           {editingSkillIndex === index ? (
                             <>
@@ -471,15 +468,15 @@ const EditProfile = () => {
               </li>
 
               {userDetails.location
-                ? userDetails.location.map((data) => (
-                    <>
-                      <li className="grid gap-2 mt-8">
-                        <label
+                ? userDetails.location.map((data, i) => (
+                    <div key={i}>
+                      <li className="grid gap-2 mt-8 text-sm md:text-base">
+                        <h5
                           htmlFor="location"
                           className="text-center mb-2 text-xl text-black"
                         >
                           Location:
-                        </label>
+                        </h5>
 
                         <div className="grid grid-cols-2 gap-2">
                           <div>
@@ -497,9 +494,9 @@ const EditProfile = () => {
                               }
                             />
                             {errors.location?.city && (
-                              <label className="text-sm text-red-600">
+                              <p className="text-sm text-red-600">
                                 Please enter the city
-                              </label>
+                              </p>
                             )}
                           </div>
                           <div>
@@ -517,9 +514,9 @@ const EditProfile = () => {
                               }
                             />
                             {errors.location?.district && (
-                              <label className="text-sm text-red-600">
+                              <p className="text-sm text-red-600">
                                 Please enter the district
-                              </label>
+                              </p>
                             )}
                           </div>
                           <div>
@@ -537,14 +534,14 @@ const EditProfile = () => {
                               }
                             />
                             {errors.location?.state && (
-                              <label className="text-sm text-red-600">
+                              <p className="text-sm text-red-600">
                                 Please enter the state
-                              </label>
+                              </p>
                             )}
                           </div>
                         </div>
                       </li>
-                    </>
+                    </div>
                   ))
                 : ""}
             </ul>

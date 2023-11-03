@@ -11,11 +11,12 @@ import {
   FaClock,
   FaMapMarker,
 } from "react-icons/fa";
+import { BsBookmark } from "react-icons/bs";
+import { TbTargetArrow, TbTargetOff } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import UserLoading from "../Loading/UserLoadings/UserLoading";
 
 const JobView = () => {
-
   const [jobs, setJobs] = useState([]);
   const [jobPosition, setJobPosition] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,21 +124,20 @@ const JobView = () => {
   const handleFilterByJob = (event) => {
     const query = event.target.value;
     setFilterByJob(query);
-  
+
     const filteredByJob = query
       ? jobs.filter((job) => job.position === query)
       : jobs;
-  
+
     setFilteredJobs(filteredByJob);
   };
-  
 
   return (
     <>
       {isLoading ? (
         <UserLoading />
       ) : (
-        <div className="w-full bg-white">
+        <div className="w-full bg-gray-50 py-4">
           {showAppliedJobs ? (
             <section>
               <button
@@ -150,12 +150,12 @@ const JobView = () => {
               </button>
               {appliedJobs && appliedJobs.length > 0 ? (
                 <div>
-                  <ul className="flex flex-wrap overflow-y-auto p-4">
-                    {appliedJobs.map((val,i) => (
-                      <li className="w-full md:w-1/5" key={i}>
-                        <div className="box mb-4 p-4 text-center shadow-md">
-                          <div className="flex row-auto">
-                            <div className="relative mr-4">
+                  <ul className="mt-2 flex flex-wrap overflow-y-auto p-4">
+                    {appliedJobs.map((val, i) => (
+                      <li key={i} className="w-full md:w-1/4 ">
+                        <div className="box mb-4 p-4 text-center shadow-md bg-white">
+                          <div className="job-card">
+                            <div className="job-card-header flex items-center">
                               {val.company.image ? (
                                 <img
                                   className="rounded-full w-20 h-20 border-persian-orange p-2"
@@ -169,45 +169,153 @@ const JobView = () => {
                                   alt="user"
                                 />
                               )}
+                              <div className=" mb-10 rounded-full ml-auto mr-2">
+                                <button
+                                  onClick={() => {
+                                    handleSaveJob(val);
+                                  }}
+                                  className="text-xs text-white border border-transparent bg-pink-400 rounded flex px-2 py-1 flex-raw items-center justify-center"
+                                >
+                                  <BsBookmark className="fill-current bg-pink-400 text-white mx-1" />
+                                  Save
+                                </button>
+                              </div>
                             </div>
-                            <h3 className="title text-lg pt-5 font-semibold">
-                              <p>{val.company.company}</p>
-                              <p>Salary : Rs {val.job.salary}/-</p>
-                            </h3>
-                          </div>
 
-                          <div className="bg-pink-50 h-32 mb-1 flex justify-center px-5">
-                            <div className="py-2">
-                              <div>
-                                <p className="text-lg font-bold">
-                                  {val.job.position}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-sm">
-                                  at{" "}
-                                  <span className="font-bold">
-                                    {" "}
-                                    {val.company.company}
+                            <div className="job-card-title font-semibold text-lg">
+                              {val.job.position}
+                            </div>
+                            <span className="text-sm">
+                              at{" "}
+                              <span className="font-bold">
+                                {" "}
+                                {val.company.company}
+                              </span>
+                            </span>
+                            <div className="job-card-subtitle text-gray-500 px-4">
+                              <p className="italic mb-1">
+                                Required skills are{" "}
+                                {val.skills.slice(0, 2).map((skill, i) => (
+                                  <span key={i}>
+                                    {skill}
+                                    {i < 1 && i < val.skills.length - 1
+                                      ? ", "
+                                      : ""}
                                   </span>
-                                </p>
-                              </div>
-                              <div>
-                                <p className="font-bold">Required skills :</p>
-                                <p className="italic mb-1">
+                                ))}
+                                {val.skills.length > 3 && <span> ...</span>}
+                              </p>
+                            </div>
+                            <div className="job-detail-buttons mt-4 space-x-2 flex">
+                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                {val.job.time}
+                              </button>
+                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                Rs {val.job.salary}/-
+                              </button>
+                              <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                <TbTargetArrow className=" mx-1" />
+                                Recruiting
+                              </button>
+                            </div>
+                            <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                              <button
+                                onClick={() => {
+                                  handleApplyJob(val._id);
+                                }}
+                                className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                                type="pink"
+                              >
+                                Apply now
+                              </button>
+                              <Button
+                                className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                type="pink"
+                                onClick={() => openModal(val)}
+                              >
+                                View details
+                              </Button>
+                              <Modal
+                                title="About the vacancy"
+                                open={selectedJob === val}
+                                footer={null}
+                                onCancel={closeModal}
+                              >
+                                <h1 className="text-xl font-bold pb-3">
+                                  {val.job.position}{" "}
+                                  <span className="text-sm">
+                                    ( {val.company.company} )
+                                  </span>
+                                </h1>
+                                <div className="mb-3">
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaClock />
+                                    </span>
+                                    <p>{val.job.time}</p>
+                                  </div>
+                                  {val.company.address.map((value) => (
+                                    <div key={value.pin}>
+                                      <div className="flex items-center">
+                                        <span className="w-8 font-bold">
+                                          <FaMapMarker />
+                                        </span>
+                                        <p>
+                                          {value.building}, {value.city},{" "}
+                                          {value.district}, {value.state},{" "}
+                                          {value.pin}
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <span className="w-8 font-bold">
+                                          <FaPhone />
+                                        </span>
+                                        <p>{value.phone}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaEnvelope />
+                                    </span>
+                                    <p>{val.company.email}</p>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaMoneyBillAlt />
+                                    </span>
+                                    <p>Rs {val.job.salary}/-</p>
+                                  </div>
+                                </div>
+                                <p>
+                                  <span className="font-bold">
+                                    Required skills :{" "}
+                                  </span>
                                   {val.skills.map((skill, i) => (
-                                    <>
+                                    <span key={i}>
                                       {skill}
                                       {val.skills.length - 1 === i ? "" : ", "}
-                                    </>
+                                    </span>
                                   ))}
                                 </p>
-                              </div>
+                                <p className="text-pink-500">
+                                  {val.skills.length} skills match your profile
+                                  - you may be a good fit
+                                </p>
+                                <div className="mt-3">
+                                  <h3 className="font-bold">Requirements </h3>
+                                  <p>{val.job.requirements}</p>
+                                </div>
+                                <div className="mt-3">
+                                  <h3 className="font-bold">Description </h3>
+                                  <p>{val.job.description}</p>
+                                </div>
+                              </Modal>
                             </div>
+                            <p className="text-sm text-end text-gray-400 mt-2">
+                              Applied date: {formatDate(val.appliedDate)}
+                            </p>
                           </div>
-                          <p className="text-sm text-end text-gray-400">
-                            Applied date: {formatDate(val.appliedDate)}
-                          </p>
                         </div>
                       </li>
                     ))}
@@ -232,10 +340,11 @@ const JobView = () => {
               )}
             </section>
           ) : (
-            <>
+            <div className=" md:px-10">
               <div className=" flex flex-wrap ml-12 mr-14 justify-between mt-4 mb-4">
                 <div>
                   <input
+                    id="search"
                     type="text"
                     placeholder="Search by position or company..."
                     value={searchQuery}
@@ -260,7 +369,7 @@ const JobView = () => {
                     onChange={handleFilterByJob}
                   >
                     <option value="">Select Job</option>
-                    {jobPosition.map((job,i) => (
+                    {jobPosition.map((job, i) => (
                       <option key={i} value={job.position}>
                         {job.position}
                       </option>
@@ -276,266 +385,346 @@ const JobView = () => {
               )}
 
               {!(filterByJob || searchQuery) && matchedJobs.length > 0 && (
-                <ul className="mt-2 flex flex-wrap overflow-y-auto p-4">
-                  {matchedJobs.map((val, i) => (
-                    <li className="w-full md:w-1/4" key={i}>
-                      <div className="box mb-4 p-4 text-center shadow-md">
-                        <div className="bg-pink-50 h-32 mb-2">
-                          <div>
-                            <p className="text-lg font-bold">{val.position}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm">
+                <>
+                  <ul className="mt-2 flex flex-wrap overflow-y-auto p-4">
+                    {matchedJobs.map((val, i) => (
+                      <li key={i} className="w-full md:w-1/4 ">
+                        <div className="box mb-4 p-4 text-center shadow-md bg-white">
+                          <div className="job-card">
+                            <div className="job-card-header flex items-center">
+                              {val.company.image ? (
+                                <img
+                                  className="rounded-full w-20 h-20 border-persian-orange p-2"
+                                  src={val.company.image}
+                                  alt="user"
+                                />
+                              ) : (
+                                <img
+                                  className="rounded-full w-20 h-20 border-persian-orange p-2"
+                                  src="./profile.png"
+                                  alt="user"
+                                />
+                              )}
+                              <div className=" mb-10 rounded-full ml-auto mr-2">
+                                <button
+                                  onClick={() => {
+                                    handleSaveJob(val);
+                                  }}
+                                  className="text-xs text-white border border-transparent bg-pink-400 rounded flex px-2 py-1 flex-raw items-center justify-center"
+                                >
+                                  <BsBookmark className="fill-current bg-pink-400 text-white mx-1" />
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="job-card-title font-semibold text-lg">
+                              {val.position}
+                            </div>
+                            <span className="text-sm">
                               at{" "}
                               <span className="font-bold">
                                 {" "}
                                 {val.company.company}
                               </span>
-                            </p>
-                          </div>
-                          <div>
-                            <p className="font-bold">Required skills :</p>
-                            <p className="italic mb-1">
-                              {val.skills.map((skill, i) => (
-                                <>
-                                  {skill}
-                                  {val.skills.length - 1 === i ? "" : ", "}
-                                </>
-                              ))}
-                            </p>
+                            </span>
+                            <div className="job-card-subtitle text-gray-500 px-4">
+                              <p className="italic mb-1">
+                                Required skills are{" "}
+                                {val.skills.slice(0, 2).map((skill, i) => (
+                                  <span key={i}>
+                                    {skill}
+                                    {i < 1 && i < val.skills.length - 1
+                                      ? ", "
+                                      : ""}
+                                  </span>
+                                ))}
+                                {val.skills.length > 3 && <span> ...</span>}
+                              </p>
+                            </div>
+                            <div className="job-detail-buttons mt-4 space-x-2 flex">
+                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                {val.time}
+                              </button>
+                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                Rs {val.salary}/-
+                              </button>
+                              <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                                <TbTargetArrow className=" mx-1" />
+                                Recruiting
+                              </button>
+                            </div>
+                            <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                              <button
+                                onClick={() => {
+                                  handleApplyJob(val._id);
+                                }}
+                                className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                                type="pink"
+                              >
+                                Apply now
+                              </button>
+                              <Button
+                                className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                type="pink"
+                                onClick={() => openModal(val)}
+                              >
+                                View details
+                              </Button>
+                              <Modal
+                                title="About the vacancy"
+                                open={selectedJob === val}
+                                footer={null}
+                                onCancel={closeModal}
+                              >
+                                <h1 className="text-xl font-bold pb-3">
+                                  {val.position}{" "}
+                                  <span className="text-sm">
+                                    ( {val.company.company} )
+                                  </span>
+                                </h1>
+                                <div className="mb-3">
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaClock />
+                                    </span>
+                                    <p>{val.time}</p>
+                                  </div>
+                                  {val.company.address.map((value) => (
+                                    <div key={value.pin}>
+                                      <div className="flex items-center">
+                                        <span className="w-8 font-bold">
+                                          <FaMapMarker />
+                                        </span>
+                                        <p>
+                                          {value.building}, {value.city},{" "}
+                                          {value.district}, {value.state},{" "}
+                                          {value.pin}
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <span className="w-8 font-bold">
+                                          <FaPhone />
+                                        </span>
+                                        <p>{value.phone}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaEnvelope />
+                                    </span>
+                                    <p>{val.company.email}</p>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="w-8 font-bold">
+                                      <FaMoneyBillAlt />
+                                    </span>
+                                    <p>Rs {val.salary}/-</p>
+                                  </div>
+                                </div>
+                                <p>
+                                  <span className="font-bold">
+                                    Required skills :{" "}
+                                  </span>
+                                  {val.skills.map((skill, i) => (
+                                    <span key={i}>
+                                      {skill}
+                                      {val.skills.length - 1 === i ? "" : ", "}
+                                    </span>
+                                  ))}
+                                </p>
+                                <p className="text-pink-500">
+                                  {val.skills.length} skills match your profile
+                                  - you may be a good fit
+                                </p>
+                                <div className="mt-3">
+                                  <h3 className="font-bold">Requirements </h3>
+                                  <p>{val.requirements}</p>
+                                </div>
+                                <div className="mt-3">
+                                  <h3 className="font-bold">Description </h3>
+                                  <p>{val.description}</p>
+                                </div>
+                              </Modal>
+                            </div>
                           </div>
                         </div>
-
-                        <h3 className="title text-lg font-semibold">
-                          Rs {val.salary}/-
-                        </h3>
-                        <Button
-                          className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
-                          type="pink"
-                          onClick={() => openModal(val)}
-                        >
-                          View
-                        </Button>
-                        <Modal
-                          title="About the vacancy"
-                          open={selectedJob === val}
-                          footer={null}
-                          onCancel={closeModal}
-                        >
-                          <h1 className="text-xl font-bold pb-3">
-                            {val.position}{" "}
-                            <span className="text-sm">
-                              ( {val.company.company} )
-                            </span>
-                          </h1>
-                          <div className="mb-3">
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaClock />
-                              </span>
-                              <p>{val.time}</p>
-                            </div>
-                            {val.company.address.map((value) => (
-                              <div key={value.pin}>
-                                <div className="flex items-center">
-                                  <span className="w-8 font-bold">
-                                    <FaMapMarker />
-                                  </span>
-                                  <p>
-                                    {value.building}, {value.city},{" "}
-                                    {value.district}, {value.state}, {value.pin}
-                                  </p>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="w-8 font-bold">
-                                    <FaPhone />
-                                  </span>
-                                  <p>{value.phone}</p>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaEnvelope />
-                              </span>
-                              <p>{val.company.email}</p>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaMoneyBillAlt />
-                              </span>
-                              <p>Rs {val.salary}/-</p>
-                            </div>
-                          </div>
-                          <p>
-                            <span className="font-bold">
-                              Required skills :{" "}
-                            </span>
-                            {val.skills.map((skill, i) => (
-                              <>
-                                {skill}
-                                {val.skills.length - 1 === i ? "" : ", "}
-                              </>
-                            ))}
-                          </p>
-                          <p className="text-pink-500">
-                            {val.skills.length} skills match your profile - you
-                            may be a good fit
-                          </p>
-                          <div className="mt-3">
-                            <h3 className="font-bold">Requirements </h3>
-                            <p>{val.requirements}</p>
-                          </div>
-                          <div className="mt-3">
-                            <h3 className="font-bold">Description </h3>
-                            <p>{val.description}</p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              handleSaveJob(val);
-                            }}
-                            className="p-1 mt-2 w-16 border border-transparent  text-white rounded-full bg-pink-500 shadow-md hover:bg-pink-400"
-                          >
-                            Save
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              handleApplyJob(val._id);
-                            }}
-                            className="p-1 mt-2 w-16 border border-transparent  text-white rounded-full bg-pink-700 shadow-md ml-2 hover:bg-pink-400"
-                          >
-                            Apply
-                          </button>
-                        </Modal>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
 
               {filteredJobs.length > 0 ? (
                 <h2 className="ml-10 text-lg font-bold font-mono">
                   Other jobs!
                 </h2>
-              ) : (
-                <div hidden> </div>
-              )}
-
-              <ul className="mt-2 flex flex-wrap overflow-y-auto p-4">
+              ) : null}
+              <ul className="mt-2 flex flex-wrap overflow-y-auto p-4 ">
                 {filteredJobs.length > 0 ? (
-                  filteredJobs.map((job, i) => (
-                    <li className="w-full md:w-1/4" key={i}>
-                      <div className="box mb-4 p-4 text-center shadow-md">
-                        <div className="bg-pink-50 h-32 mb-2">
-                          <div>
-                            <p className="text-lg font-bold">{job.position}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm">
-                              at{" "}
-                              <span className="font-bold">
-                                {" "}
-                                {job.company.company}
-                              </span>
-                            </p>
-                          </div>
-                          <div>
-                            <p className="font-bold">Required skills :</p>
-                            <p className="italic mb-1">
-                              {job.skills.map((skill, i) => (
-                                <>
-                                  {skill}
-                                  {job.skills.length - 1 === i ? "" : ", "}
-                                </>
-                              ))}
-                            </p>
-                          </div>
-                        </div>
-                        <h3 className="title text-lg font-semibold">
-                          Rs {job.salary}/-
-                        </h3>
-                        <Button
-                          className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
-                          type="pink"
-                          onClick={() => openModal(job)}
-                        >
-                          View
-                        </Button>
-                        <Modal
-                          title="About the vacancy"
-                          open={selectedJob === job}
-                          onCancel={closeModal}
-                          footer={null}
-                        >
-                          <h1 className="text-xl font-bold pb-3">
-                            {job.position}{" "}
-                            <span className="text-sm">
-                              ( {job.company.company} )
-                            </span>
-                          </h1>
-                          <div className="mb-3">
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaClock />
-                              </span>
-                              <p>{job.time}</p>
+                  filteredJobs.map((val, i) => (
+                    <li key={i} className="w-full md:w-1/4">
+                      <div className="box mb-4 p-4 text-center shadow-md bg-white">
+                        <div className="job-card">
+                          <div className="job-card-header flex items-center">
+                            {val.company.image ? (
+                              <img
+                                className="rounded-full w-20 h-20 border-persian-orange p-2"
+                                src={val.company.image}
+                                alt="user"
+                              />
+                            ) : (
+                              <img
+                                className="rounded-full w-20 h-20 border-persian-orange p-2"
+                                src="./profile.png"
+                                alt="user"
+                              />
+                            )}
+                            <div className=" mb-10 rounded-full ml-auto mr-2">
+                              <button
+                                onClick={() => {
+                                  handleSaveJob(val);
+                                }}
+                                className="text-xs text-white border border-transparent bg-pink-400 rounded flex px-2 py-1 flex-raw items-center justify-center"
+                              >
+                                <BsBookmark className="fill-current bg-pink-400 text-white mx-1" />
+                                Save
+                              </button>
                             </div>
-                            {job.company.address.map((val) => (
-                              <div key={val.pin}>
+                          </div>
+
+                          <div className="job-card-title font-semibold text-lg">
+                            {val.position}
+                          </div>
+                          <span className="text-sm">
+                            at{" "}
+                            <span className="font-bold">
+                              {" "}
+                              {val.company.company}
+                            </span>
+                          </span>
+                          <div className="job-card-subtitle text-gray-500 px-4">
+                            <p className="italic mb-1">
+                              Required skills are{" "}
+                              {val.skills.slice(0, 2).map((skill, i) => (
+                                <span key={i}>
+                                  {skill}
+                                  {i < 1 && i < val.skills.length - 1
+                                    ? ", "
+                                    : ""}
+                                </span>
+                              ))}
+                              {val.skills.length > 3 && <span> ...</span>}
+                            </p>
+                          </div>
+                          <div className="job-detail-buttons mt-4 space-x-2 flex">
+                            <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              {val.time}
+                            </button>
+                            <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              Rs {val.salary}/-
+                            </button>
+                            <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <TbTargetArrow className=" mx-1" />
+                              Recruiting
+                            </button>
+                          </div>
+                          <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                            <button
+                              onClick={() => {
+                                handleApplyJob(val._id);
+                              }}
+                              className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                              type="pink"
+                            >
+                              Apply now
+                            </button>
+                            <Button
+                              className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                              type="pink"
+                              onClick={() => openModal(val)}
+                            >
+                              View details
+                            </Button>
+                            <Modal
+                              title="About the vacancy"
+                              open={selectedJob === val}
+                              footer={null}
+                              onCancel={closeModal}
+                            >
+                              <h1 className="text-xl font-bold pb-3">
+                                {val.position}{" "}
+                                <span className="text-sm">
+                                  ( {val.company.company} )
+                                </span>
+                              </h1>
+                              <div className="mb-3">
                                 <div className="flex items-center">
                                   <span className="w-8 font-bold">
-                                    <FaMapMarker />
+                                    <FaClock />
                                   </span>
-                                  <p>
-                                    {val.building}, {val.city}, {val.district},{" "}
-                                    {val.state}, {val.pin}
-                                  </p>
+                                  <p>{val.time}</p>
+                                </div>
+                                {val.company.address.map((value) => (
+                                  <div key={value.pin}>
+                                    <div className="flex items-center">
+                                      <span className="w-8 font-bold">
+                                        <FaMapMarker />
+                                      </span>
+                                      <p>
+                                        {value.building}, {value.city},{" "}
+                                        {value.district}, {value.state},{" "}
+                                        {value.pin}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="w-8 font-bold">
+                                        <FaPhone />
+                                      </span>
+                                      <p>{value.phone}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                                <div className="flex items-center">
+                                  <span className="w-8 font-bold">
+                                    <FaEnvelope />
+                                  </span>
+                                  <p>{val.company.email}</p>
                                 </div>
                                 <div className="flex items-center">
                                   <span className="w-8 font-bold">
-                                    <FaPhone />
+                                    <FaMoneyBillAlt />
                                   </span>
-                                  <p>{val.phone}</p>
+                                  <p>Rs {val.salary}/-</p>
                                 </div>
                               </div>
-                            ))}
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaEnvelope />
-                              </span>
-                              <p>{job.company.email}</p>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="w-8 font-bold">
-                                <FaMoneyBillAlt />
-                              </span>
-                              <p>Rs {job.salary}/-</p>
-                            </div>
+                              <p>
+                                <span className="font-bold">
+                                  Required skills :{" "}
+                                </span>
+                                {val.skills.map((skill, i) => (
+                                  <span key={i}>
+                                    {skill}
+                                    {val.skills.length - 1 === i ? "" : ", "}
+                                  </span>
+                                ))}
+                              </p>
+                              <p className="text-pink-500">
+                                {val.skills.length} skills match your profile -
+                                you may be a good fit
+                              </p>
+                              <div className="mt-3">
+                                <h3 className="font-bold">Requirements </h3>
+                                <p>{val.requirements}</p>
+                              </div>
+                              <div className="mt-3">
+                                <h3 className="font-bold">Description </h3>
+                                <p>{val.description}</p>
+                              </div>
+                            </Modal>
                           </div>
-                          <p>
-                            <span className="font-bold">
-                              Required skills :{" "}
-                            </span>
-                            {job.skills.map((skill, i) => (
-                              <>
-                                {skill}
-                                {job.skills.length - 1 === i ? "" : ", "}
-                              </>
-                            ))}
-                          </p>
-                          <div className="mt-3">
-                            <h3 className="font-bold">Requirements </h3>
-                            <p>{job.requirements}</p>
-                          </div>
-                          <div className="mt-3">
-                            <h3 className="font-bold">Description </h3>
-                            <p>{job.description}</p>
-                          </div>
-                          <button className="p-1 mt-2 w-16 border border-transparent  text-white rounded-full bg-pink-500 shadow-md hover:bg-pink-400">
-                            Apply
-                          </button>
-                        </Modal>
+                        </div>
                       </div>
                     </li>
                   ))
@@ -575,7 +764,7 @@ const JobView = () => {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       )}

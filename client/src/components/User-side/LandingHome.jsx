@@ -90,11 +90,19 @@ const LandingHome = () => {
           </div>
         </div>
         <div className="h-96 flex mt-10 justify-center">
-        {whySkillSet ? <div className="text-xl text-white">
-            <p className="font-bold pb-1">Why SkillSet Network ?</p>
-            <p>SkillSet Network is a professional social networking platform</p> 
-            <p>designed for job findings and individuals to connect and interact</p>
-            <p> in a companies or professional context.</p> </div> : null}
+          {whySkillSet ? (
+            <div className="text-xl text-white">
+              <p className="font-bold pb-1">Why SkillSet Network ?</p>
+              <p>
+                SkillSet Network is a professional social networking platform
+              </p>
+              <p>
+                designed for job findings and individuals to connect and
+                interact
+              </p>
+              <p> in a companies or professional context.</p>{" "}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

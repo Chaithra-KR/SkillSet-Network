@@ -84,7 +84,7 @@ const UpgradePremium = () => {
     <>
       <Navbar />
       <div className="flex justify-center">
-        <div className=" bg-pink-100 w-6/12 p-6 mt-24">
+        <div className="w-full md:w-6/12 p-6 mt-24 bg-gray-100">
           <h1 className="text-center text-2xl font-bold mb-4">
             Unlock the Full Potential of SkillSet Network!
           </h1>
@@ -96,9 +96,9 @@ const UpgradePremium = () => {
             suite of features and benefits:
           </p>
           <br />
-          <ul className="ml-11 list-disc">
+          <ul className="ml-4 md:ml-11 list-disc">
             <li>
-              Post unlimited posts to hired fast by attracting your account.
+              Post unlimited posts to hire fast by attracting your account.
             </li>
             <li>Highlight your profile to attract top-tier candidates.</li>
             <li>
@@ -124,7 +124,7 @@ const UpgradePremium = () => {
               zipCode
               image="/skillset-logo.jpg"
             >
-              <button className="bg-pink-500 hover-bg-pink-700 text-white font-bold py-2 px-4 rounded">
+              <button className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">
                 Pay Now
               </button>
             </StripeCheckout>

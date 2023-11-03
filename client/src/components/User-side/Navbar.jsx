@@ -55,17 +55,17 @@ const Navbar = () => {
     navigate("/jobView");
   };
 
-  const showModal = () => {
-    setModalOpen(true);
-    setMenuOpen(false);
-  };
-
   const handlePotsView = () => {
     if (userDetails.premiumStatus === true) {
       navigate("/posts");
     } else {
       navigate("/upgrade-premium");
     }
+  };
+
+  const showModal = () => {
+    setModalOpen(true);
+    setMenuOpen(false);
   };
 
   const handleCancel = () => {
@@ -128,7 +128,10 @@ const Navbar = () => {
             >
               <FaImage className="fill-current text-pink-500" />
             </button>
-            <button className="p-1 pl-2 border border-transparent rounded hover:bg-gray-50">
+            <button
+              onClick={handleMessageView}
+              className="p-1 pl-2 border border-transparent rounded hover:bg-gray-50"
+            >
               <FaComment className="fill-current text-pink-500" />
             </button>
             <button

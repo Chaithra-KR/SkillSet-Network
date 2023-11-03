@@ -43,12 +43,10 @@ const ChangePassword = () => {
 
   const submitData = async (data) => {
     try {
-      console.log(data, "jj");
       const response = await axios.post(`${UserApi}changePassword`, {
         data: data,
         token: token,
       });
-      console.log(response);
       if (response.data.success) {
         toast.success(response.data.message, {
           duration: 3000,
@@ -109,8 +107,8 @@ const ChangePassword = () => {
             >
               <div>
                 <label
-                  for="confirm-password"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  htmlFor="currentPassword"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Current password
                 </label>
@@ -126,9 +124,9 @@ const ChangePassword = () => {
                   />
                   {errors.currentPassword &&
                     errors.currentPassword.type === "required" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter the password
-                      </label>
+                      </p>
                     )}
                   <button
                     type="button"
@@ -167,14 +165,14 @@ const ChangePassword = () => {
                     <>
                       {errors.password &&
                         errors.password.type === "required" && (
-                          <label className="text-sm text-red-600">
+                          <p className="text-sm text-red-600">
                             Please enter the password
-                          </label>
+                          </p>
                         )}
                       {errors.password && (
-                        <label className="text-sm text-red-600">
+                        <p className="text-sm text-red-600">
                           {errors.password.message}
-                        </label>
+                        </p>
                       )}
                     </>
                   ) : null}
@@ -194,8 +192,8 @@ const ChangePassword = () => {
               </div>
               <div>
                 <label
-                  for="confirm-password"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  htmlFor="confirmPassword"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Confirm password
                 </label>
@@ -211,9 +209,9 @@ const ChangePassword = () => {
                   />
                   {errors.confirmPassword &&
                     errors.confirmPassword.type === "required" && (
-                      <label className="text-sm text-red-600">
+                      <p className="text-sm text-red-600">
                         Please enter the password
-                      </label>
+                      </p>
                     )}
                   <button
                     type="button"
@@ -228,7 +226,7 @@ const ChangePassword = () => {
                   </button>
                 </div>
               </div>
-              <div class="flex items-start">
+              <div className="flex items-start">
                 <div className="flex items-start">
                   <div className="flex items-center h-5">
                     <input
@@ -257,13 +255,13 @@ const ChangePassword = () => {
               {errors.newsletter && errors.newsletter.type === "required" && (
                 <>
                   {!termsAccepted && (
-                    <label className="text-sm text-red-600">
+                    <p className="text-sm text-red-600">
                       Please agree to the Terms and Conditions!
-                    </label>
+                    </p>
                   )}
                 </>
               )}
-              <button class="w-full text-black bg-gray-300 hover:bg-pink-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+              <button className="w-full text-black bg-gray-300 hover:bg-pink-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
                 Reset password
               </button>
             </form>

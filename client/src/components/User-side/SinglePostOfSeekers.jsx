@@ -22,7 +22,7 @@ const SinglePostOfSeekers = () => {
     ? userDetails.commentSection.length
     : 0;
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const {
     register: commentRegister,
@@ -83,7 +83,7 @@ const SinglePostOfSeekers = () => {
         console.log(error);
       }
     };
-    handleProfile();  
+    handleProfile();
   }, [imageId, refresh]);
 
   const formatDate = (dateString) => {

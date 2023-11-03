@@ -39,11 +39,11 @@ const SavedJobs = () => {
   }, []);
 
   const handleHomeView = () => {
-    navigate('/home');
+    navigate("/home");
   };
 
   const handleJobView = () => {
-    navigate('/jobView');
+    navigate("/jobView");
   };
 
   return (
@@ -60,15 +60,13 @@ const SavedJobs = () => {
                   <div className="flex gap-3">
                     <div className="w-3/4 p-4">
                       <div className="flex justify-between items-center">
-                      <div class="flex items-center">
-                        <span class="w-8 font-bold">
-                          <FaBriefcase />
-                        </span>
-                        <h4 className="font-semibold">
-                          {val.position}
-                        </h4>
-                      </div>
-                        
+                        <div class="flex items-center">
+                          <span class="w-8 font-bold">
+                            <FaBriefcase />
+                          </span>
+                          <h4 className="font-semibold">{val.position}</h4>
+                        </div>
+
                         <div className="flex justify-end">
                           <button>
                             <span>
@@ -140,7 +138,10 @@ const SavedJobs = () => {
             <p className="pl-2">{jobData.length}</p>
           </div>
           <div className="mt-2">
-            <button onClick={handleHomeView} className="w-full bg-pink-500 rounded px-3 py-2 text-white">
+            <button
+              onClick={handleHomeView}
+              className="w-full bg-pink-500 rounded px-3 py-2 text-white"
+            >
               Go To Home
             </button>
           </div>
@@ -149,7 +150,10 @@ const SavedJobs = () => {
           <div className="flex justify-between items-center">
             <p>
               Apply job now!{" "}
-              <button onClick={handleJobView} className="w-20 ml-3 bg-pink-500 rounded  text-white">
+              <button
+                onClick={handleJobView}
+                className="w-20 ml-3 bg-pink-500 rounded  text-white"
+              >
                 Job list
               </button>
             </p>
