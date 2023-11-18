@@ -1,7 +1,7 @@
 import React from "react";
 import StripeCheckout from "react-stripe-checkout";
 import { CompanyApi } from "../../configs/api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { companyAxiosInstance } from "../../configs/axios/axios";
 import { toast } from "react-hot-toast";
@@ -13,6 +13,8 @@ const CompanyPremium = () => {
     "pk_test_51NnZNQSCHRF9RPPWsxW5yF4ncPLLrR1Rc2svGQE5sK7DmkYyq47cRGIl1Yt5IwSwQyv4733qE0wxt4fCguIykQz300vFWMcSuW";
   const location = useLocation();
 
+  const navigate = useNavigate()
+  
   const payNow = async (token, amount) => {
     try {
       const response = await axios.post(`${CompanyApi}company-payment`, {

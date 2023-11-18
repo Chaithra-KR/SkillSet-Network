@@ -382,7 +382,7 @@ const UserAccess = () => {
             </>
           ) : (
             <>
-              <div className="w-full max-w-md p-4 bg-white bg-opacity-90 rounded-lg shadow-md">
+              <div className="w-[300px] sm:w-full p-4 bg-white bg-opacity-90 rounded-lg shadow-md">
                 <form onSubmit={handleSubmit(loginSubmit)}>
                   <h2 className="text-center text-2xl mb-4 text-gray-800">
                     Welcome Back!
@@ -401,8 +401,8 @@ const UserAccess = () => {
                           })}
                           type="text"
                           id="username"
-                          className="w-96 p-2 border border-gray-300 rounded"
-                        />
+                          className="w-64 sm:w-96 p-2 border border-gray-300 rounded"
+                        /> <br />
                         {errors.email && errors.email.type === "required" && (
                           <label className="text-sm text-red-600">
                             Please enter the email
@@ -420,8 +420,8 @@ const UserAccess = () => {
                           {...register("password", { required: true })}
                           type="password"
                           id="password"
-                          className="w-96 p-2 border border-gray-300 rounded"
-                        />
+                          className="w-64 sm:w-96 p-2 border border-gray-300 rounded"
+                        /> <br/>
                         {errors.password &&
                           errors.password.type === "required" && (
                             <label className="text-sm text-red-600">
@@ -439,13 +439,13 @@ const UserAccess = () => {
                       Forgot password ?
                     </h5>
                   </fieldset>
-                  <button className="w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">
+                  <button className="w-64 sm:w-full p-2 border border-transparent rounded bg-white shadow-md hover:bg-gray-200">
                     Login
                   </button>
                   <button
                     type="button"
                     onClick={handleRegisterView}
-                    className="text-blue-500 w-full text-center pt-4"
+                    className="text-blue-500 w-64 sm:w-full text-center pt-4"
                   >
                     Create an Account
                   </button>

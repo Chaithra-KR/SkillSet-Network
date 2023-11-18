@@ -207,29 +207,29 @@ const JobView = () => {
                               </p>
                             </div>
                             <div className="job-detail-buttons mt-4 space-x-2 flex">
-                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 {val.job.time}
                               </button>
-                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 Rs {val.job.salary}/-
                               </button>
-                              <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className=" text-xs sm:text-base flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 <TbTargetArrow className=" mx-1" />
                                 Recruiting
                               </button>
                             </div>
-                            <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                            <div className="job-card-buttons mt-4 flex justify-between items-center sm:mx-14">
                               <button
                                 onClick={() => {
                                   handleApplyJob(val._id);
                                 }}
-                                className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                                className="bg-pink-400 text-xs sm:text-base hover:bg-pink-500 text-white px-3 py-2 sm:py-1 mt-2 rounded-md "
                                 type="pink"
                               >
                                 Apply now
                               </button>
                               <Button
-                                className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                className="bg-pink-300 text-xs sm:text-base text-white mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
                                 type="pink"
                                 onClick={() => openModal(val)}
                               >
@@ -443,29 +443,29 @@ const JobView = () => {
                               </p>
                             </div>
                             <div className="job-detail-buttons mt-4 space-x-2 flex">
-                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 {val.time}
                               </button>
-                              <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 Rs {val.salary}/-
                               </button>
-                              <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                              <button className=" text-xs sm:text-base flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                                 <TbTargetArrow className=" mx-1" />
                                 Recruiting
                               </button>
                             </div>
-                            <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                            <div className="job-card-buttons mt-4 flex justify-between items-center sm:mx-14">
                               <button
                                 onClick={() => {
                                   handleApplyJob(val._id);
                                 }}
-                                className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                                className="bg-pink-400 text-xs sm:text-base hover:bg-pink-500 text-white px-3 py-2 sm:py-1 mt-2 rounded-md "
                                 type="pink"
                               >
                                 Apply now
                               </button>
                               <Button
-                                className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                                className="bg-pink-300 text-xs sm:text-base text-white mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
                                 type="pink"
                                 onClick={() => openModal(val)}
                               >
@@ -548,6 +548,9 @@ const JobView = () => {
                                 </div>
                               </Modal>
                             </div>
+                            <p className="text-sm text-end text-gray-400 mt-2">
+                              Post date : {formatDate(val.date)}
+                            </p>
                           </div>
                         </div>
                       </li>
@@ -619,29 +622,29 @@ const JobView = () => {
                             </p>
                           </div>
                           <div className="job-detail-buttons mt-4 space-x-2 flex">
-                            <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                            <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                               {val.time}
                             </button>
-                            <button className="w-28 bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                            <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                               Rs {val.salary}/-
                             </button>
-                            <button className=" flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                            <button className=" text-xs sm:text-base flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                               <TbTargetArrow className=" mx-1" />
                               Recruiting
                             </button>
                           </div>
-                          <div className="job-card-buttons mt-4 flex justify-between items-center mx-14">
+                          <div className="job-card-buttons mt-4 flex justify-between items-center sm:mx-14">
                             <button
                               onClick={() => {
                                 handleApplyJob(val._id);
                               }}
-                              className="bg-pink-400 hover:bg-pink-500 text-white px-3 py-1 mt-2 rounded-md "
+                              className="bg-pink-400 text-xs sm:text-base hover:bg-pink-500 text-white px-3 py-2 sm:py-1 mt-2 rounded-md "
                               type="pink"
                             >
                               Apply now
                             </button>
                             <Button
-                              className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                              className="bg-pink-300 text-xs sm:text-base text-white mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
                               type="pink"
                               onClick={() => openModal(val)}
                             >
@@ -724,6 +727,9 @@ const JobView = () => {
                               </div>
                             </Modal>
                           </div>
+                          <p className="text-sm text-end text-gray-400 mt-2">
+                            Post date : {formatDate(val.date)}
+                          </p>
                         </div>
                       </div>
                     </li>
