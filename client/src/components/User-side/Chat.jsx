@@ -154,7 +154,7 @@ const Chat = () => {
             </div>
             <div className="ml-4 sm:ml-8">
               <h3 className="text-2xl">
-                {user?.username || "No Company Data"}
+                {user?.username || "No User Data"}
               </h3>
               <p className="text-lg font-light">My Account</p>
             </div>
@@ -177,14 +177,14 @@ const Chat = () => {
                 }}
                 className="bg-pink-500 text-sm text-white px-3 py-1 rounded-md"
               >
-                Peoples
+                Companies
               </button>
             )}
           </div>
           <div className="mx-4 sm:mx-14 mt-5">
             {showPeoples ? (
               <>
-                <div className="text-primary text-lg">Peoples</div>
+                <div className="text-primary text-lg">Companies</div>
                 <div className="peoples">
                   {companies && companies.length > 0 ? (
                     companies.map((company) => {
@@ -331,14 +331,14 @@ const Chat = () => {
               }}
               className="bg-pink-500 text-sm text-white px-3 py-1 rounded-md"
             >
-              Peoples
+              Companies
             </button>
           )}
         </div>
         <div className="mx-4 sm:mx-14 mt-5">
           {showPeoples ? (
             <>
-              <div className="text-primary text-lg">Peoples</div>
+              <div className="text-primary text-lg">Companies</div>
               <div className="peoples">
                 {companies && companies.length > 0 ? (
                   companies.map((company) => {

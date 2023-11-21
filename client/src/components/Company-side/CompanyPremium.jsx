@@ -1,7 +1,7 @@
 import React from "react";
 import StripeCheckout from "react-stripe-checkout";
 import { CompanyApi } from "../../configs/api";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { companyAxiosInstance } from "../../configs/axios/axios";
 import { toast } from "react-hot-toast";
@@ -13,8 +13,6 @@ const CompanyPremium = () => {
     "pk_test_51NnZNQSCHRF9RPPWsxW5yF4ncPLLrR1Rc2svGQE5sK7DmkYyq47cRGIl1Yt5IwSwQyv4733qE0wxt4fCguIykQz300vFWMcSuW";
   const location = useLocation();
 
-  const navigate = useNavigate()
-  
   const payNow = async (token, amount) => {
     try {
       const response = await axios.post(`${CompanyApi}company-payment`, {
@@ -30,7 +28,7 @@ const CompanyPremium = () => {
           const { paymentIntent, error } = await stripe.confirmCardPayment(
             clientSecret
           );
-
+          console.log(paymentIntent, "paymentIntent");
           if (error) {
             console.error("Payment confirmation error:", error);
           } else {
@@ -38,12 +36,12 @@ const CompanyPremium = () => {
               paymentIntent.next_action.redirect_to_url.url,
               "_blank"
             );
-            navigate("/company/company-login");
+            console.log("its inner");
             showToast("Payment successful", "#00ff00");
           }
         } else {
           window.open(response.data.data, "_blank");
-          navigate("/company/company-login");
+          console.log("its outer");
           showToast(response.data.message, "#00ff00");
         }
       } else {

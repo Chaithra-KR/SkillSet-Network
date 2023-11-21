@@ -102,88 +102,6 @@ const JobPosting = () => {
   return (
     <div className="w-full pb-7 mx-auto px-4">
       <div className="flex flex-wrap">
-        <div className="w-full md:w-1/2 lg:w-5/12 p-4 mb-4 md:mb-0">
-          <h2 className="text-2xl font-semibold">Jobs</h2>
-          <ul className="mt-2 flex flex-wrap h-[500px] overflow-y-auto ">
-            {jobList.map((val, i) => (
-              <li className="w-full md:w-1/2" key={i}>
-                <div className="box mb-4 p-4 text-center shadow-md">
-                  <div className="bg-pink-50 h-32 mb-2">
-                    <div>
-                      <h4>Skills :</h4>
-                      <p>
-                        {val.skills.map((skill, i) => (
-                          <>
-                            {skill}
-                            {val.skills.length - 1 === i ? "" : ", "}
-                          </>
-                        ))}
-                      </p>
-                      <p className="price text-xl font-semibold">{val.time}</p>
-                      <p className="price text-xl pt-1 font-semibold">
-                        Salary: Rs.{val.salary}/-
-                      </p>
-                    </div>
-                  </div>
-                  <h3 className="title text-lg font-semibold">
-                    {val.position}
-                  </h3>
-
-                  <Button
-                    className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
-                    type="pink"
-                    onClick={() => openModal(val)}
-                  >
-                    View
-                  </Button>
-                  <Modal
-                    title="About the vacancy"
-                    visible={selectedJob === val}
-                    footer={null}
-                    onCancel={closeModal}
-                  >
-                    <h1 className="text-xl font-bold pb-3">
-                      {val.position}{" "}
-                      <span className="text-sm">( {companyName} )</span>
-                    </h1>
-                    <div className="mb-3">
-                      <div className="flex items-center">
-                        <span className="w-8 font-bold">
-                          <FaClock />
-                        </span>
-                        <p>{val.time}</p>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-8 font-bold">
-                          <FaMoneyBillAlt />
-                        </span>
-                        <p>Rs {val.salary}/-</p>
-                      </div>
-                    </div>
-                    <p>
-                      <span className="font-bold">Required skills : </span>
-                      {val.skills.map((skill, i) => (
-                        <>
-                          {skill}
-                          {val.skills.length - 1 === i ? "" : ", "}
-                        </>
-                      ))}
-                    </p>
-                    <div className="mt-3">
-                      <h3 className="font-bold">Requirements </h3>
-                      <p>{val.requirements}</p>
-                    </div>
-                    <div className="mt-3">
-                      <h3 className="font-bold">Description </h3>
-                      <p>{val.description}</p>
-                    </div>
-                  </Modal>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
         <div className="w-full md:w-1/2 lg:w-6/12 flex justify-center p-4">
           <form
             onSubmit={handleSubmit(handleJobPosts)}
@@ -286,7 +204,7 @@ const JobPosting = () => {
                       <button
                         type="button"
                         onClick={addSkill}
-                        class="rounded-full flex items-center justify-center bg-pink-300 hover:bg-pink-600 text-white font-medium ml-1 px-3 py-1"
+                        class="rounded-full flex items-center justify-center bg-pink-300 hover:bg-pink-500 text-white font-medium ml-1 px-3 py-1"
                       >
                         <i class="fa-solid fa-plus text-2xl">+</i>
                       </button>
@@ -363,7 +281,7 @@ const JobPosting = () => {
                             characters)
                           </label>
                         )}
-                      {errors.description &&
+                      {errors.description &&  
                         errors.description.type === "required" && (
                           <label className="text-sm text-red-600">
                             Please enter the description
@@ -374,10 +292,91 @@ const JobPosting = () => {
                 </li>
               </ul>
             </fieldset>
-            <button className="px-4 py-2 mt-3 border w-full text-white rounded-lg shadow bg-pink-300 hover:bg-pink-700 hover:border-gray-300">
+            <button className="px-4 py-2 mt-3 border w-full text-white rounded-lg shadow bg-pink-300 hover:bg-pink-500 hover:border-gray-300">
               Post
             </button>
           </form>
+        </div>
+        <div className="w-full md:w-1/2 lg:w-5/12 p-4 mb-4 md:mb-0">
+          <h2 className="text-2xl font-semibold">Jobs</h2>
+          <ul className="mt-2 flex flex-wrap h-[500px] overflow-y-auto ">
+            {jobList.map((val, i) => (
+              <li className="w-full md:w-1/2" key={i}>
+                <div className="box mb-4 p-4 text-center shadow-md">
+                  <div className="bg-gray-50 h-32 mb-2">
+                    <div>
+                      <h4>Skills :</h4>
+                      <p>
+                        {val.skills.map((skill, i) => (
+                          <>
+                            {skill}
+                            {val.skills.length - 1 === i ? "" : ", "}
+                          </>
+                        ))}
+                      </p>
+                      <p className="price text-xl font-semibold">{val.time}</p>
+                      <p className="price text-xl pt-1 font-semibold">
+                        Salary: Rs.{val.salary}/-
+                      </p>
+                    </div>
+                  </div>
+                  <h3 className="title text-lg font-semibold">
+                    {val.position}
+                  </h3>
+
+                  <Button
+                    className="bg-pink-300 text-white px-3 py-1 mt-2 rounded-md hover:bg-pink-500 transition-colors duration-300 focus:outline-none"
+                    type="pink"
+                    onClick={() => openModal(val)}
+                  >
+                    View
+                  </Button>
+                  <Modal
+                    title="About the vacancy"
+                    visible={selectedJob === val}
+                    footer={null}
+                    onCancel={closeModal}
+                  >
+                    <h1 className="text-xl font-bold pb-3">
+                      {val.position}{" "}
+                      <span className="text-sm">( {companyName} )</span>
+                    </h1>
+                    <div className="mb-3">
+                      <div className="flex items-center">
+                        <span className="w-8 font-bold">
+                          <FaClock />
+                        </span>
+                        <p>{val.time}</p>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="w-8 font-bold">
+                          <FaMoneyBillAlt />
+                        </span>
+                        <p>Rs {val.salary}/-</p>
+                      </div>
+                    </div>
+                    <p>
+                      <span className="font-bold">Required skills : </span>
+                      {val.skills.map((skill, i) => (
+                        <>
+                          {skill}
+                          {val.skills.length - 1 === i ? "" : ", "}
+                        </>
+                      ))}
+                    </p>
+                    <div className="mt-3">
+                      <h3 className="font-bold">Requirements </h3>
+                      <p>{val.requirements}</p>
+                    </div>
+                    <div className="mt-3">
+                      <h3 className="font-bold">Description </h3>
+                      <p>{val.description}</p>
+                    </div>
+                  </Modal>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

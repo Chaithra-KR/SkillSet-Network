@@ -127,7 +127,7 @@ const Home = () => {
             </div>
 
             <div className="bg-gray-100 w-full md:w-[600px] xl:w-[800px] rounded p-5 h-[500px] overflow-y-auto">
-              <h2 className="text-lg font-semibold">
+              <h2 className=" text-md sm:text-lg font-semibold">
                 Recommended candidates for you!
               </h2>
               <ul className="mt-2 flex flex-wrap">

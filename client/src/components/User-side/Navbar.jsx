@@ -100,7 +100,7 @@ const Navbar = () => {
     <div className="h-16 w-full bg-white">
       <div className="flex justify-between">
         <div className="w-34 h-12 pt-2 pl-5 flex justify-center">
-          <img className="w-18 h-12" src="/skillset-logo.jpg" alt="" />
+          <img className="w-18 h-12" src="/skillSet-no-bg.png" alt="" />
         </div>
 
         <div className="p-3.5 md:hidden">
