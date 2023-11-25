@@ -29,16 +29,14 @@ const AccountsManage = () => {
 
   const filteredAccounts = accounts.filter((account) => {
     const lowerCaseQuery = searchQuery.toLowerCase();
+  
     return (
       account._id.includes(lowerCaseQuery) ||
-      (account.user
-        ? account.user.name.toLowerCase().includes(lowerCaseQuery)
-        : false) ||
-      (account.company
-        ? account.company.company.toLowerCase().includes(lowerCaseQuery)
-        : false)
+      (account.user && account.user.username && account.user.username.toLowerCase().includes(lowerCaseQuery)) ||
+      (account.company && account.company.company && account.company.company.toLowerCase().includes(lowerCaseQuery))
     );
   });
+  
 
   return (
     <section className="h-full overflow-scroll">
