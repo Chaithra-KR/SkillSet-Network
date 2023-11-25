@@ -65,7 +65,7 @@ const SavedJobs = () => {
       <div className="mt-5 w-full md:w-2/3 lg:w-3/4">
         <h2 className="text-lg font-bold mb-2 text-center">Saved jobs</h2>
 
-        <ul className="mt-2 flex flex-wrap overflow-y-auto p-4">
+        <ul className="mt-2 flex flex-wrap overflow-y-auto p-4 h-5/6">
           {jobData.length !== 0
             ? jobData.map((val, i) => (
                 <li key={i} className="w-full md:w-1/3 mb-4">
@@ -110,18 +110,18 @@ const SavedJobs = () => {
                         </p>
                       </div>
                       <div className="job-detail-buttons mt-4 space-x-2 flex">
-                        <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                        <button className="w-28 text-xs sm:text-sm bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                           {val.time}
                         </button>
-                        <button className="w-28 text-xs sm:text-base bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                        <button className="w-28 text-xs sm:text-sm bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                           Rs {val.salary}/-
                         </button>
-                        <button className=" text-xs sm:text-base flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
+                        <button className=" text-xs sm:text-sm flex items-center bg-gray-100 text-pink-600 hover:bg-gray-200 hover:text-pink-700  rounded-lg py-1 px-3 transition duration-300 ease-in-out">
                           <TbTargetArrow className=" mx-1" />
                           Recruiting
                         </button>
                       </div>
-                      <div className="job-card-buttons mt-4 flex justify-between items-center sm:mx-14">
+                      <div className="job-card-buttons mt-4 flex justify-between items-center sm:mx-12">
                         <button
                           onClick={() => {
                             handleApplyJob(val._id);
