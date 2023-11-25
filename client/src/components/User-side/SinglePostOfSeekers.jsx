@@ -152,7 +152,7 @@ const SinglePostOfSeekers = () => {
           <img
             className="w-full"
             alt="image of a girl posing"
-            src={userDetails.picture}
+            src={userDetails.picture || "/profile.png"}
           />
         </div>
         <section className="bg-white dark:bg-gray-900 lg:w-[500px] xl:w-[600px]">

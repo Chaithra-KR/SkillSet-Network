@@ -95,17 +95,17 @@ const AccountsManage = () => {
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
                   <span className="font-normal">
-                    {val.user ? val.user.username : val.company.company}
+                    {val.user ? val.user.username : (val.company && val.company.company)}
                   </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
                   <span className="font-normal">
-                    {val.user ? val.user.headline : val.company.headline}
+                    {val.user ? val.user.headline : (val.company && val.company.headline)}
                   </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
                   <span className="font-normal">
-                    {val.user ? val.user.email : val.company.email}
+                    {val.user ? val.user.email : (val.company && val.company.email)}
                   </span>
                 </td>
                 <td className="p-4 border-b border-blue-gray-50">
